@@ -14,6 +14,7 @@ Gladius:SetModule(ClassIcon, "ClassIcon", false, {
    classIconHeight = 80,
    classIconOffsetX = 0,
    classIconOffsetY = 0,
+   classIconFrameLevel = 2,
 })
 
 function ClassIcon:OnEnable()   
@@ -53,10 +54,6 @@ function ClassIcon:UpdateAura(unit)
    while (true) do
       local name, _, icon, _, _, duration, _, _, _ = UnitAura(unit, index)
       if (not name) then break end  
-      
-      if (self.auras[name]) then
-         print(name, tostring(self.frame[unit].aura), self.auras[name], tostring(self.frame[unit].auraPrio))
-      end
       
       if (self.auras[name] and self.frame[unit].aura ~= name and (not self.frame[unit].auraPrio or (self.frame[unit].auraPrio and self.auras[name] > self.frame[unit].auraPrio))) then
          aura = icon
@@ -185,8 +182,13 @@ function ClassIcon:Update(unit)
    self.frame[unit].texture:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
    
    local left, right, top, bottom = unpack(CLASS_BUTTONS[class])
-   left, right = left + (right - left) * 0.07, right - (right - left) * 0.07
-   top, bottom = top + (bottom - top) * 0.07, bottom - (bottom - top) * 0.07
+   -- zoom the class icon
+   left = left + (right - left) * 0.07
+   right = right - (right - left) * 0.07
+   
+   top = top + (bottom - top) * 0.07
+   bottom = bottom - (bottom - top) * 0.07
+   
    self.frame[unit].texture:SetTexCoord(left, right, top, bottom)
 end
 
@@ -280,6 +282,15 @@ function ClassIcon:GetOptions()
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                min=-50, max=50, step=1,
                order=30,
+            },
+            classIconFrameLevel = {
+               type="range",
+               name=L["classIconFrameLevel"],
+               desc=L["classIconFrameLevelDesc"],
+               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+               min=1, max=5, step=1,
+               width="double",
+               order=35,
             },
          },
       },

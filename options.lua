@@ -40,7 +40,7 @@ SlashCmdList["GLADIUS"] = function(msg)
       Gladius:HideFrame()
       
       for i=1, test do
-         Gladius:UpdateUnit("arena" .. i)
+         Gladius:UpdateUnit("arena" .. i, true)
          Gladius:TestUnit("arena" .. i)
       end
    elseif (msg == "" or msg == "options" or msg == "config" or msg == "ui") then

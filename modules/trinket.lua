@@ -12,8 +12,11 @@ Gladius:SetModule(Trinket, "Trinket", false, {
    trinketAnchor = "TOP",
    trinketAdjustHeight = true,
    trinketHeight = 80,
+   trinketAdjustWidth = true,
+   trinketWidth = 80,
    trinketOffsetX = 0,
    trinketOffsetY = 0,
+   trinketFrameLevel = 2,
 })
 
 function Trinket:OnEnable()   
@@ -83,40 +86,49 @@ function Trinket:Update(unit)
    
    -- update frame   
    self.frame[unit]:ClearAllPoints()
-    
+   
+   -- anchor point 
    local parent = Gladius:GetParent(unit, Gladius.db.trinketAttachTo)     
    local point = Gladius.db.trinketPosition == "LEFT" and "RIGHT" or "LEFT" 
    local relativePoint = Gladius.db.trinketPosition
    
    if (Gladius.db.trinketAnchor ~= "CENTER") then
-      -- switch anchor on growup
-      local anchor = Gladius.db.trinketAnchor
-      --[[if (Gladius.db.growUp) then
-         anchor = anchor == "TOP" and "BOTTOM" or "TOP"
-      end]]
-       
+      local anchor = Gladius.db.trinketAnchor       
       point, relativePoint = anchor .. point, anchor .. relativePoint      
    end
 	
    self.frame[unit]:SetPoint(point, parent, relativePoint, Gladius.db.trinketOffsetX, Gladius.db.trinketOffsetY)
    
-   if (Gladius.db.trinketAdjustHeight) then
-      local height = true
-      for _, module in pairs(Gladius.modules) do
-         if (module:GetAttachTo() == self.name) then
-            height = false
-         end
-      end
+   -- frame level
+   self.frame[unit]:SetFrameLevel(Gladius.db.trinketFrameLevel)
    
-      if (height) then
-         self.frame[unit]:SetWidth(Gladius.buttons[unit].height)   
-         self.frame[unit]:SetHeight(Gladius.buttons[unit].height)   
+   if (Gladius.db.trinketAdjustHeight) then
+      if (self:GetAttachTo() == "Frame") then   
+         local height = true
+         for _, module in pairs(Gladius.modules) do
+            if (module:GetAttachTo() == self.name) then
+               height = false
+            end
+         end
+      
+         if (height) then
+            self.frame[unit]:SetWidth(Gladius.buttons[unit].height)   
+            self.frame[unit]:SetHeight(Gladius.buttons[unit].height)   
+         else
+            self.frame[unit]:SetWidth(Gladius.buttons[unit].frameHeight)   
+            self.frame[unit]:SetHeight(Gladius.buttons[unit].frameHeight)   
+         end
       else
-         self.frame[unit]:SetWidth(Gladius.buttons[unit].frameHeight)   
-         self.frame[unit]:SetHeight(Gladius.buttons[unit].frameHeight)   
+         self.frame[unit]:SetWidth(Gladius:GetModule(self:GetAttachTo()).frame[unit]:GetHeight() or 1)   
+         self.frame[unit]:SetHeight(Gladius:GetModule(self:GetAttachTo()).frame[unit]:GetHeight() or 1) 
       end
    else
-      self.frame[unit]:SetWidth(Gladius.db.trinketHeight)   
+      if (Gladius.db.trinketAdjustWidth) then
+         self.frame[unit]:SetWidth(Gladius.db.trinketHeight) 
+      else
+         self.frame[unit]:SetWidth(Gladius.db.trinketWidth)
+      end
+        
       self.frame[unit]:SetHeight(Gladius.db.trinketHeight)  
    end  
    
@@ -218,6 +230,21 @@ function Trinket:GetOptions()
                disabled=function() return Gladius.dbi.profile.trinketAdjustHeight or not Gladius.dbi.profile.modules[self.name] end,
                order=20,
             },
+            trinketAdjustWidth = {
+               type="toggle",
+               name=L["trinketAdjustWidth"],
+               desc=L["trinketAdjustWidthDesc"],
+               disabled=function() return Gladius.dbi.profile.trinketAdjustHeight or not Gladius.dbi.profile.modules[self.name] end,
+               order=21,
+            },
+            trinketWidth = {
+               type="range",
+               name=L["trinketWidth"],
+               desc=L["trinketWidthDesc"],
+               min=10, max=100, step=1,
+               disabled=function() return Gladius.dbi.profile.trinketAdjustHeight or Gladius.dbi.profile.trinketAdjustWidth or not Gladius.dbi.profile.modules[self.name] end,
+               order=22,
+            },
             trinketOffsetX = {
                type="range",
                name=L["trinketOffsetX"],
@@ -233,6 +260,15 @@ function Trinket:GetOptions()
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                min=-50, max=50, step=1,
                order=30,
+            },
+            trinketFrameLevel = {
+               type="range",
+               name=L["trinketFrameLevel"],
+               desc=L["trinketFrameLevelDesc"],
+               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+               min=1, max=5, step=1,
+               width="double",
+               order=35,
             },
          },
       },

@@ -195,7 +195,7 @@ end
 function Gladius:ARENA_OPPONENT_UPDATE(event, unit, type)
    -- enemy seen
    if (type == "seen" or type == "destroyed") then
-      self:UpdateUnit(unit) --GetNumArenaOpponents
+      self:UpdateUnit(unit)
    -- enemy stealth
    elseif (type == "unseen") then
       self:UpdateAlpha(unit, self.db.stealthAlpha)
@@ -210,7 +210,8 @@ function Gladius:UpdateFrame()
    for unit, _ in pairs(self.buttons) do
       if (self.buttons[unit] and not self.buttons[unit]:IsVisible() and self.test) then return end
       
-      self:UpdateUnit(unit)
+      -- update frame will only be called in the test environment
+      self:UpdateUnit(unit, true)
       
       -- test environment
       if (self.test) then
@@ -226,8 +227,18 @@ function Gladius:HideFrame()
    end
 end
 
-function Gladius:UpdateUnit(unit)
+function Gladius:UpdateUnit(unit, testing)
    if (not unit:find("arena") or unit:find("pet")) then return end
+   
+   -- disable test mode, when there are real arena opponents (happens when entering arena and using /gladius test)
+   local testing = testing or false
+   if (not testing and self.test) then 
+      -- reset frame
+      self:HideFrame()
+      
+      -- disable test mode
+      self.test = false 
+   end
    
    -- create button 
    if (not self.buttons[unit]) then
@@ -353,7 +364,7 @@ function Gladius:UpdateAlpha(unit, alpha)
    -- update button alpha
    alpha = alpha and alpha or 0.25
    if (not self.buttons[unit]) then 
-      self:Updateunit(unit)
+      self:UpdateUnit(unit)
    end
    
    self.buttons[unit]:SetAlpha(alpha)
