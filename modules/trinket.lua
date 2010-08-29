@@ -10,6 +10,8 @@ Gladius:SetModule(Trinket, "Trinket", false, {
    trinketAttachTo = "HealthBar",
    trinketPosition = "RIGHT",
    trinketAnchor = "TOP",
+   trinketGridStyleIcon = false,
+   trinketGridStyleIconColor = { r = 0, g = 1, b = 0, a = 1 },
    trinketAdjustHeight = true,
    trinketHeight = 80,
    trinketAdjustWidth = true,
@@ -57,7 +59,19 @@ function Trinket:UNIT_SPELLCAST_SUCCEEDED(event, unit, spell, rank)
 end
 
 function Trinket:UpdateTrinket(unit, duration)
-   self.frame[unit].cooldown:SetCooldown(GetTime(), duration)
+   if (Gladius.db.trinketGridStyleIcon) then
+      self.frame[unit]:SetAlpha(0)
+      
+      self.frame[unit].timeleft = duration
+      self.frame[unit]:SetScript("OnUpdate", function(f, elapsed)
+         self.frame[unit].timeleft = self.frame[unit].timeleft - elapsed
+         if (self.frame[unit].timeleft <= 0) then
+            self.frame[unit]:SetAlpha(1)
+         end
+      end)
+   else
+      self.frame[unit].cooldown:SetCooldown(GetTime(), duration)
+   end
 end
 
 function Trinket:CreateFrame(unit)
@@ -73,16 +87,11 @@ function Trinket:CreateFrame(unit)
    self.frame[unit].cooldown:SetReverse(false)
 end
 
-function Trinket:Update(unit)
-   local testing = Gladius.test
-   
+function Trinket:Update(unit)   
    -- create frame
    if (not self.frame[unit]) then 
       self:CreateFrame(unit)
    end
-   
-   -- reset frame
-   self:Reset(unit)
    
    -- update frame   
    self.frame[unit]:ClearAllPoints()
@@ -131,23 +140,39 @@ function Trinket:Update(unit)
         
       self.frame[unit]:SetHeight(Gladius.db.trinketHeight)  
    end  
+
+   -- hide
+   self.frame[unit]:SetAlpha(0)
+end
+
+function Trinket:Show(unit)
+   local testing = Gladius.test
+      
+   -- show frame
+   self.frame[unit]:SetAlpha(1)
    
-   if (not testing) then
-      if (UnitFactionGroup(unit) == "Horde") then
-         trinketIcon = UnitLevel(unit) == 80 and "Interface\\Icons\\INV_Jewelry_Necklace_38" or "Interface\\Icons\\INV_Jewelry_TrinketPVP_02"
-      else
-         trinketIcon = UnitLevel(unit) == 80 and "Interface\\Icons\\INV_Jewelry_Necklace_37" or "Interface\\Icons\\INV_Jewelry_TrinketPVP_01"
-      end
+   if (Gladius.db.trinketGridStyleIcon) then
+      self.frame[unit].texture:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, "Minimalist"))
+      self.frame[unit].texture:SetVertexColor(Gladius.db.trinketGridStyleIconColor.r, Gladius.db.trinketGridStyleIconColor.g, Gladius.db.trinketGridStyleIconColor.b, Gladius.db.trinketGridStyleIconColor.a)
    else
-      if (UnitFactionGroup("player") == "Horde") then
-         trinketIcon = "Interface\\Icons\\INV_Jewelry_Necklace_38"
+      if (not testing) then
+         if (UnitFactionGroup(unit) == "Horde") then
+            trinketIcon = UnitLevel(unit) == 80 and "Interface\\Icons\\INV_Jewelry_Necklace_38" or "Interface\\Icons\\INV_Jewelry_TrinketPVP_02"
+         else
+            trinketIcon = UnitLevel(unit) == 80 and "Interface\\Icons\\INV_Jewelry_Necklace_37" or "Interface\\Icons\\INV_Jewelry_TrinketPVP_01"
+         end
       else
-         trinketIcon = "Interface\\Icons\\INV_Jewelry_Necklace_37"
+         if (UnitFactionGroup("player") == "Horde") then
+            trinketIcon = "Interface\\Icons\\INV_Jewelry_Necklace_38"
+         else
+            trinketIcon = "Interface\\Icons\\INV_Jewelry_Necklace_37"
+         end
       end
+      
+      self.frame[unit].texture:SetTexture(trinketIcon)
+      self.frame[unit].texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+      self.frame[unit].texture:SetVertexColor(1, 1, 1, 1)
    end
-   
-   self.frame[unit].texture:SetTexture(trinketIcon)
-   self.frame[unit].texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
 end
 
 function Trinket:Reset(unit)
@@ -160,14 +185,16 @@ function Trinket:Reset(unit)
    
    self.frame[unit].texture:SetTexture(trinketIcon)
    self.frame[unit].texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+   
+   self.frame[unit]:SetScript("OnUpdate", nil)
+   
+   -- hide
+	self.frame[unit]:SetAlpha(0)
 end
 
 function Trinket:Test(unit)   
    -- update frame
    self:Update(unit)
-   
-   -- set test values   
-   --self:UpdateTrinket(unit, 120)
 end
 
 
@@ -213,8 +240,25 @@ function Trinket:GetOptions()
                values={ ["TOP"] = L["TOP"], ["CENTER"] = L["CENTER"], ["BOTTOM"] = L["BOTTOM"] },
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                width="double",
-               order=10,
+               order=10,               
             },
+            trinketGridStyleIcon = {
+               type="toggle",
+               name=L["trinketGridStyleIcon"],
+               desc=L["trinketGridStyleIconDesc"],
+               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+               order=13,
+            },
+            trinketGridStyleIconColor = {
+               type="color",
+               name=L["trinketGridStyleIconColor"],
+               desc=L["trinketGridStyleIconColorDesc"],
+               hasAlpha=true,
+               get=getColorOption,
+               set=setColorOption,
+               disabled=function() return not Gladius.dbi.profile.trinketGridStyleIcon or not Gladius.dbi.profile.modules[self.name] end,
+               order=14,
+            },            
             trinketAdjustHeight = {
                type="toggle",
                name=L["trinketAdjustHeight"],
@@ -234,7 +278,7 @@ function Trinket:GetOptions()
                type="toggle",
                name=L["trinketAdjustWidth"],
                desc=L["trinketAdjustWidthDesc"],
-               disabled=function() return Gladius.dbi.profile.trinketAdjustHeight or not Gladius.dbi.profile.modules[self.name] end,
+               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=21,
             },
             trinketWidth = {

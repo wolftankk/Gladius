@@ -16,7 +16,7 @@ Gladius:SetModule(PowerBar, "PowerBar", true, {
    powerBarInverse = false,
    powerBarColor = { r = 1, g = 1, b = 1, a = 1 },
    powerBarDefaultColor = true,
-   powerBarTexture = "Armory",      
+   powerBarTexture = "Minimalist",      
    
    powerText = true,
    shortPowerText = true,
@@ -160,24 +160,11 @@ function PowerBar:CreateBar(unit)
 end
 
 function PowerBar:Update(unit)
-   local testing = Gladius.test
-   
-   -- get unit powerType
-   local powerType
-   if (not testing) then
-      powerType = UnitPowerType(unit)
-   else
-      powerType = Gladius.testing[unit].unitPowerType
-   end
-
    -- create power bar
    if (not self.frame[unit]) then 
       self:CreateBar(unit)
    end
-   
-   -- reset bar
-   self:Reset(unit)
-   
+     
    -- update power bar   
    self.frame[unit]:ClearAllPoints()
    
@@ -197,14 +184,6 @@ function PowerBar:Update(unit)
 	self.frame[unit]:GetStatusBarTexture():SetHorizTile(false)
    self.frame[unit]:GetStatusBarTexture():SetVertTile(false)
 	
-	-- set color
-   if (not Gladius.db.powerBarDefaultColor) then
-      local color = Gladius.db.powerBarColor
-      self.frame[unit]:SetStatusBarColor(color.r, color.g, color.b, color.a)
-   else			
-      self.frame[unit]:SetStatusBarColor(PowerBarColor[powerType].r, PowerBarColor[powerType].g, PowerBarColor[powerType].b)
-   end
-   
    -- update power text   
 	self.frame[unit].text:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.powerTextFont), Gladius.db.powerTextSize)
 	
@@ -227,7 +206,33 @@ function PowerBar:Update(unit)
 	self.frame[unit].infoText:SetJustifyH(Gladius.db.powerInfoTextAlign)
 	self.frame[unit].infoText:SetPoint(Gladius.db.powerInfoTextAnchor, self.frame[unit], Gladius.db.powerInfoTextOffsetX, Gladius.db.powerInfoTextOffsetY)
 	
-	-- set info text
+	-- hide frame
+   self.frame[unit]:SetAlpha(0)
+end
+
+function PowerBar:Show(unit)
+   local testing = Gladius.test
+   
+   -- show frame
+   self.frame[unit]:SetAlpha(1)
+
+   -- get unit powerType
+   local powerType
+   if (not testing) then
+      powerType = UnitPowerType(unit)
+   else
+      powerType = Gladius.testing[unit].unitPowerType
+   end
+
+   -- set color
+   if (not Gladius.db.powerBarDefaultColor) then
+      local color = Gladius.db.powerBarColor
+      self.frame[unit]:SetStatusBarColor(color.r, color.g, color.b, color.a)
+   else			
+      self.frame[unit]:SetStatusBarColor(PowerBarColor[powerType].r, PowerBarColor[powerType].g, PowerBarColor[powerType].b)
+   end
+
+   -- set info text
    local powerInfoText = ""
    
    -- race
@@ -275,6 +280,9 @@ function PowerBar:Reset(unit)
    if (self.frame[unit].infoText:GetFont()) then
       self.frame[unit].infoText:SetText("")
    end
+   
+   -- hide
+	self.frame[unit]:SetAlpha(0)
 end
 
 function PowerBar:Test(unit)   
@@ -486,7 +494,7 @@ function PowerBar:GetOptions()
                type="range",
                name=L["powerTextOffsetX"],
                desc=L["powerTextOffsetXDesc"],
-               min=-100, max=10, step=1,
+               min=-100, max=100, step=1,
                disabled=function() return not Gladius.dbi.profile.powerText or not Gladius.dbi.profile.modules[self.name] end,
                order=85,
             },

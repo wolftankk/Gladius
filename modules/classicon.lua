@@ -48,64 +48,89 @@ function ClassIcon:UNIT_AURA(event, unit)
 end
 
 function ClassIcon:UpdateAura(unit)  
-   local aura
+   if (not self.frame[unit]) then return end
+
+   local aura   
    local index = 1
    
+   -- debuffs
    while (true) do
-      local name, _, icon, _, _, duration, _, _, _ = UnitAura(unit, index)
+      local name, _, icon, _, _, duration, _, _, _ = UnitAura(unit, index, "HARMFUL")
       if (not name) then break end  
       
-      if (self.auras[name] and self.frame[unit].aura ~= name and (not self.frame[unit].auraPrio or (self.frame[unit].auraPrio and self.auras[name] > self.frame[unit].auraPrio))) then
-         aura = icon
-         self.frame[unit].aura = name
+      if (self.auras[name] and (not self.frame[unit].priority or (self.frame[unit].priority and self.auras[name] > self.frame[unit].priority))) then
+         aura = name         
+         
+         self.frame[unit].icon = icon
          self.frame[unit].timeleft = duration
-         self.frame[unit].auraPrio = self.auras[name]
+         self.frame[unit].priority = self.auras[name]
       end
       
       index = index + 1     
    end
    
-   if (not aura) then
-      self:SetClassIcon(unit)
-   else
-      self.frame[unit].texture:SetTexture(aura)
-      self.frame[unit].texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+   -- buffs
+   index = 1
+   
+   while (true) do
+      local name, _, icon, _, _, duration, _, _, _ = UnitAura(unit, index, "HELPFUL")
+      if (not name) then break end  
       
+      if (self.auras[name] and (not self.frame[unit].priority or (self.frame[unit].priority and self.auras[name] > self.frame[unit].priority))) then
+         aura = name
+         
+         self.frame[unit].icon = icon
+         self.frame[unit].timeleft = duration
+         self.frame[unit].priority = self.auras[name]
+      end
+      
+      index = index + 1     
+   end
+   
+   if (aura and aura ~= self.frame[unit].aura) then
+      -- display aura
       self.frame[unit].active = true
+      self.frame[unit].aura = aura
+   
+      self.frame[unit].texture:SetTexture(self.frame[unit].icon)
+      self.frame[unit].texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)      
+      
       self.frame[unit].cooldown:SetCooldown(GetTime(), self.frame[unit].timeleft)
-               
-      self.frame[unit]:SetScript("OnUpdate", function(f, elapsed)
-         f.timeleft = f.timeleft - elapsed
-         if (f.timeleft <= 0) then
-            self.frame[unit].active = false
-            self.frame[unit].aura = nil
-            self.frame[unit].auraPrio = nil
-            
-            self:SetClassIcon(unit)
-         end	
-      end)
+   elseif (not aura and self.frame[unit].active) then
+      -- reset
+      self.frame[unit].active = false
+      self.frame[unit].aura = nil
+      self.frame[unit].icon = nil
+      self.frame[unit].priority = nil 
+      self.frame[unit].timeleft = 0     
+      
+      self.frame[unit].cooldown:SetCooldown(GetTime(), 0)
+      self:SetClassIcon(unit)
    end
 end
 
 function ClassIcon:SetClassIcon(unit)
-   if (not self.frame[unit].active) then
-      -- get unit class
-      local class
-      if (not Gladius.test) then
-         class = select(2, UnitClass(unit))
-      else
-         class = Gladius.testing[unit].unitClass
-      end
-      
-      self.frame[unit].auraPrio = nil
-               
-      self.frame[unit].texture:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
-      
-      local left, right, top, bottom = unpack(CLASS_BUTTONS[class])
-      left, right = left + (right - left) * 0.07, right - (right - left) * 0.07
-      top, bottom = top + (bottom - top) * 0.07, bottom - (bottom - top) * 0.07
-      self.frame[unit].texture:SetTexCoord(left, right, top, bottom)
+   if (not self.frame[unit]) then return end
+
+   -- get unit class
+   local class
+   if (not Gladius.test) then
+      class = select(2, UnitClass(unit))
+   else
+      class = Gladius.testing[unit].unitClass
    end
+
+   self.frame[unit].texture:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
+   
+   local left, right, top, bottom = unpack(CLASS_BUTTONS[class])
+   -- zoom the class icon
+   left = left + (right - left) * 0.07
+   right = right - (right - left) * 0.07
+   
+   top = top + (bottom - top) * 0.07
+   bottom = bottom - (bottom - top) * 0.07
+   
+   self.frame[unit].texture:SetTexCoord(left, right, top, bottom)
 end
 
 function ClassIcon:CreateFrame(unit)
@@ -122,24 +147,11 @@ function ClassIcon:CreateFrame(unit)
 end
 
 function ClassIcon:Update(unit)
-   local testing = Gladius.test
-   
-   -- get unit class
-   local class
-   if (not testing) then
-      class = select(2, UnitClass(unit))
-   else
-      class = Gladius.testing[unit].unitClass
-   end
-
    -- create frame
    if (not self.frame[unit]) then 
       self:CreateFrame(unit)
    end
-   
-   -- reset frame
-   self:Reset(unit)
-   
+      
    -- update frame   
    self.frame[unit]:ClearAllPoints()
     
@@ -149,11 +161,7 @@ function ClassIcon:Update(unit)
    
    if (Gladius.db.classIconAnchor ~= "CENTER") then
        -- switch anchor on growup
-      local anchor = Gladius.db.classIconAnchor
-      --[[if (Gladius.db.growUp) then
-         anchor = anchor == "TOP" and "BOTTOM" or "TOP"
-      end]]
-      
+      local anchor = Gladius.db.classIconAnchor      
       point, relativePoint = anchor .. point, anchor .. relativePoint
    end
 	
@@ -181,6 +189,24 @@ function ClassIcon:Update(unit)
    
    self.frame[unit].texture:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
    
+   -- hide
+   self.frame[unit]:SetAlpha(0)
+end
+
+function ClassIcon:Show(unit)
+   local testing = Gladius.test
+   
+   -- show frame
+   self.frame[unit]:SetAlpha(1)
+   
+   -- get unit class
+   local class
+   if (not testing) then
+      class = select(2, UnitClass(unit))
+   else
+      class = Gladius.testing[unit].unitClass
+   end
+   
    local left, right, top, bottom = unpack(CLASS_BUTTONS[class])
    -- zoom the class icon
    left = left + (right - left) * 0.07
@@ -196,7 +222,12 @@ function ClassIcon:Reset(unit)
    -- reset frame
    self.frame[unit].active = false
    self.frame[unit].aura = nil
-   self.frame[unit].auraPrio = nil
+   self.frame[unit].priority = nil
+   
+   self.frame[unit]:SetScript("OnUpdate", nil)
+   
+   -- hide
+	self.frame[unit]:SetAlpha(0)
 end
 
 function ClassIcon:Test(unit)   

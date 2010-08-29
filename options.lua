@@ -5,17 +5,6 @@ Gladius.defaults = {
       x = {},
       y = {},
       modules = {},
-      barPosition = {
-         ["HealthBar"] = 1,
-         ["PowerBar"] = 2,
-      },
-      indicatorPosition = {
-         ["LEFT"] = {
-            ["ClassIcon"] = 1,
-         },
-         ["RIGHT"] = {
-         },
-      },
       locked = false,
       growUp = false,
       lockButtons = false,
@@ -40,7 +29,7 @@ SlashCmdList["GLADIUS"] = function(msg)
       Gladius:HideFrame()
       
       for i=1, test do
-         Gladius:UpdateUnit("arena" .. i, true)
+         Gladius:UpdateUnit("arena" .. i)
          Gladius:TestUnit("arena" .. i)
       end
    elseif (msg == "" or msg == "options" or msg == "config" or msg == "ui") then

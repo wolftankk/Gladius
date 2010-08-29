@@ -21,7 +21,7 @@ Gladius:SetModule(CastBar, "CastBar", true, {
    
    castBarInverse = false,
    castBarColor = { r = 1, g = 1, b = 1, a = 1 },
-   castBarTexture = "Armory",
+   castBarTexture = "Minimalist",
    
    castIcon = true,
    castIconPosition = "LEFT",      
@@ -206,10 +206,7 @@ function CastBar:Update(unit)
    if (not self.frame[unit]) then 
       self:CreateBar(unit)
    end
-   
-   -- reset bar
-   self:Reset(unit)
-   
+      
    -- update power bar   
    self.frame[unit]:ClearAllPoints()
 
@@ -299,12 +296,20 @@ function CastBar:Update(unit)
 	
 	self.frame[unit].icon:SetWidth(self.frame[unit]:GetHeight())
 	self.frame[unit].icon:SetHeight(self.frame[unit]:GetHeight())
+	
+	-- hide
+	self.frame[unit]:SetAlpha(0)
+end
+
+function CastBar:Show(unit)
+   -- show frame
+   self.frame[unit]:SetAlpha(1)
 end
 
 function CastBar:Reset(unit)
    -- reset bar
    self.frame[unit]:SetMinMaxValues(0, 1)
-   self.frame[unit]:SetValue(1)
+   self.frame[unit]:SetValue(0)
 
    -- reset text
    if (self.frame[unit].castText:GetFont()) then
@@ -314,6 +319,9 @@ function CastBar:Reset(unit)
    if (self.frame[unit].timeText:GetFont()) then
       self.frame[unit].timeText:SetText("")
    end
+   
+   -- hide
+	self.frame[unit]:SetAlpha(0)
 end
 
 function CastBar:Test(unit)   

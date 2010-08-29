@@ -16,7 +16,7 @@ Gladius:SetModule(HealthBar, "HealthBar", true, {
    healthBarInverse = false,
    healthBarColor = { r = 1, g = 1, b = 1, a = 1 },
    healthBarClassColor = true,
-   healthBarTexture = "Armory",      
+   healthBarTexture = "Minimalist",      
    
    healthText = true,
    shortHealthText = true,
@@ -144,23 +144,10 @@ function HealthBar:CreateBar(unit)
 end
 
 function HealthBar:Update(unit)
-   local testing = Gladius.test
-   
-   -- get unit class
-   local class
-   if (not testing) then
-      class = select(2, UnitClass(unit))
-   else
-      class = Gladius.testing[unit].unitClass
-   end
-
-   -- create health bar
+   -- create power bar
    if (not self.frame[unit]) then 
       self:CreateBar(unit)
    end
-   
-   -- reset bar
-   self:Reset(unit)
    
    -- update health bar   
    self.frame[unit]:ClearAllPoints()
@@ -180,15 +167,7 @@ function HealthBar:Update(unit)
 	-- disable tileing
 	self.frame[unit]:GetStatusBarTexture():SetHorizTile(false)
    self.frame[unit]:GetStatusBarTexture():SetVertTile(false)
-	
-	-- set color
-   if (not Gladius.db.healthBarClassColor) then
-      local color = Gladius.db.healthBarColor
-      self.frame[unit]:SetStatusBarColor(color.r, color.g, color.b, color.a)
-   else			
-      self.frame[unit]:SetStatusBarColor(RAID_CLASS_COLORS[class].r, RAID_CLASS_COLORS[class].g, RAID_CLASS_COLORS[class].b)
-   end
-   
+
    -- update health text   
 	self.frame[unit].text:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.healthTextFont), Gladius.db.healthTextSize)
 	
@@ -211,6 +190,32 @@ function HealthBar:Update(unit)
 	self.frame[unit].infoText:SetJustifyH(Gladius.db.healthInfoTextAlign)
 	self.frame[unit].infoText:SetPoint(Gladius.db.healthInfoTextAnchor, self.frame[unit], Gladius.db.healthInfoTextOffsetX, Gladius.db.healthInfoTextOffsetY)
 	
+	-- hide frame
+	self.frame[unit]:SetAlpha(0)
+end
+
+function HealthBar:Show(unit)
+   local testing = Gladius.test
+   
+   -- show frame
+   self.frame[unit]:SetAlpha(1)
+   
+   -- get unit class
+   local class
+   if (not testing) then
+      class = select(2, UnitClass(unit))
+   else
+      class = Gladius.testing[unit].unitClass
+   end 
+   
+   -- set color
+   if (not Gladius.db.healthBarClassColor) then
+      local color = Gladius.db.healthBarColor
+      self.frame[unit]:SetStatusBarColor(color.r, color.g, color.b, color.a)
+   else			
+      self.frame[unit]:SetStatusBarColor(RAID_CLASS_COLORS[class].r, RAID_CLASS_COLORS[class].g, RAID_CLASS_COLORS[class].b)
+   end
+
 	-- set info text
    local healthInfoText = ""
    
@@ -259,6 +264,9 @@ function HealthBar:Reset(unit)
    if (self.frame[unit].infoText:GetFont()) then
       self.frame[unit].infoText:SetText("")
    end
+   
+   -- hide
+	self.frame[unit]:SetAlpha(0)
 end
 
 function HealthBar:Test(unit)   

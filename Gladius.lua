@@ -73,6 +73,7 @@ function Gladius:OnInitialize()
 	
 	-- libsharedmedia
 	self.LSM = LibStub("LibSharedMedia-3.0")
+	self.LSM:Register("statusbar", "Minimalist", "Interface\\Addons\\Gladius2\\images\\Minimalist")
 		
 	-- test environment
 	self.test = false
@@ -167,6 +168,10 @@ function Gladius:JoinedArena()
 		end
 	end
 	
+	for i=1, self.currentBracket do
+      self:UpdateUnit("arena" .. i)
+	end
+	
 	self:HideFrame()
 end
 
@@ -184,18 +189,18 @@ end
 
 function Gladius:UNIT_NAME_UPDATE(event, unit)
    if (not unit:find("arena") or unit:find("pet")) then return end
-   self:UpdateUnit(unit)
+   self:ShowUnit(unit)
 end
 
 function Gladius:UNIT_DIED(event, unit)
    if (not unit:find("arena") or unit:find("pet")) then return end
-   self:UpdateUnit(unit)
+   self:ShowUnit(unit)
 end
 
 function Gladius:ARENA_OPPONENT_UPDATE(event, unit, type)
    -- enemy seen
    if (type == "seen" or type == "destroyed") then
-      self:UpdateUnit(unit)
+      self:ShowUnit(unit)
    -- enemy stealth
    elseif (type == "unseen") then
       self:UpdateAlpha(unit, self.db.stealthAlpha)
@@ -211,7 +216,8 @@ function Gladius:UpdateFrame()
       if (self.buttons[unit] and not self.buttons[unit]:IsVisible() and self.test) then return end
       
       -- update frame will only be called in the test environment
-      self:UpdateUnit(unit, true)
+      self:UpdateUnit(unit)
+      self:ShowUnit(unit, true)
       
       -- test environment
       if (self.test) then
@@ -227,18 +233,9 @@ function Gladius:HideFrame()
    end
 end
 
-function Gladius:UpdateUnit(unit, testing)
+function Gladius:UpdateUnit(unit)
    if (not unit:find("arena") or unit:find("pet")) then return end
-   
-   -- disable test mode, when there are real arena opponents (happens when entering arena and using /gladius test)
-   local testing = testing or false
-   if (not testing and self.test) then 
-      -- reset frame
-      self:HideFrame()
-      
-      -- disable test mode
-      self.test = false 
-   end
+   if (InCombatLockdown()) then return end
    
    -- create button 
    if (not self.buttons[unit]) then
@@ -272,6 +269,7 @@ function Gladius:UpdateUnit(unit, testing)
 	self.buttons[unit].frameHeight = frameHeight
 	
 	-- update button 
+	self.buttons[unit]:SetScale(self.db.frameScale)
 	self.buttons[unit]:SetWidth(self.db.barWidth)
    self.buttons[unit]:SetHeight(frameHeight)
    
@@ -304,8 +302,8 @@ function Gladius:UpdateUnit(unit, testing)
    end	
    
    -- show the button
-   self.buttons[unit]:SetAlpha(1)
    self.buttons[unit]:Show()
+   self.buttons[unit]:SetAlpha(0)
    
    -- update secure frame
    self.buttons[unit].secure:SetWidth(self.buttons[unit]:GetWidth())
@@ -319,15 +317,39 @@ function Gladius:UpdateUnit(unit, testing)
    self.buttons[unit].secure:SetAttribute("type2", "focus")
    
    -- show the secure frame
-   self.buttons[unit].secure:SetAlpha(1)
    self.buttons[unit].secure:Show()
+   self.buttons[unit].secure:SetAlpha(0)
+end
+
+function Gladius:ShowUnit(unit, testing)
+   if (unit:find("pet")) then return end
+   if (not self.buttons[unit]) then return end
+   
+   -- disable test mode, when there are real arena opponents (happens when entering arena and using /gladius test)
+   local testing = testing or false
+   if (not testing and self.test) then 
+      -- reset frame
+      self:HideFrame()
+      
+      -- disable test mode
+      self.test = false 
+   end
+   
+   self.buttons[unit]:SetAlpha(1)
+   self.buttons[unit].secure:SetAlpha(1)
+   
+   for _, m in pairs(self.modules) do
+      if (m:IsEnabled()) then
+         self:Call(m, "Show", unit)
+      end
+   end
 end
 
 function Gladius:TestUnit(unit)
    if (unit:find("pet")) then return end
    
    -- disable secure frame in test mode so we can move the frame
-   self.buttons[unit].secure:Hide()
+   self.buttons[unit].secure:SetAlpha(0)
    
    -- test modules
    for _, m in pairs(self.modules) do
@@ -335,6 +357,9 @@ function Gladius:TestUnit(unit)
          self:Call(m, "Test", unit)
       end
 	end
+	
+	-- show frame
+	self:ShowUnit(unit, true)
 end
 
 function Gladius:ResetUnit(unit)
@@ -353,21 +378,17 @@ function Gladius:ResetUnit(unit)
    
    -- hide the button
    self.buttons[unit]:SetAlpha(0)
-   self.buttons[unit]:Hide()
    
    -- hide the secure frame
    self.buttons[unit].secure:SetAlpha(0)
-   self.buttons[unit].secure:Hide()
 end
 
 function Gladius:UpdateAlpha(unit, alpha)
    -- update button alpha
    alpha = alpha and alpha or 0.25
-   if (not self.buttons[unit]) then 
-      self:UpdateUnit(unit)
-   end
-   
-   self.buttons[unit]:SetAlpha(alpha)
+   if (self.buttons[unit]) then 
+      self.buttons[unit]:SetAlpha(alpha)
+   end  
 end
 
 function Gladius:CreateButton(unit)
@@ -410,7 +431,7 @@ function Gladius:UNIT_HEALTH(event, unit)
    if (not unit:find("arena") or unit:find("pet")) then return end
 
    -- update unit
-   if (not self.buttons[unit] or not self.buttons[unit]:IsVisible()) then
-      self:UpdateUnit(unit)
+   if (self.buttons[unit] and not self.buttons[unit]:IsVisible()) then
+      self:ShowUnit(unit)
    end
 end
