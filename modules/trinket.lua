@@ -139,8 +139,34 @@ function Trinket:Update(unit)
       end
         
       self.frame[unit]:SetHeight(Gladius.db.trinketHeight)  
-   end  
+   end 
+   
+   -- set frame mouse-interactable area
+   if (self:GetAttachTo() == "Frame") then
+      local left, right, top, bottom = Gladius.buttons[unit]:GetHitRectInsets()
+      
+      if (Gladius.db.trinketPosition == "LEFT") then
+         left = -self.frame[unit]:GetWidth()
+      else
+         right = -self.frame[unit]:GetWidth()
+      end
+      
+      -- search for an attached frame
+      for _, module in pairs(Gladius.modules) do
+         if (module:GetAttachTo() == self.name and module.frame[unit]) then
+            local attachedPoint = module.frame[unit]:GetPoint()
+            
+            if (Gladius.db.trinketPosition == "LEFT" and (not attachedPoint or (attachedPoint and attachedPoint:find("RIGHT")))) then
+               left = left - module.frame[unit]:GetWidth()
+            elseif (Gladius.db.trinketPosition == "RIGHT" and (not attachedPoint or (attachedPoint and attachedPoint:find("LEFT")))) then
+               right = right - module.frame[unit]:GetWidth()
+            end
+         end
+      end
 
+      Gladius.buttons[unit]:SetHitRectInsets(left, right, top, bottom) 
+   end
+   
    -- hide
    self.frame[unit]:SetAlpha(0)
 end
@@ -193,20 +219,7 @@ function Trinket:Reset(unit)
 end
 
 function Trinket:Test(unit)   
-   -- update frame
-   self:Update(unit)
-end
-
-
-local function getColorOption(info)
-   local key = info.arg or info[#info]
-   return Gladius.dbi.profile[key].r, Gladius.dbi.profile[key].g, Gladius.dbi.profile[key].b, Gladius.dbi.profile[key].a
-end
-
-local function setColorOption(info, r, g, b, a) 
-   local key = info.arg or info[#info]
-   Gladius.dbi.profile[key].r, Gladius.dbi.profile[key].g, Gladius.dbi.profile[key].b, Gladius.dbi.profile[key].a = r, g, b, a
-   Gladius:UpdateFrame()
+   -- test
 end
 
 function Trinket:GetOptions()
@@ -214,7 +227,7 @@ function Trinket:GetOptions()
       general = {  
          type="group",
          name=L["General"],
-         inline=true,
+         --inline=true,
          order=1,
          args = {
             trinketAttachTo = {
@@ -254,8 +267,8 @@ function Trinket:GetOptions()
                name=L["trinketGridStyleIconColor"],
                desc=L["trinketGridStyleIconColorDesc"],
                hasAlpha=true,
-               get=getColorOption,
-               set=setColorOption,
+               get=function(info) return Gladius:GetColorOption(info) end,
+               set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, a) end,
                disabled=function() return not Gladius.dbi.profile.trinketGridStyleIcon or not Gladius.dbi.profile.modules[self.name] end,
                order=14,
             },            

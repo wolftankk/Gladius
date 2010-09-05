@@ -16,7 +16,10 @@ Gladius:SetModule(HealthBar, "HealthBar", true, {
    healthBarInverse = false,
    healthBarColor = { r = 1, g = 1, b = 1, a = 1 },
    healthBarClassColor = true,
-   healthBarTexture = "Minimalist",      
+   healthBarTexture = "Minimalist", 
+   
+   healthBarOffsetX = 0,
+   healthBarOffsetY = 0,     
    
    healthText = true,
    shortHealthText = true,
@@ -139,6 +142,7 @@ function HealthBar:CreateBar(unit)
    
    -- create bar + text
    self.frame[unit] = CreateFrame("STATUSBAR", "Gladius" .. self.name .. unit, button) 
+   self.frame[unit].highlight = self.frame[unit]:CreateTexture("Gladius" .. self.name .. "Highlight" .. unit, "OVERLAY")
    self.frame[unit].text = self.frame[unit]:CreateFontString("Gladius" .. self.name .. "Text" .. unit, "OVERLAY")
    self.frame[unit].infoText = self.frame[unit]:CreateFontString("Gladius" .. self.name .. "InfoText" .. unit, "OVERLAY")
 end
@@ -157,7 +161,7 @@ function HealthBar:Update(unit)
 	local point = "TOPLEFT"	
 	if (Gladius.db.healthBarAttachTo == "Frame") then relativePoint = point end
 	
-   self.frame[unit]:SetPoint(point, parent, relativePoint)
+   self.frame[unit]:SetPoint(point, parent, relativePoint, Gladius.db.healthBarOffsetX, Gladius.db.healthBarOffsetY)
 	self.frame[unit]:SetWidth(Gladius.db.healthBarAdjustWidth and Gladius.db.barWidth or Gladius.db.healthBarWidth)
 	self.frame[unit]:SetHeight(Gladius.db.healthBarHeight)	
 	self.frame[unit]:SetMinMaxValues(0, 100)
@@ -189,6 +193,13 @@ function HealthBar:Update(unit)
 	self.frame[unit].infoText:SetShadowColor(0, 0, 0, 1)
 	self.frame[unit].infoText:SetJustifyH(Gladius.db.healthInfoTextAlign)
 	self.frame[unit].infoText:SetPoint(Gladius.db.healthInfoTextAnchor, self.frame[unit], Gladius.db.healthInfoTextOffsetX, Gladius.db.healthInfoTextOffsetY)
+	
+	-- update highlight texture
+	self.frame[unit].highlight:SetAllPoints(self.frame[unit])
+	self.frame[unit].highlight:SetTexture([=[Interface\QuestFrame\UI-QuestTitleHighlight]=])
+   self.frame[unit].highlight:SetBlendMode("ADD")   
+   self.frame[unit].highlight:SetVertexColor(1.0, 1.0, 1.0, 1.0)
+   self.frame[unit].highlight:SetAlpha(0)
 	
 	-- hide frame
 	self.frame[unit]:SetAlpha(0)
@@ -244,11 +255,6 @@ function HealthBar:Show(unit)
    end
    
    self.frame[unit].infoText:SetText(healthInfoText)
-      
-   -- update health if not testing
-   if (not testing) then
-      self:UNIT_HEALTH("UNIT_HEALTH", unit)
-   end
 end
 
 function HealthBar:Reset(unit)
@@ -270,25 +276,10 @@ function HealthBar:Reset(unit)
 end
 
 function HealthBar:Test(unit)   
-   -- update bar
-   self:Update(unit)
-   
    -- set test values
-   local maxHealth = 30000
-   local health = maxHealth --random(0, maxHealth)
+   local maxHealth = Gladius.testing[unit].maxHealth
+   local health = Gladius.testing[unit].health
    self:UpdateHealth(unit, health, maxHealth)
-end
-
-
-local function getColorOption(info)
-   local key = info.arg or info[#info]
-   return Gladius.dbi.profile[key].r, Gladius.dbi.profile[key].g, Gladius.dbi.profile[key].b, Gladius.dbi.profile[key].a
-end
-
-local function setColorOption(info, r, g, b, a) 
-   local key = info.arg or info[#info]
-   Gladius.dbi.profile[key].r, Gladius.dbi.profile[key].g, Gladius.dbi.profile[key].b, Gladius.dbi.profile[key].a = r, g, b, a
-   Gladius:UpdateFrame()
 end
 
 function HealthBar:GetOptions()
@@ -296,7 +287,7 @@ function HealthBar:GetOptions()
       general = {  
          type="group",
          name=L["General"],
-         inline=true,
+         --inline=true,
          order=1,
          args = {
             healthBarAttachTo = {
@@ -343,8 +334,8 @@ function HealthBar:GetOptions()
                name=L["healthBarColor"],
                desc=L["healthBarColorDesc"],
                hasAlpha=true,
-               get=getColorOption,
-               set=setColorOption,
+               get=function(info) return Gladius:GetColorOption(info) end,
+               set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, a) end,
                disabled=function() return Gladius.dbi.profile.healthBarClassColor or not Gladius.dbi.profile.modules[self.name] end,
                order=15,
             },
@@ -355,6 +346,22 @@ function HealthBar:GetOptions()
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=20,
             },
+            healthBarOffsetX = {
+               type="range",
+               name=L["healthBarOffsetX"],
+               desc=L["healthBarOffsetXDesc"],
+               min=-100, max=100, step=1,
+               disabled=function() return  not Gladius.dbi.profile.modules[self.name] end,
+               order=21,
+            },
+            healthBarOffsetY = {
+               type="range",
+               name=L["healthBarOffsetY"],
+               desc=L["healthBarOffsetYDesc"],
+               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+               min=-100, max=100, step=1,
+               order=22,
+            },  
             healthBarTexture = {
                type="select",
                name=L["healthBarTexture"],
@@ -370,7 +377,7 @@ function HealthBar:GetOptions()
       healthText = {  
          type="group",
          name=L["healthText"],
-         inline=true,
+         --inline=true,
          order=2,
          args = {
             healthText = {
@@ -415,7 +422,7 @@ function HealthBar:GetOptions()
                desc=L["healthTextFontDesc"],
                dialogControl = "LSM30_Font",
                values = AceGUIWidgetLSMlists.font,
-               disabled=function() return not Gladius.dbi.profile.healthText or not Gladius.dbi.profile.modules[self.name] end,
+               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=60,					
             },
             healthTextSize = {
@@ -423,7 +430,7 @@ function HealthBar:GetOptions()
                name=L["healthTextSize"],
                desc=L["healthTextSize"],
                min=1, max=20, step=1,
-               disabled=function() return not Gladius.dbi.profile.healthText or not Gladius.dbi.profile.modules[self.name] end,
+               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=65,
             },
             healthTextColor = {
@@ -431,10 +438,10 @@ function HealthBar:GetOptions()
                name=L["healthTextColor"],
                desc=L["healthTextColorDesc"],
                hasAlpha=true,
-               get=getColorOption,
-               set=setColorOption,
+               get=function(info) return Gladius:GetColorOption(info) end,
+               set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, a) end,
                width="double",
-               disabled=function() return not Gladius.dbi.profile.healthText or not Gladius.dbi.profile.modules[self.name] end,
+               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=70,
             },
             healthTextAlign = {
@@ -442,7 +449,7 @@ function HealthBar:GetOptions()
                name=L["healthTextAlign"],
                desc=L["healthTextAlignDesc"],
                values={ ["LEFT"] = L["LEFT"], ["CENTER"] = L["CENTER"], ["RIGHT"] = L["RIGHT"] },
-               disabled=function() return not Gladius.dbi.profile.healthText or not Gladius.dbi.profile.modules[self.name] end,
+               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=75,
             },
             healthTextAnchor = {
@@ -450,7 +457,7 @@ function HealthBar:GetOptions()
                name=L["healthTextAnchor"],
                desc=L["healthTextAnchorDesc"],
                values={ ["LEFT"] = L["LEFT"], ["CENTER"] = L["CENTER"], ["RIGHT"] = L["RIGHT"] },
-               disabled=function() return not Gladius.dbi.profile.healthText or not Gladius.dbi.profile.modules[self.name] end,
+               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=80,
             },
             healthTextOffsetX = {
@@ -458,7 +465,7 @@ function HealthBar:GetOptions()
                name=L["healthTextOffsetX"],
                desc=L["healthTextOffsetXDesc"],
                min=-100, max=100, step=1,
-               disabled=function() return not Gladius.dbi.profile.healthText or not Gladius.dbi.profile.modules[self.name] end,
+               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=85,
             },
             healthTextOffsetY = {
@@ -466,7 +473,7 @@ function HealthBar:GetOptions()
                name=L["healthTextOffsetY"],
                desc=L["healthTextOffsetYDesc"],
                min=-100, max=100, step=1,
-               disabled=function() return not Gladius.dbi.profile.healthText or not Gladius.dbi.profile.modules[self.name] end,
+               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=90,
             },
          },
@@ -474,7 +481,7 @@ function HealthBar:GetOptions()
       healthInfoText = {  
          type="group",
          name=L["healthInfoText"],
-         inline=true,
+         --inline=true,
          order=3,
          args = {
             healthInfoTextName = {
@@ -527,8 +534,8 @@ function HealthBar:GetOptions()
                name=L["healthInfoTextColor"],
                desc=L["healthInfoTextColorDesc"],
                hasAlpha=true,
-               get=getColorOption,
-               set=setColorOption,
+               get=function(info) return Gladius:GetColorOption(info) end,
+               set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, a) end,
                width="double",
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=70,

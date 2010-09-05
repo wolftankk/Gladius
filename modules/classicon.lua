@@ -55,14 +55,14 @@ function ClassIcon:UpdateAura(unit)
    
    -- debuffs
    while (true) do
-      local name, _, icon, _, _, duration, _, _, _ = UnitAura(unit, index, "HARMFUL")
+      local name, _, icon, _, _, _, duration, _, _ = UnitAura(unit, index, "HARMFUL")
       if (not name) then break end  
       
-      if (self.auras[name] and (not self.frame[unit].priority or (self.frame[unit].priority and self.auras[name] > self.frame[unit].priority))) then
+      if (self.auras[name] and self.auras[name] >= self.frame[unit].priority) then
          aura = name         
          
          self.frame[unit].icon = icon
-         self.frame[unit].timeleft = duration
+         self.frame[unit].timeleft = duration - GetTime()
          self.frame[unit].priority = self.auras[name]
       end
       
@@ -73,14 +73,14 @@ function ClassIcon:UpdateAura(unit)
    index = 1
    
    while (true) do
-      local name, _, icon, _, _, duration, _, _, _ = UnitAura(unit, index, "HELPFUL")
+      local name, _, icon, _, _, _, duration, _, _ = UnitAura(unit, index, "HELPFUL")
       if (not name) then break end  
       
-      if (self.auras[name] and (not self.frame[unit].priority or (self.frame[unit].priority and self.auras[name] > self.frame[unit].priority))) then
+      if (self.auras[name] and self.auras[name] >= self.frame[unit].priority) then
          aura = name
          
          self.frame[unit].icon = icon
-         self.frame[unit].timeleft = duration
+         self.frame[unit].timeleft = duration - GetTime()
          self.frame[unit].priority = self.auras[name]
       end
       
@@ -101,7 +101,7 @@ function ClassIcon:UpdateAura(unit)
       self.frame[unit].active = false
       self.frame[unit].aura = nil
       self.frame[unit].icon = nil
-      self.frame[unit].priority = nil 
+      self.frame[unit].priority = 0
       self.frame[unit].timeleft = 0     
       
       self.frame[unit].cooldown:SetCooldown(GetTime(), 0)
@@ -123,7 +123,7 @@ function ClassIcon:SetClassIcon(unit)
    self.frame[unit].texture:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
    
    local left, right, top, bottom = unpack(CLASS_BUTTONS[class])
-   -- zoom the class icon
+   -- zoom class icon
    left = left + (right - left) * 0.07
    right = right - (right - left) * 0.07
    
@@ -189,6 +189,32 @@ function ClassIcon:Update(unit)
    
    self.frame[unit].texture:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
    
+   -- set frame mouse-interactable area
+   if (self:GetAttachTo() == "Frame") then
+      local left, right, top, bottom = Gladius.buttons[unit]:GetHitRectInsets()
+      
+      if (Gladius.db.classIconPosition == "LEFT") then
+         left = -self.frame[unit]:GetWidth()
+      else
+         right = -self.frame[unit]:GetWidth()
+      end
+      
+      -- search for an attached frame
+      for _, module in pairs(Gladius.modules) do
+         if (module:GetAttachTo() == self.name and module.frame[unit]) then
+            local attachedPoint = module.frame[unit]:GetPoint()
+            
+            if (Gladius.db.classIconPosition == "LEFT" and (not attachedPoint or (attachedPoint and attachedPoint:find("RIGHT")))) then
+               left = left - module.frame[unit]:GetWidth()
+            elseif (Gladius.db.classIconPosition == "RIGHT" and (not attachedPoint or (attachedPoint and attachedPoint:find("LEFT")))) then
+               right = right - module.frame[unit]:GetWidth()
+            end
+         end
+      end
+
+      Gladius.buttons[unit]:SetHitRectInsets(left, right, top, bottom) 
+   end
+   
    -- hide
    self.frame[unit]:SetAlpha(0)
 end
@@ -222,7 +248,7 @@ function ClassIcon:Reset(unit)
    -- reset frame
    self.frame[unit].active = false
    self.frame[unit].aura = nil
-   self.frame[unit].priority = nil
+   self.frame[unit].priority = 0
    
    self.frame[unit]:SetScript("OnUpdate", nil)
    
@@ -230,24 +256,9 @@ function ClassIcon:Reset(unit)
 	self.frame[unit]:SetAlpha(0)
 end
 
-function ClassIcon:Test(unit)   
-   -- update frame
-   self:Update(unit)
-   
+function ClassIcon:Test(unit)     
    -- set test values   
    self:UpdateAura(unit)
-end
-
-
-local function getColorOption(info)
-   local key = info.arg or info[#info]
-   return Gladius.dbi.profile[key].r, Gladius.dbi.profile[key].g, Gladius.dbi.profile[key].b, Gladius.dbi.profile[key].a
-end
-
-local function setColorOption(info, r, g, b, a) 
-   local key = info.arg or info[#info]
-   Gladius.dbi.profile[key].r, Gladius.dbi.profile[key].g, Gladius.dbi.profile[key].b, Gladius.dbi.profile[key].a = r, g, b, a
-   Gladius:UpdateFrame()
 end
 
 function ClassIcon:GetOptions()
@@ -255,7 +266,7 @@ function ClassIcon:GetOptions()
       general = {  
          type="group",
          name=L["General"],
-         inline=true,
+         --inline=true,
          order=1,
          args = {
             classIconAttachTo = {

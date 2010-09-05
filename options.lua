@@ -24,12 +24,16 @@ SLASH_GLADIUS1 = "/gladius"
 SlashCmdList["GLADIUS"] = function(msg)
    if (msg:find("test")) then
       local test = tonumber(msg:match("^test (.+)"))
+      if (not test or test > 5 or test < 2 or test == 4) then
+         test = 5
+      end
       
       Gladius.test = true      
       Gladius:HideFrame()
       
       for i=1, test do
          Gladius:UpdateUnit("arena" .. i)
+         Gladius:ShowUnit("arena" .. i, true)
          Gladius:TestUnit("arena" .. i)
       end
    elseif (msg == "" or msg == "options" or msg == "config" or msg == "ui") then
@@ -47,15 +51,15 @@ local function setOption(info, value)
    Gladius:UpdateFrame()
 end
 
-local function getColorOption(info)
+function Gladius:GetColorOption(info)
    local key = info.arg or info[#info]
-   return Gladius.dbi.profile[key].r, Gladius.dbi.profile[key].g, Gladius.dbi.profile[key].b, Gladius.dbi.profile[key].a
+   return self.dbi.profile[key].r, self.dbi.profile[key].g, self.dbi.profile[key].b, self.dbi.profile[key].a
 end
 
-local function setColorOption(info, r, g, b, a) 
+function Gladius:SetColorOption(info, r, g, b, a) 
    local key = info.arg or info[#info]
-   Gladius.dbi.profile[key].r, Gladius.dbi.profile[key].g, Gladius.dbi.profile[key].b, Gladius.dbi.profile[key].a = r, g, b, a
-   Gladius:UpdateFrame()
+   self.dbi.profile[key].r, self.dbi.profile[key].g, self.dbi.profile[key].b, self.dbi.profile[key].a = r, g, b, a
+   self:UpdateFrame()
 end
 
 function Gladius:SetupModule(key, module, order)
@@ -63,6 +67,7 @@ function Gladius:SetupModule(key, module, order)
       type="group",
       name=L[key],
       desc=L[key .. "Desc"],
+      childGroups="tab",
       order=order,
    }
    

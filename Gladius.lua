@@ -78,11 +78,11 @@ function Gladius:OnInitialize()
 	-- test environment
 	self.test = false
 	self.testing = setmetatable({
-      ["arena1"] = { unitPowerType = 0, unitClass = "PRIEST", unitRace = "Draenei", unitSpec = "Discipline" },
-      ["arena2"] = { unitPowerType = 1, unitClass = "HUNTER", unitRace = "Night Elf", unitSpec = "Marksmanship" },
-      ["arena3"] = { unitPowerType = 3, unitClass = "ROGUE", unitRace = "Human", unitSpec = "Combat" },
-      ["arena4"] = { unitPowerType = 6, unitClass = "DEATHKNIGHT", unitRace = "Dwarf", unitSpec = "Unholy" },
-      ["arena5"] = { unitPowerType = 0, unitClass = "MAGE", unitRace = "Gnome", unitSpec = "Frost" },
+      ["arena1"] = { health = 32000, maxHealth = 32000, power = 18000, maxPower = 18000, powerType = 0, unitClass = "PRIEST", unitRace = "Draenei", unitSpec = "Discipline" },
+      ["arena2"] = { health = 30000, maxHealth = 32000, power = 10000, maxPower = 12000, powerType = 1, unitClass = "HUNTER", unitRace = "Night Elf", unitSpec = "Marksmanship" },
+      ["arena3"] = { health = 24000, maxHealth = 35000, power = 90, maxPower = 120, powerType = 3, unitClass = "ROGUE", unitRace = "Human", unitSpec = "Combat" },
+      ["arena4"] = { health = 20000, maxHealth = 40000, power = 80, maxPower = 130, powerType = 6, unitClass = "DEATHKNIGHT", unitRace = "Dwarf", unitSpec = "Unholy" },
+      ["arena5"] = { health = 10000, maxHealth = 30000, power = 10000, maxPower = 30000, powerType = 0, unitClass = "MAGE", unitRace = "Gnome", unitSpec = "Frost" },
 	}, { 
       __index = function(t, k)
          return t["arena1"]
@@ -335,7 +335,10 @@ function Gladius:ShowUnit(unit, testing)
       self.test = false 
    end
    
-   self.buttons[unit]:SetAlpha(1)
+   self.buttons[unit]:SetFrameStrata("LOW")
+   self.buttons[unit]:SetAlpha(1)   
+   
+   self.buttons[unit].secure:SetFrameStrata("MEDIUM")
    self.buttons[unit].secure:SetAlpha(1)
    
    for _, m in pairs(self.modules) do
@@ -348,9 +351,6 @@ end
 function Gladius:TestUnit(unit)
    if (unit:find("pet")) then return end
    
-   -- disable secure frame in test mode so we can move the frame
-   self.buttons[unit].secure:SetAlpha(0)
-   
    -- test modules
    for _, m in pairs(self.modules) do
       if (m:IsEnabled()) then
@@ -358,8 +358,9 @@ function Gladius:TestUnit(unit)
       end
 	end
 	
-	-- show frame
-	self:ShowUnit(unit, true)
+	-- disable secure frame in test mode so we can move the frame
+   self.buttons[unit]:SetFrameStrata("MEDIUM")     
+   self.buttons[unit].secure:SetFrameStrata("LOW")
 end
 
 function Gladius:ResetUnit(unit)
@@ -417,6 +418,26 @@ function Gladius:CreateButton(unit)
          local scale = f:GetEffectiveScale()
          self.db.x[unit] = f:GetLeft() * scale
          self.db.y[unit] = f:GetTop() * scale
+      end
+   end)
+   
+   button:SetScript("OnEnter", function(f, motion)
+      if (motion) then
+         for _, m in pairs(self.modules) do
+            if (m:IsEnabled() and m.frame[unit].highlight) then
+               m.frame[unit].highlight:SetAlpha(0.5)
+            end
+         end
+      end
+   end)
+   
+   button:SetScript("OnLeave", function(f, motion)
+      if (motion) then
+         for _, m in pairs(self.modules) do
+            if (m:IsEnabled() and m.frame[unit].highlight) then
+               m.frame[unit].highlight:SetAlpha(0)
+            end
+         end
       end
    end)
     
