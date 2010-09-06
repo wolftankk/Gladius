@@ -79,10 +79,10 @@ function Gladius:OnInitialize()
 	self.test = false
 	self.testing = setmetatable({
       ["arena1"] = { health = 32000, maxHealth = 32000, power = 18000, maxPower = 18000, powerType = 0, unitClass = "PRIEST", unitRace = "Draenei", unitSpec = "Discipline" },
-      ["arena2"] = { health = 30000, maxHealth = 32000, power = 10000, maxPower = 12000, powerType = 1, unitClass = "HUNTER", unitRace = "Night Elf", unitSpec = "Marksmanship" },
+      ["arena2"] = { health = 30000, maxHealth = 32000, power = 10000, maxPower = 12000, powerType = 2, unitClass = "HUNTER", unitRace = "Night Elf", unitSpec = "Marksmanship" },
       ["arena3"] = { health = 24000, maxHealth = 35000, power = 90, maxPower = 120, powerType = 3, unitClass = "ROGUE", unitRace = "Human", unitSpec = "Combat" },
       ["arena4"] = { health = 20000, maxHealth = 40000, power = 80, maxPower = 130, powerType = 6, unitClass = "DEATHKNIGHT", unitRace = "Dwarf", unitSpec = "Unholy" },
-      ["arena5"] = { health = 10000, maxHealth = 30000, power = 10000, maxPower = 30000, powerType = 0, unitClass = "MAGE", unitRace = "Gnome", unitSpec = "Frost" },
+      ["arena5"] = { health = 10000, maxHealth = 30000, power = 10, maxPower = 100, powerType = 1, unitClass = "WARRIOR", unitRace = "Gnome", unitSpec = "Arms" },
 	}, { 
       __index = function(t, k)
          return t["arena1"]
@@ -94,9 +94,6 @@ function Gladius:OnInitialize()
 end
 
 function Gladius:OnEnable()
-   -- setup options
-   self:SetupOptions()
-
    -- register the appropriate events that fires when you enter an arena
 	self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "ZONE_CHANGED_NEW_AREA")
@@ -168,10 +165,12 @@ function Gladius:JoinedArena()
 		end
 	end
 	
+	-- create and update buttons on first launch
 	for i=1, self.currentBracket do
       self:UpdateUnit("arena" .. i)
 	end
 	
+	-- hide buttons
 	self:HideFrame()
 end
 

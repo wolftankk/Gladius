@@ -7,9 +7,9 @@ Gladius.defaults = {
       modules = {},
       locked = false,
       growUp = false,
-      lockButtons = false,
-      bottomMargin = 20,
-      barWidth = 250,
+      lockButtons = true,
+      bottomMargin = 25,
+      barWidth = 200,
       frameScale = 1,
    },
 }
@@ -31,13 +31,25 @@ SlashCmdList["GLADIUS"] = function(msg)
       Gladius.test = true      
       Gladius:HideFrame()
       
+      -- create and update buttons on first launch
       for i=1, test do
-         Gladius:UpdateUnit("arena" .. i)
-         Gladius:ShowUnit("arena" .. i, true)
-         Gladius:TestUnit("arena" .. i)
+         if (not Gladius.buttons["arena" .. i]) then
+            Gladius:UpdateUnit("arena" .. i)
+         end
       end
+      
+      -- update buttons, so every module should be fine
+      Gladius:UpdateFrame()
    elseif (msg == "" or msg == "options" or msg == "config" or msg == "ui") then
-      InterfaceOptionsFrame_OpenToCategory("Gladius")
+      AceDialog = AceDialog or LibStub("AceConfigDialog-3.0")
+      AceRegistry = AceRegistry or LibStub("AceConfigRegistry-3.0")
+      
+      if (not Gladius.options) then
+         Gladius:SetupOptions()
+         AceDialog:SetDefaultSize("Gladius", 640, 500)
+      end
+      
+      AceDialog:Open("Gladius")
    end
 end
 
@@ -133,22 +145,22 @@ function Gladius:SetupOptions()
 					},
 					lockButtons = {
 						type="toggle",
-						name=L["lockButtons"],
-						desc=L["lockButtonsDesc"],
+						name=L["Lock Buttons"],
+						desc=L["If this is toggle buttons can be moved separately"],
 						order=10,
 					},
 					bottomMargin = {
                   type="range",
-                  name=L["bottomMargin"],
-                  desc=L["bottomMarginDesc"],
+                  name=L["Bottom Margin"],
+                  desc=L["Margin between each button"],
                   min=0, max=100, step=1,
                   disabled=function() return not self.dbi.profile.lockButtons end,
                   order=15,
                },
 					barWidth = {
                   type="range",
-                  name=L["barWidth"],
-                  desc=L["barWidthDesc"],
+                  name=L["Bar width"],
+                  desc=L["Width of the module bars"],
                   min=10, max=500, step=1,
                   order=20,
                },

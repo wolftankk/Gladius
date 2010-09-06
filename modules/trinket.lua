@@ -7,7 +7,7 @@ local LSM
 
 local Trinket = Gladius:NewModule("Trinket", "AceEvent-3.0")
 Gladius:SetModule(Trinket, "Trinket", false, {
-   trinketAttachTo = "HealthBar",
+   trinketAttachTo = "Frame",
    trinketPosition = "RIGHT",
    trinketAnchor = "TOP",
    trinketGridStyleIcon = false,
@@ -25,14 +25,17 @@ function Trinket:OnEnable()
    self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
    
    LSM = Gladius.LSM   
-   self.frame = {}
+   
+   if (not self.frame) then
+      self.frame = {}
+   end
 end
 
 function Trinket:OnDisable()
    self:UnregisterAllEvents()
    
    for unit in pairs(self.frame) do
-      self.frame[unit]:Hide()
+      self.frame[unit]:SetAlpha(0)
    end
 end
 
@@ -214,6 +217,9 @@ function Trinket:Reset(unit)
    
    self.frame[unit]:SetScript("OnUpdate", nil)
    
+   -- reset cooldown
+   self.frame[unit].cooldown:SetCooldown(GetTime(), 0)
+   
    -- hide
 	self.frame[unit]:SetAlpha(0)
 end
@@ -227,29 +233,28 @@ function Trinket:GetOptions()
       general = {  
          type="group",
          name=L["General"],
-         --inline=true,
          order=1,
          args = {
             trinketAttachTo = {
                type="select",
-               name=L["trinketAttachTo"],
-               desc=L["trinketAttachToDesc"],
+               name=L["Trinket attach to"],
+               desc=L["Attach trinket to the given frame"],
                values=function() return Gladius:GetModules(self.name) end,
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=0,
             },
             trinketPosition = {
                type="select",
-               name=L["trinketPosition"],
-               desc=L["trinketPositionDesc"],
+               name=L["Trinket position"],
+               desc=L["Position of the trinket"],
                values={ ["LEFT"] = L["LEFT"], ["RIGHT"] = L["RIGHT"] },
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=5,
             },
             trinketAnchor = {
                type="select",
-               name=L["trinketAnchor"],
-               desc=L["trinketAnchorDesc"],
+               name=L["Trinket anchor"],
+               desc=L["Anchor of the trinket"],
                values={ ["TOP"] = L["TOP"], ["CENTER"] = L["CENTER"], ["BOTTOM"] = L["BOTTOM"] },
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                width="double",
@@ -257,75 +262,75 @@ function Trinket:GetOptions()
             },
             trinketGridStyleIcon = {
                type="toggle",
-               name=L["trinketGridStyleIcon"],
-               desc=L["trinketGridStyleIconDesc"],
+               name=L["Trinket grid style icon"],
+               desc=L["Toggle trinket grid style icon"],
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-               order=13,
+               order=15,
             },
             trinketGridStyleIconColor = {
                type="color",
-               name=L["trinketGridStyleIconColor"],
-               desc=L["trinketGridStyleIconColorDesc"],
+               name=L["Trinket grid style icon color"],
+               desc=L["Color of the trinket grid style icon"],
                hasAlpha=true,
                get=function(info) return Gladius:GetColorOption(info) end,
                set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, a) end,
                disabled=function() return not Gladius.dbi.profile.trinketGridStyleIcon or not Gladius.dbi.profile.modules[self.name] end,
-               order=14,
+               order=20,
             },            
             trinketAdjustHeight = {
                type="toggle",
-               name=L["trinketAdjustHeight"],
-               desc=L["trinketAdjustHeightDesc"],
-               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-               order=15,
-            },
-            trinketHeight = {
-               type="range",
-               name=L["trinketHeight"],
-               desc=L["trinketHeightDesc"],
-               min=10, max=100, step=1,
-               disabled=function() return Gladius.dbi.profile.trinketAdjustHeight or not Gladius.dbi.profile.modules[self.name] end,
-               order=20,
-            },
-            trinketAdjustWidth = {
-               type="toggle",
-               name=L["trinketAdjustWidth"],
-               desc=L["trinketAdjustWidthDesc"],
-               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-               order=21,
-            },
-            trinketWidth = {
-               type="range",
-               name=L["trinketWidth"],
-               desc=L["trinketWidthDesc"],
-               min=10, max=100, step=1,
-               disabled=function() return Gladius.dbi.profile.trinketAdjustHeight or Gladius.dbi.profile.trinketAdjustWidth or not Gladius.dbi.profile.modules[self.name] end,
-               order=22,
-            },
-            trinketOffsetX = {
-               type="range",
-               name=L["trinketOffsetX"],
-               desc=L["trinketOffsetXDesc"],
-               min=-100, max=100, step=1,
+               name=L["Trinket adjust height"],
+               desc=L["Adjust trinket height to the frame height"],
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=25,
             },
+            trinketHeight = {
+               type="range",
+               name=L["Trinket height"],
+               desc=L["Height of the trinket"],
+               min=10, max=100, step=1,
+               disabled=function() return Gladius.dbi.profile.trinketAdjustHeight or not Gladius.dbi.profile.modules[self.name] end,
+               order=30,
+            },
+            trinketAdjustWidth = {
+               type="toggle",
+               name=L["Trinket adjust width"],
+               desc=L["Adjust trinket width to the frame width"],
+               disabled=function() return Gladius.dbi.profile.trinketAdjustHeight or not Gladius.dbi.profile.modules[self.name] end,
+               order=35,
+            },
+            trinketWidth = {
+               type="range",
+               name=L["Trinket width"],
+               desc=L["Width of the trinket"],
+               min=10, max=100, step=1,
+               disabled=function() return Gladius.dbi.profile.trinketAdjustHeight or Gladius.dbi.profile.trinketAdjustWidth or not Gladius.dbi.profile.modules[self.name] end,
+               order=40,
+            },
+            trinketOffsetX = {
+               type="range",
+               name=L["Trinket offset X"],
+               desc=L["X offset of the trinket"],
+               min=-100, max=100, step=1,
+               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+               order=45,
+            },
             trinketOffsetY = {
                type="range",
-               name=L["trinketOffsetY"],
-               desc=L["trinketOffsetYDesc"],
+               name=L["Trinket offset Y"],
+               desc=L["Y  offset of the trinket"],
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                min=-50, max=50, step=1,
-               order=30,
+               order=50,
             },
             trinketFrameLevel = {
                type="range",
-               name=L["trinketFrameLevel"],
-               desc=L["trinketFrameLevelDesc"],
+               name=L["Trinket frame level"],
+               desc=L["Frame level of the trinket"],
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                min=1, max=5, step=1,
                width="double",
-               order=35,
+               order=55,
             },
          },
       },
