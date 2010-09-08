@@ -48,22 +48,22 @@ Gladius:SetModule(PowerBar, "PowerBar", true, {
    powerInfoTextOffsetY = 0,
    
    powerBarUseDefaultColorMana = false,
-   powerBarDefaultColorMana = {r = .18, g = .44, b = .75, a = 1},
+   powerBarColorMana = {r = .18, g = .44, b = .75, a = 1},
    powerBarUseDefaultColorRage = false,
-   powerBarDefaultColorRage = {r = 1, g = 0, b = 0, a = 1},
+   powerBarColorRage = {r = 1, g = 0, b = 0, a = 1},
    powerBarUseDefaultColorFocus = false,
-   powerBarDefaultColorFocus = PowerBarColor[2],
+   powerBarColorFocus = PowerBarColor[2],
    powerBarUseDefaultColorEnergy = false,
-   powerBarDefaultColorEnergy = {r = 1, g = 1, b = 0, a = 1},
+   powerBarColorEnergy = {r = 1, g = 1, b = 0, a = 1},
    powerBarUseDefaultColorRunicPower = false,
-   powerBarDefaultColorRunicPower = {r = 0, g = 0.82, b = 1, a = 1},
+   powerBarColorRunicPower = {r = 0, g = 0.82, b = 1, a = 1},
 })
 
 function PowerBar:OnEnable()
    self:RegisterEvent("UNIT_POWER")
    self:RegisterEvent("UNIT_MAXPOWER", "UNIT_POWER")
    
-   self:RegisterEvent("UNIT_MANA")
+   self:RegisterEvent("UNIT_MANA", "UNIT_POWER")
    self:RegisterEvent("UNIT_MAXMANA", "UNIT_POWER")
    self:RegisterEvent("UNIT_ENERGY", "UNIT_POWER")
    self:RegisterEvent("UNIT_FOCUS", "UNIT_POWER")
@@ -256,16 +256,16 @@ function PowerBar:Update(unit)
 end
 
 function PowerBar:GetBarColor(powerType)
-   if (powerType == 0 and not powerBarUseDefaultColorMana) then
-      return Gladius.db.powerBarDefaultColorMana
-   elseif (powerType == 1 and not powerBarUseDefaultColorRage) then
-      return Gladius.db.powerBarDefaultColorRage
-   elseif (powerType == 2 and not powerBarUseDefaultColorFocus) then
-      return Gladius.db.powerBarDefaultColorFocus
-   elseif (powerType == 3 and not powerBarUseDefaultColorEnergy) then
-      return Gladius.db.powerBarDefaultColorEnergy
-   elseif (powerType == 6 and not powerBarUseDefaultColorRunicPower) then
-      return Gladius.db.powerBarDefaultColorRunicPower
+   if (powerType == 0 and not Gladius.db.powerBarUseDefaultColorMana) then
+      return Gladius.db.powerBarColorMana
+   elseif (powerType == 1 and not Gladius.db.powerBarUseDefaultColorRage) then
+      return Gladius.db.powerBarColorRage
+   elseif (powerType == 2 and not Gladius.db.powerBarUseDefaultColorFocus) then
+      return Gladius.db.powerBarColorFocus
+   elseif (powerType == 3 and not Gladius.db.powerBarUseDefaultColorEnergy) then
+      return Gladius.db.powerBarColorEnergy
+   elseif (powerType == 6 and not Gladius.db.powerBarUseDefaultColorRunicPower) then
+      return Gladius.db.powerBarColorRunicPower
    end
    
    return PowerBarColor[powerType]
@@ -639,9 +639,9 @@ function PowerBar:GetOptions()
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=0,
             },
-            powerBarDefaultColorMana = {
+            powerBarColorMana = {
                type="color",
-               name=L["Default power mana color"],
+               name=L["Power mana color"],
                get=function(info) return Gladius:GetColorOption(info) end,
                set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, 1) end,
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
@@ -654,9 +654,9 @@ function PowerBar:GetOptions()
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=10,
             },
-            powerBarDefaultColorRage = {
+            powerBarColorRage = {
                type="color",
-               name=L["Default power rage color"],
+               name=L["Power rage color"],
                get=function(info) return Gladius:GetColorOption(info) end,
                set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, 1) end,
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
@@ -669,9 +669,9 @@ function PowerBar:GetOptions()
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=20,
             },
-            powerBarDefaultColorFocus = {
+            powerBarColorFocus = {
                type="color",
-               name=L["Default power focus color"],
+               name=L["Power focus color"],
                get=function(info) return Gladius:GetColorOption(info) end,
                set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, 1) end,
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
@@ -684,9 +684,9 @@ function PowerBar:GetOptions()
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=30,
             },
-            powerBarDefaultColorEnergy = {
+            powerBarColorEnergy = {
                type="color",
-               name=L["Default power energy color"],
+               name=L["Power energy color"],
                get=function(info) return Gladius:GetColorOption(info) end,
                set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, 1) end,
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
@@ -699,9 +699,9 @@ function PowerBar:GetOptions()
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=40,
             },
-            powerBarDefaultColorRunicPower = {
+            powerBarColorRunicPower = {
                type="color",
-               name=L["Default power runic power color"],
+               name=L["Power runic power color"],
                get=function(info) return Gladius:GetColorOption(info) end,
                set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, 1) end,
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,

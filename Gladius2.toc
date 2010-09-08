@@ -1,4 +1,5 @@
-﻿## Interface: 40000
+﻿## Interface: 30300
+## X-Compatible-With: 40000
 ## Title: Gladius 2
 ## Notes: Arena enemy unit frames
 ## Version: @project-version@
