@@ -10,9 +10,9 @@ Gladius:SetModule(CastBar, "CastBar", true, {
    castBarAttachTo = "ClassIcon",
    
    castBarAdjustHeight = true,
-   castBarHeight = 15,
+   castBarHeight = 12,
    castBarAdjustWidth = true,
-   castBarWidth = 200,
+   castBarWidth = 150,
    
    castBarOffsetX = 0,
    castBarOffsetY = 0,
@@ -303,6 +303,12 @@ function CastBar:Update(unit)
 	
 	self.frame[unit].icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
 	
+	if (not Gladius.db.castIcon) then
+      self.frame[unit].icon:SetAlpha(0)
+   else
+      self.frame[unit].icon:SetAlpha(1)
+	end
+	
 	-- update highlight texture
 	self.frame[unit].highlight:SetAllPoints(self.frame[unit])
 	self.frame[unit].highlight:SetTexture([=[Interface\QuestFrame\UI-QuestTitleHighlight]=])
@@ -343,12 +349,21 @@ function CastBar:Test(unit)
    self.frame[unit].maxValue = 1
    self.frame[unit]:SetMinMaxValues(0, self.frame[unit].maxValue)
    self.frame[unit]:SetValue(self.frame[unit].value)
-   self.frame[unit].timeText:SetFormattedText("%.1f", self.frame[unit].maxValue - self.frame[unit].value)
+   
+   if (Gladius.db.castTimeText) then
+      self.frame[unit].timeText:SetFormattedText("%.1f", self.frame[unit].maxValue - self.frame[unit].value)
+   else
+      self.frame[unit].timeText:SetText("")
+   end
    
    local texture = select(3, GetSpellInfo(1))
    self.frame[unit].icon:SetTexture(texture)
    
-   self.frame[unit].castText:SetText(L["Example Spell Name"])
+   if (Gladius.db.castText) then
+      self.frame[unit].castText:SetText(L["Example Spell Name"])
+   else
+      self.frame[unit].castText:SetText("")
+   end
 end
 
 function CastBar:GetOptions()

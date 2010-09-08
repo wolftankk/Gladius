@@ -7,7 +7,7 @@ Gladius.defaults = {
       modules = {},
       locked = false,
       growUp = false,
-      lockButtons = true,
+      groupButtons = true,
       bottomMargin = 25,
       barWidth = 200,
       frameScale = 1,
@@ -50,6 +50,9 @@ SlashCmdList["GLADIUS"] = function(msg)
       end
       
       AceDialog:Open("Gladius")
+   elseif (msg == "hide") then
+      -- hide buttons
+      self:HideFrame()
    end
 end
 
@@ -140,12 +143,12 @@ function Gladius:SetupOptions()
 						type="toggle",
 						name=L["Grow frame upwards"],
 						desc=L["If this is toggled the frame will grow upwards instead of downwards."],
-						disabled=function() return not self.dbi.profile.lockButtons end,
+						disabled=function() return not self.dbi.profile.groupButtons end,
 						order=5,
 					},
-					lockButtons = {
+					groupButtons = {
 						type="toggle",
-						name=L["Lock Buttons"],
+						name=L["Group Buttons"],
 						desc=L["If this is toggle buttons can be moved separately"],
 						order=10,
 					},
@@ -154,7 +157,7 @@ function Gladius:SetupOptions()
                   name=L["Bottom Margin"],
                   desc=L["Margin between each button"],
                   min=0, max=100, step=1,
-                  disabled=function() return not self.dbi.profile.lockButtons end,
+                  disabled=function() return not self.dbi.profile.groupButtons end,
                   order=15,
                },
 					barWidth = {

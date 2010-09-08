@@ -9,9 +9,9 @@ local PowerBar = Gladius:NewModule("PowerBar", "AceEvent-3.0")
 Gladius:SetModule(PowerBar, "PowerBar", true, {
    powerBarAttachTo = "HealthBar",
    
-   powerBarHeight = 25,
+   powerBarHeight = 15,
    powerBarAdjustWidth = true,
-   powerBarWidth = 200,
+   powerBarWidth = 150,
    
    powerBarInverse = false,
    powerBarColor = { r = 1, g = 1, b = 1, a = 1 },
@@ -60,17 +60,20 @@ Gladius:SetModule(PowerBar, "PowerBar", true, {
 })
 
 function PowerBar:OnEnable()
+   self:RegisterEvent("UNIT_POWER")
+   self:RegisterEvent("UNIT_MAXPOWER", "UNIT_POWER")
+   
    self:RegisterEvent("UNIT_MANA")
-   self:RegisterEvent("UNIT_RAGE", "UNIT_MANA")
-   self:RegisterEvent("UNIT_ENERGY", "UNIT_MANA")
-   self:RegisterEvent("UNIT_FOCUS", "UNIT_MANA")
-   self:RegisterEvent("UNIT_RUNIC_POWER", "UNIT_MANA")
-   self:RegisterEvent("UNIT_MAXMANA", "UNIT_MANA")
-   self:RegisterEvent("UNIT_MAXRAGE", "UNIT_MANA")
-   self:RegisterEvent("UNIT_MAXENERGY", "UNIT_MANA")
-   self:RegisterEvent("UNIT_MAXFOCUS", "UNIT_MANA")
-   self:RegisterEvent("UNIT_MAXRUNIC_POWER", "UNIT_MANA")
-   self:RegisterEvent("UNIT_DISPLAYPOWER", "UNIT_MANA")
+   self:RegisterEvent("UNIT_MAXMANA", "UNIT_POWER")
+   self:RegisterEvent("UNIT_ENERGY", "UNIT_POWER")
+   self:RegisterEvent("UNIT_FOCUS", "UNIT_POWER")
+   self:RegisterEvent("UNIT_RUNIC_POWER", "UNIT_POWER")
+   self:RegisterEvent("UNIT_MAXMANA", "UNIT_POWER")
+   self:RegisterEvent("UNIT_MAXRAGE", "UNIT_POWER")
+   self:RegisterEvent("UNIT_MAXENERGY", "UNIT_POWER")
+   self:RegisterEvent("UNIT_MAXFOCUS", "UNIT_POWER")
+   self:RegisterEvent("UNIT_MAXRUNIC_POWER", "UNIT_POWER")
+   self:RegisterEvent("UNIT_DISPLAYPOWER", "UNIT_POWER")
    
    LSM = Gladius.LSM
    
@@ -95,7 +98,7 @@ function PowerBar:GetFrame(unit)
    return self.frame[unit]
 end
 
-function PowerBar:UNIT_MANA(event, unit)
+function PowerBar:UNIT_POWER(event, unit)
    if (not unit:find("arena") or unit:find("pet")) then return end
 
    local power, maxPower, powerType = UnitPower(unit), UnitPowerMax(unit), UnitPowerType(unit)
@@ -178,6 +181,14 @@ function PowerBar:CreateBar(unit)
 end
 
 function PowerBar:Update(unit)
+   -- get unit powerType
+   local powerType
+   if (not testing) then
+      powerType = UnitPowerType(unit)
+   else
+      powerType = Gladius.testing[unit].powerType
+   end
+
    -- create power bar
    if (not self.frame[unit]) then 
       self:CreateBar(unit)
@@ -201,6 +212,15 @@ function PowerBar:Update(unit)
 	-- disable tileing
 	self.frame[unit]:GetStatusBarTexture():SetHorizTile(false)
    self.frame[unit]:GetStatusBarTexture():SetVertTile(false)
+   
+   -- set color
+   if (not Gladius.db.powerBarDefaultColor) then
+      local color = Gladius.db.powerBarColor
+      self.frame[unit]:SetStatusBarColor(color.r, color.g, color.b, color.a)
+   else			
+      local color = self:GetBarColor(powerType)
+      self.frame[unit]:SetStatusBarColor(color.r, color.g, color.b)
+   end
 	
    -- update power text   
 	self.frame[unit].text:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.powerTextFont), Gladius.db.powerTextSize)
@@ -257,23 +277,6 @@ function PowerBar:Show(unit)
    -- show frame
    self.frame[unit]:SetAlpha(1)
 
-   -- get unit powerType
-   local powerType
-   if (not testing) then
-      powerType = UnitPowerType(unit)
-   else
-      powerType = Gladius.testing[unit].powerType
-   end
-
-   -- set color
-   if (not Gladius.db.powerBarDefaultColor) then
-      local color = Gladius.db.powerBarColor
-      self.frame[unit]:SetStatusBarColor(color.r, color.g, color.b, color.a)
-   else			
-      local color = self:GetBarColor(powerType)
-      self.frame[unit]:SetStatusBarColor(color.r, color.g, color.b)
-   end
-
    -- set info text
    local powerInfoText = ""
    
@@ -302,7 +305,7 @@ function PowerBar:Show(unit)
    end
    
    self.frame[unit].infoText:SetText(powerInfoText)
-   end
+end
 
 function PowerBar:Reset(unit)
    -- reset bar

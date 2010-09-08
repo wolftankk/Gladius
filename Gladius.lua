@@ -281,7 +281,7 @@ function Gladius:UpdateUnit(unit)
    
    -- set point
    self.buttons[unit]:ClearAllPoints()
-   if (unit == "arena1" or not self.db.lockButtons) then
+   if (unit == "arena1" or not self.db.groupButtons) then
       if (not self.db.x[unit] and not self.db.y[unit]) then
          self.buttons[unit]:SetPoint("CENTER")
       else
@@ -372,10 +372,7 @@ function Gladius:ResetUnit(unit)
          self:Call(m, "Reset", unit)
       end
 	end
-	
-	-- reset auras
-	self.buttons[unit].auras = {}
-   
+
    -- hide the button
    self.buttons[unit]:SetAlpha(0)
    
@@ -403,15 +400,15 @@ function Gladius:CreateButton(unit)
 	
 	button:SetScript("OnDragStart", function(f) 
 		if (not InCombatLockdown() and not self.db.locked) then 
-         local f = self.db.lockButtons and self.buttons["arena1"] or f
+         local f = self.db.groupButtons and self.buttons["arena1"] or f
          f:StartMoving() 
       end 
 	end)
     
 	button:SetScript("OnDragStop", function(f)
       if (not InCombatLockdown()) then
-         local f = self.db.lockButtons and self.buttons["arena1"] or f
-         local unit = self.db.lockButtons and "arena1" or unit 
+         local f = self.db.groupButtons and self.buttons["arena1"] or f
+         local unit = self.db.groupButtons and "arena1" or unit 
             
          f:StopMovingOrSizing()
          local scale = f:GetEffectiveScale()

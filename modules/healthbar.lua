@@ -11,7 +11,7 @@ Gladius:SetModule(HealthBar, "HealthBar", true, {
    
    healthBarHeight = 25,
    healthBarAdjustWidth = true,
-   healthBarWidth = 200,
+   healthBarWidth = 150,
    
    healthBarInverse = false,
    healthBarColor = { r = 1, g = 1, b = 1, a = 1 },
