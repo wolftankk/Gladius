@@ -77,6 +77,7 @@ function Gladius:OnInitialize()
 		
 	-- test environment
 	self.test = false
+	self.testCount = 0
 	self.testing = setmetatable({
       ["arena1"] = { health = 32000, maxHealth = 32000, power = 18000, maxPower = 18000, powerType = 0, unitClass = "PRIEST", unitRace = "Draenei", unitSpec = "Discipline" },
       ["arena2"] = { health = 30000, maxHealth = 32000, power = 10000, maxPower = 12000, powerType = 2, unitClass = "HUNTER", unitRace = "Night Elf", unitSpec = "Marksmanship" },
@@ -155,6 +156,7 @@ function Gladius:JoinedArena()
 		
 	-- reset test
 	self.test = false
+	self.testCount = 0
 	
    -- find out the current bracket size
 	for i=1, MAX_BATTLEFIELD_QUEUES do
@@ -209,18 +211,18 @@ function Gladius:ARENA_OPPONENT_UPDATE(event, unit, type)
    end
 end
 
-function Gladius:UpdateFrame()
-   -- update units
+function Gladius:UpdateFrame()   
    for unit, _ in pairs(self.buttons) do
-      if (self.buttons[unit] and not self.buttons[unit]:IsVisible() and self.test) then return end
-      
-      -- update frame will only be called in the test environment
-      self:UpdateUnit(unit)
-      self:ShowUnit(unit, true)
-      
-      -- test environment
-      if (self.test) then
-         self:TestUnit(unit)
+      local unitId = tonumber(string.match(unit, "^arena(.+)"))      
+      if (self.testCount >= unitId) then      
+         -- update frame will only be called in the test environment
+         self:UpdateUnit(unit)
+         self:ShowUnit(unit, true)
+         
+         -- test environment
+         if (self.test) then
+            self:TestUnit(unit)
+         end
       end
    end
 end
@@ -291,12 +293,13 @@ function Gladius:UpdateUnit(unit)
    else
       local parent = string.match(unit, "^arena(.+)") - 1
       local parentButton = self.buttons["arena" .. parent] 
-      if (not parentButton) then return end
       
-      if (self.db.growUp) then
-         self.buttons[unit]:SetPoint("BOTTOMLEFT", parentButton, "TOPLEFT", 0, self.db.bottomMargin)
-      else
-         self.buttons[unit]:SetPoint("TOPLEFT", parentButton, "BOTTOMLEFT", 0, -self.db.bottomMargin)
+      if (parentButton) then       
+         if (self.db.growUp) then
+            self.buttons[unit]:SetPoint("BOTTOMLEFT", parentButton, "TOPLEFT", 0, self.db.bottomMargin)
+         else
+            self.buttons[unit]:SetPoint("TOPLEFT", parentButton, "BOTTOMLEFT", 0, -self.db.bottomMargin)
+         end
       end
    end	
    
@@ -439,6 +442,26 @@ function Gladius:CreateButton(unit)
     
    local secure = CreateFrame("Button", "GladiusButton" .. unit, button, "SecureActionButtonTemplate")
 	secure:RegisterForClicks("AnyUp")
+	
+	secure:SetScript("OnEnter", function(f, motion)
+      if (motion) then
+         for _, m in pairs(self.modules) do
+            if (m:IsEnabled() and m.frame[unit].highlight) then
+               m.frame[unit].highlight:SetAlpha(0.5)
+            end
+         end
+      end
+   end)
+   
+   secure:SetScript("OnLeave", function(f, motion)
+      if (motion) then
+         for _, m in pairs(self.modules) do
+            if (m:IsEnabled() and m.frame[unit].highlight) then
+               m.frame[unit].highlight:SetAlpha(0)
+            end
+         end
+      end
+   end)
 	   
    button.secure = secure
    self.buttons[unit] = button
@@ -448,7 +471,7 @@ function Gladius:UNIT_HEALTH(event, unit)
    if (not unit:find("arena") or unit:find("pet")) then return end
 
    -- update unit
-   if (self.buttons[unit] and not self.buttons[unit]:IsVisible()) then
+   if (self.buttons[unit] and self.buttons[unit]:GetAlpha() == 0) then
       self:ShowUnit(unit)
    end
 end

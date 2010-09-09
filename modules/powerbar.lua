@@ -305,6 +305,10 @@ function PowerBar:Show(unit)
    end
    
    self.frame[unit].infoText:SetText(powerInfoText)
+   
+   if (not Gladius.test) then
+      self:UNIT_POWER("UNIT_POWER", unit)
+   end
 end
 
 function PowerBar:Reset(unit)

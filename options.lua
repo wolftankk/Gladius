@@ -28,11 +28,12 @@ SlashCmdList["GLADIUS"] = function(msg)
          test = 5
       end
       
+      Gladius.testCount = test
       Gladius.test = true      
       Gladius:HideFrame()
       
       -- create and update buttons on first launch
-      for i=1, test do
+      for i=1, 5 do
          if (not Gladius.buttons["arena" .. i]) then
             Gladius:UpdateUnit("arena" .. i)
          end
@@ -52,7 +53,7 @@ SlashCmdList["GLADIUS"] = function(msg)
       AceDialog:Open("Gladius")
    elseif (msg == "hide") then
       -- hide buttons
-      self:HideFrame()
+      Gladius:HideFrame()
    end
 end
 

@@ -168,6 +168,7 @@ function Trinket:Update(unit)
       end
 
       Gladius.buttons[unit]:SetHitRectInsets(left, right, top, bottom) 
+      Gladius.buttons[unit].secure:SetHitRectInsets(left, right, top, bottom) 
    end
    
    -- hide

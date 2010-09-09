@@ -259,6 +259,11 @@ function HealthBar:Show(unit)
    end
    
    self.frame[unit].infoText:SetText(healthInfoText)
+   
+   -- call event
+   if (not Gladius.test) then
+      self:UNIT_HEALTH("UNIT_HEALTH", unit)
+   end
 end
 
 function HealthBar:Reset(unit)
