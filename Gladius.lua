@@ -20,6 +20,7 @@ function Gladius:SetModule(module, key, bar, defaults)
    self.modules[key] = module
    module.name = key
    module.isBar = bar
+   module.defaults = defaults
    
    -- set db defaults
    self.defaults.profile.modules[key] = true
@@ -340,7 +341,7 @@ function Gladius:ShowUnit(unit, testing)
    self.buttons[unit]:SetFrameStrata("LOW")
    self.buttons[unit]:SetAlpha(1)   
    
-   self.buttons[unit].secure:SetFrameStrata("MEDIUM")
+   self.buttons[unit].secure:SetFrameStrata("HIGH")
    self.buttons[unit].secure:SetAlpha(1)
    
    for _, m in pairs(self.modules) do
@@ -361,7 +362,7 @@ function Gladius:TestUnit(unit)
 	end
 	
 	-- disable secure frame in test mode so we can move the frame
-   self.buttons[unit]:SetFrameStrata("MEDIUM")     
+   self.buttons[unit]:SetFrameStrata("HIGH")     
    self.buttons[unit].secure:SetFrameStrata("LOW")
 end
 
@@ -420,48 +421,8 @@ function Gladius:CreateButton(unit)
       end
    end)
    
-   button:SetScript("OnEnter", function(f, motion)
-      if (motion) then
-         for _, m in pairs(self.modules) do
-            if (m:IsEnabled() and m.frame[unit].highlight) then
-               m.frame[unit].highlight:SetAlpha(0.5)
-            end
-         end
-      end
-   end)
-   
-   button:SetScript("OnLeave", function(f, motion)
-      if (motion) then
-         for _, m in pairs(self.modules) do
-            if (m:IsEnabled() and m.frame[unit].highlight) then
-               m.frame[unit].highlight:SetAlpha(0)
-            end
-         end
-      end
-   end)
-    
    local secure = CreateFrame("Button", "GladiusButton" .. unit, button, "SecureActionButtonTemplate")
 	secure:RegisterForClicks("AnyUp")
-	
-	secure:SetScript("OnEnter", function(f, motion)
-      if (motion) then
-         for _, m in pairs(self.modules) do
-            if (m:IsEnabled() and m.frame[unit].highlight) then
-               m.frame[unit].highlight:SetAlpha(0.5)
-            end
-         end
-      end
-   end)
-   
-   secure:SetScript("OnLeave", function(f, motion)
-      if (motion) then
-         for _, m in pairs(self.modules) do
-            if (m:IsEnabled() and m.frame[unit].highlight) then
-               m.frame[unit].highlight:SetAlpha(0)
-            end
-         end
-      end
-   end)
 	   
    button.secure = secure
    self.buttons[unit] = button

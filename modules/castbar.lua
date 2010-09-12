@@ -22,26 +22,23 @@ Gladius:SetModule(CastBar, "CastBar", true, {
    
    castBarInverse = false,
    castBarColor = { r = 1, g = 1, b = 0, a = 1 },
+   castBarBackgroundColor = { r = 0, g = 0, b = 0, a = 0.4 },
    castBarTexture = "Minimalist",
    
    castIcon = true,
    castIconPosition = "LEFT",      
    
    castText = true,
-   castTextFont = "Friz Quadrata TT",
    castTextSize = 11,
    castTextColor = { r = 2.55, g = 2.55, b = 2.55, a = 1 },
    castTextAlign = "LEFT",
-   castTextAnchor = "LEFT",
    castTextOffsetX = 0,
    castTextOffsetY = 0,
    
    castTimeText = true,
-   castTimeTextFont = "Friz Quadrata TT",
    castTimeTextSize = 11,
    castTimeTextColor = { r = 2.55, g = 2.55, b = 2.55, a = 1 },
    castTimeTextAlign = "RIGHT",
-   castTimeTextAnchor = "RIGHT",
    castTimeTextOffsetX = 0,
    castTimeTextOffsetY = 0,
 })
@@ -168,6 +165,7 @@ function CastBar:CreateBar(unit)
    
    -- create bar + text
    self.frame[unit] = CreateFrame("STATUSBAR", "Gladius" .. self.name .. unit, button) 
+   self.frame[unit].background = self.frame[unit]:CreateTexture("Gladius" .. self.name .. unit .. "Background", "BACKGROUND") 
    self.frame[unit].highlight = self.frame[unit]:CreateTexture("Gladius" .. self.name .. "Highlight" .. unit, "OVERLAY")
    self.frame[unit].castText = self.frame[unit]:CreateFontString("Gladius" .. self.name .. "CastText" .. unit, "OVERLAY")
    self.frame[unit].timeText = self.frame[unit]:CreateFontString("Gladius" .. self.name .. "TimeText" .. unit, "OVERLAY")
@@ -267,13 +265,29 @@ function CastBar:Update(unit)
 	-- disable tileing
 	self.frame[unit]:GetStatusBarTexture():SetHorizTile(false)
    self.frame[unit]:GetStatusBarTexture():SetVertTile(false)
+   
+   -- update health bar background
+   self.frame[unit].background:ClearAllPoints()
+	self.frame[unit].background:SetAllPoints(self.frame[unit])
+	
+	self.frame[unit].background:SetWidth(self.frame[unit]:GetWidth())
+	self.frame[unit].background:SetHeight(self.frame[unit]:GetHeight())	
+	
+	self.frame[unit].background:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, Gladius.db.castBarTexture))
+	
+	self.frame[unit].background:SetVertexColor(Gladius.db.castBarBackgroundColor.r, Gladius.db.castBarBackgroundColor.g,
+      Gladius.db.castBarBackgroundColor.b, Gladius.db.castBarBackgroundColor.a)
+	
+	-- disable tileing
+	self.frame[unit].background:SetHorizTile(false)
+   self.frame[unit].background:SetVertTile(false)
 	
 	-- set color
    local color = Gladius.db.castBarColor
    self.frame[unit]:SetStatusBarColor(color.r, color.g, color.b, color.a)
    
    -- update cast text   
-	self.frame[unit].castText:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.castTextFont), Gladius.db.castTextSize)
+	self.frame[unit].castText:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.globalFont), Gladius.db.castTextSize)
 	
 	local color = Gladius.db.castTextColor
 	self.frame[unit].castText:SetTextColor(color.r, color.g, color.b, color.a)
@@ -281,10 +295,10 @@ function CastBar:Update(unit)
 	self.frame[unit].castText:SetShadowOffset(1, -1)
 	self.frame[unit].castText:SetShadowColor(0, 0, 0, 1)
 	self.frame[unit].castText:SetJustifyH(Gladius.db.castTextAlign)
-	self.frame[unit].castText:SetPoint(Gladius.db.castTextAnchor, Gladius.db.castTextOffsetX, Gladius.db.castTextOffsetY)
+	self.frame[unit].castText:SetPoint(Gladius.db.castTextAlign, Gladius.db.castTextOffsetX, Gladius.db.castTextOffsetY)
 	
 	-- update cast time text   
-	self.frame[unit].timeText:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.castTimeTextFont), Gladius.db.castTimeTextSize)
+	self.frame[unit].timeText:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.globalFont), Gladius.db.castTimeTextSize)
 	
 	local color = Gladius.db.castTimeTextColor
 	self.frame[unit].timeText:SetTextColor(color.r, color.g, color.b, color.a)
@@ -292,7 +306,7 @@ function CastBar:Update(unit)
 	self.frame[unit].timeText:SetShadowOffset(1, -1)
 	self.frame[unit].timeText:SetShadowColor(0, 0, 0, 1)
 	self.frame[unit].timeText:SetJustifyH(Gladius.db.castTimeTextAlign)
-	self.frame[unit].timeText:SetPoint(Gladius.db.castTimeTextAnchor, Gladius.db.castTimeTextOffsetX, Gladius.db.castTimeTextOffsetY)    
+	self.frame[unit].timeText:SetPoint(Gladius.db.castTimeTextAlign, Gladius.db.castTimeTextOffsetX, Gladius.db.castTimeTextOffsetY)    
 	
 	-- update icon
 	self.frame[unit].icon:ClearAllPoints()
@@ -372,273 +386,319 @@ function CastBar:GetOptions()
          type="group",
          name=L["General"],
          order=1,
-         args = {       
-            castBarAttachTo = {
-               type="select",
-               name=L["Cast bar attach to"],
-               desc=L["Attach cast bar to the given frame"],
-               values=function() return Gladius:GetModules(self.name) end,
-               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-               order=0,
+         args = {
+            bar = {
+               type="group",
+               name=L["Bar"],
+               desc=L["Bar settings"],  
+               inline=true,                
+               order=1,
+               args = {
+                  castBarColor = {
+                     type="color",
+                     name=L["Cast Bar Color"],
+                     desc=L["Color of the cast bar"],
+                     hasAlpha=true,
+                     get=function(info) return Gladius:GetColorOption(info) end,
+                     set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, a) end,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=5,
+                  },    
+                  castBarBackgroundColor = {
+                     type="color",
+                     name=L["Cast Bar Background Color"],
+                     desc=L["Color of the cast bar background"],
+                     hasAlpha=true,
+                     get=function(info) return Gladius:GetColorOption(info) end,
+                     set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, a) end,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return not Gladius.db.advancedOptions end,
+                     order=10,
+                  },               
+                  castBarInverse = {
+                     type="toggle",
+                     name=L["Cast Bar Inverse"],
+                     desc=L["Inverse the cast bar"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return not Gladius.db.advancedOptions end,
+                     order=15,
+                  },
+                  castBarTexture = {
+                     type="select",
+                     name=L["Cast Bar Texture"],
+                     desc=L["Texture of the cast bar"],
+                     dialogControl = "LSM30_Statusbar",
+                     values = AceGUIWidgetLSMlists.statusbar,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=20,
+                  },
+                  castIcon = {
+                     type="toggle",
+                     name=L["Cast Bar Icon"],
+                     desc=L["Toggle the cast icon"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=25,
+                  },
+                  castIconPosition = {
+                     type="select",
+                     name=L["Cast Bar Icon Position"],
+                     desc=L["Position of the cast bar icon"],
+                     values={ ["LEFT"] = L["LEFT"], ["RIGHT"] = L["RIGHT"] },
+                     disabled=function() return not Gladius.dbi.profile.castIcon or not Gladius.dbi.profile.modules[self.name] end,
+                     order=30,
+                  },
+               },
             },
-            castBarPosition = {
-               type="select",
-               name=L["Cast bar position"],
-               desc=L["Position of the cast bar"],
-               values={ ["LEFT"] = L["LEFT"], ["CENTER"] = L["CENTER"], ["RIGHT"] = L["RIGHT"] },
-               set=function(info, value) 
-                  local key = info.arg or info[#info]
-                  
-                  if (value == "CENTER") then
-                     self.isBar = true
-                  else
-                     self.isBar = false
-                  end
-                  
-                  Gladius.dbi.profile[key] = value
-                  Gladius:UpdateFrame()
-               end,
-               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-               order=5,
+            size = {
+               type="group",
+               name=L["Size"],
+               desc=L["Size settings"],  
+               inline=true,                
+               order=2,
+               args = {
+                  castBarAdjustWidth = {
+                     type="toggle",
+                     name=L["Cast Bar Adjust Width"],
+                     desc=L["Adjust cast bar width to the frame width"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     width="double",
+                     order=5,
+                  },
+                  castBarWidth = {
+                     type="range",
+                     name=L["Cast Bar Width"],
+                     desc=L["Width of the cast bar"],
+                     min=10, max=500, step=1,
+                     disabled=function() return Gladius.dbi.profile.castBarAdjustWidth or not Gladius.dbi.profile.modules[self.name] end,
+                     order=10,
+                  },
+
+                  castBarHeight = {
+                     type="range",
+                     name=L["Cast Bar Height"],
+                     desc=L["Height of the cast bar"],
+                     min=10, max=200, step=1,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] or (Gladius.dbi.profile.castBarPosition ~= "CENTER" and Gladius.dbi.profile.castBarAdjustHeight) end,
+                     order=15,
+                  },                  
+               },
             },
-            castBarAnchor = {
-               type="select",
-               name=L["Cast bar anchor"],
-               desc=L["Anchor of the cast bar"],
-               values={ ["TOP"] = L["TOP"], ["CENTER"] = L["CENTER"], ["BOTTOM"] = L["BOTTOM"] },
-               disabled=function() return not Gladius.dbi.profile.modules[self.name] or Gladius.dbi.profile.castBarPosition == "CENTER" end,
-               order=10,               
-            },
-            castBarHeight = {
-               type="range",
-               name=L["Cast bar height"],
-               desc=L["Height of the cast bar"],
-               min=10, max=200, step=1,
-               disabled=function() return not Gladius.dbi.profile.modules[self.name] or (Gladius.dbi.profile.castBarPosition ~= "CENTER" and Gladius.dbi.profile.castBarAdjustHeight) end,
-               order=15,
-            },
-            castBarAdjustWidth = {
-               type="toggle",
-               name=L["Cast bar adjust width"],
-               desc=L["Adjust cast bar width to the frame width"],
-               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-               order=20,
-            },
-            castBarWidth = {
-               type="range",
-               name=L["Cast bar width"],
-               desc=L["Width of the cast bar"],
-               min=10, max=500, step=1,
-               disabled=function() return Gladius.dbi.profile.castBarAdjustWidth or not Gladius.dbi.profile.modules[self.name] end,
-               order=25,
-            },
-            castIcon = {
-               type="toggle",
-               name=L["Cast bar Icon"],
-               desc=L["Toggle the cast icon"],
-               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-               order=30,
-            },
-            castIconPosition = {
-               type="select",
-               name=L["Cast bar Icon Position"],
-               desc=L["Position of the cast bar icon"],
-               values={ ["LEFT"] = L["LEFT"], ["RIGHT"] = L["RIGHT"] },
-               disabled=function() return not Gladius.dbi.profile.castIcon or not Gladius.dbi.profile.modules[self.name] end,
-               order=35,
-            },                        
-            castBarInverse = {
-               type="toggle",
-               name=L["Cast bar inverse"],
-               desc=L["Inverse the cast bar"],
-               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-               order=40,
-            },
-            castBarColor = {
-               type="color",
-               name=L["Cast bar Color"],
-               desc=L["Color of the cast bar"],
-               hasAlpha=true,
-               get=function(info) return Gladius:GetColorOption(info) end,
-               set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, a) end,
-               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-               order=45,
-            },
-            castBarOffsetX = {
-               type="range",
-               name=L["Cast bar offset X"],
-               desc=L["X offset of the cast bar"],
-               min=-100, max=100, step=1,
-               disabled=function() return  not Gladius.dbi.profile.modules[self.name] end,
-               order=50,
-            },
-            castBarOffsetY = {
-               type="range",
-               name=L["Cast bar offset Y"],
-               desc=L["Y offset of the castbar"],
-               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-               min=-100, max=100, step=1,
-               order=55,
-            },            
-            castBarTexture = {
-               type="select",
-               name=L["Cast bar texture"],
-               desc=L["Texture of the cast bar"],
-               dialogControl = "LSM30_Statusbar",
-               values = AceGUIWidgetLSMlists.statusbar,
-               width="double",
-               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-               order=60,
+            position = {  
+               type="group",
+               name=L["Position"],
+               desc=L["Position settings"],  
+               inline=true, 
+               hidden=function() return not Gladius.db.advancedOptions end,               
+               order=3,
+               args = {
+                  castBarAttachTo = {
+                     type="select",
+                     name=L["Cast Bar Attach To"],
+                     desc=L["Attach cast bar to the given frame"],
+                     values=function() return Gladius:GetModules(self.name) end,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     width="double",
+                     order=5,
+                  },
+                  castBarPosition = {
+                     type="select",
+                     name=L["Cast Bar Position"],
+                     desc=L["Position of the cast bar"],
+                     values={ ["LEFT"] = L["LEFT"], ["CENTER"] = L["CENTER"], ["RIGHT"] = L["RIGHT"] },
+                     set=function(info, value) 
+                        local key = info.arg or info[#info]
+                        
+                        if (value == "CENTER") then
+                           self.isBar = true
+                        else
+                           self.isBar = false
+                        end
+                        
+                        Gladius.dbi.profile[key] = value
+                        Gladius:UpdateFrame()
+                     end,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=10,
+                  },
+                  castBarAnchor = {
+                     type="select",
+                     name=L["Cast Bar Anchor"],
+                     desc=L["Anchor of the cast bar"],
+                     values={ ["TOP"] = L["TOP"], ["CENTER"] = L["CENTER"], ["BOTTOM"] = L["BOTTOM"] },
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] or Gladius.dbi.profile.castBarPosition == "CENTER" end,
+                     order=15,               
+                  },
+                  castBarOffsetY = {
+                     type="range",
+                     name=L["Cast Bar Offset Y"],
+                     desc=L["Y offset of the castbar"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     min=-100, max=100, step=1,
+                     order=20,
+                  },
+                  castBarOffsetX = {
+                     type="range",
+                     name=L["Cast Bar Offset X"],
+                     desc=L["X offset of the cast bar"],
+                     min=-100, max=100, step=1,
+                     disabled=function() return  not Gladius.dbi.profile.modules[self.name] end,
+                     order=25,
+                  },           
+               },
             },
          },
       },
       castText = {  
          type="group",
-         name=L["Cast text"],
+         name=L["Cast Text"],
          order=2,
-         args = {       
-            castText = {
-               type="toggle",
-               name=L["Cast text"],
-               desc=L["Toggle  cast text"],
-               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-               width="double",
-               order=0,
+         args = { 
+            text = {  
+               type="group",
+               name=L["Text"],
+               desc=L["Text settings"],  
+               inline=true,                
+               order=1,
+               args = {
+                  castText = {
+                     type="toggle",
+                     name=L["Cast Text"],
+                     desc=L["Toggle cast text"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     width="double",
+                     order=5,
+                  },
+                  castTextSize = {
+                     type="range",
+                     name=L["Cast Text Size"],
+                     desc=L["Text size of the cast text"],
+                     min=1, max=20, step=1,
+                     disabled=function() return not Gladius.dbi.profile.castText or not Gladius.dbi.profile.modules[self.name] end,
+                     order=10,
+                  },
+                  castTextColor = {
+                     type="color",
+                     name=L["Cast Text Color"],
+                     desc=L["Text color of the cast text"],
+                     hasAlpha=true,
+                     get=function(info) return Gladius:GetColorOption(info) end,
+                     set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, a) end,
+                     disabled=function() return not Gladius.dbi.profile.castText or not Gladius.dbi.profile.modules[self.name] end,
+                     order=15,
+                  },
+               },
             },
-            castTextFont = {
-               type="select",
-               name=L["Cast text font"],
-               desc=L["Font of the cast text"],
-               dialogControl = "LSM30_Font",
-               values = AceGUIWidgetLSMlists.font,
-               disabled=function() return not Gladius.dbi.profile.castText or not Gladius.dbi.profile.modules[self.name] end,
-               order=5,					
-            },
-            castTextSize = {
-               type="range",
-               name=L["Cast text size"],
-               desc=L["Text size of the cast text"],
-               min=1, max=20, step=1,
-               disabled=function() return not Gladius.dbi.profile.castText or not Gladius.dbi.profile.modules[self.name] end,
-               order=10,
-            },
-            castTextColor = {
-               type="color",
-               name=L["Cast text color"],
-               desc=L["Text color of the cast text"],
-               hasAlpha=true,
-               get=function(info) return Gladius:GetColorOption(info) end,
-               set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, a) end,
-               width="double",
-               disabled=function() return not Gladius.dbi.profile.castText or not Gladius.dbi.profile.modules[self.name] end,
-               order=15,
-            },
-            castTextAlign = {
-               type="select",
-               name=L["Cast text align"],
-               desc=L["Text align of the cast text"],
-               values={ ["LEFT"] = L["LEFT"], ["CENTER"] = L["CENTER"], ["RIGHT"] = L["RIGHT"] },
-               disabled=function() return not Gladius.dbi.profile.castText or not Gladius.dbi.profile.modules[self.name] end,
-               order=20,
-            },
-            castTextAnchor = {
-               type="select",
-               name=L["Cast text anchor"],
-               desc=L["Anchor of the cast text"],
-               values={ ["LEFT"] = L["LEFT"], ["CENTER"] = L["CENTER"], ["RIGHT"] = L["RIGHT"] },
-               disabled=function() return not Gladius.dbi.profile.castText or not Gladius.dbi.profile.modules[self.name] end,
-               order=25,
-            },
-            castTextOffsetX = {
-               type="range",
-               name=L["Cast text offset X"],
-               desc=L["X offset of the cast text"],
-               min=-100, max=100, step=1,
-               disabled=function() return not Gladius.dbi.profile.castText or not Gladius.dbi.profile.modules[self.name] end,
-               order=30,
-            },
-            castTextOffsetY = {
-               type="range",
-               name=L["Cast text offset Y"],
-               desc=L["Y offset of the cast text"],
-               disabled=function() return not Gladius.dbi.profile.castText or not Gladius.dbi.profile.modules[self.name] end,
-               min=-100, max=100, step=1,
-               order=35,
+            position = {  
+               type="group",
+               name=L["Position"],
+               desc=L["Position settings"],  
+               inline=true,
+               hidden=function() return not Gladius.db.advancedOptions end,                
+               order=2,
+               args = {
+                  castTextAlign = {
+                     type="select",
+                     name=L["Cast Text Align"],
+                     desc=L["Text align of the cast text"],
+                     values={ ["LEFT"] = L["LEFT"], ["CENTER"] = L["CENTER"], ["RIGHT"] = L["RIGHT"] },
+                     disabled=function() return not Gladius.dbi.profile.castText or not Gladius.dbi.profile.modules[self.name] end,
+                     width="double",
+                     order=5,
+                  },
+                  castTextOffsetX = {
+                     type="range",
+                     name=L["Cast Text Offset X"],
+                     desc=L["X offset of the cast text"],
+                     min=-100, max=100, step=1,
+                     disabled=function() return not Gladius.dbi.profile.castText or not Gladius.dbi.profile.modules[self.name] end,
+                     order=10,
+                  },
+                  castTextOffsetY = {
+                     type="range",
+                     name=L["Cast Text Offset Y"],
+                     desc=L["Y offset of the cast text"],
+                     disabled=function() return not Gladius.dbi.profile.castText or not Gladius.dbi.profile.modules[self.name] end,
+                     min=-100, max=100, step=1,
+                     order=15,
+                  },
+               },
             },
          },
       },
       castTimeText = {  
          type="group",
-         name=L["Cast time text"],
+         name=L["Cast Time text"],
          order=3,
-         args = {       
-            castTimeText = {
-               type="toggle",
-               name=L["Cast time text"],
-               desc=L["Toggle cast time text"],
-               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-               width="double",
-               order=0,
+         args = { 
+            text = {  
+               type="group",
+               name=L["Text"],
+               desc=L["Text settings"],  
+               inline=true,                
+               order=1,
+               args = {
+                  castTimeText = {
+                     type="toggle",
+                     name=L["Cast Time Text"],
+                     desc=L["Toggle cast time text"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     width="double",
+                     order=5,
+                  },
+                  castTimeTextSize = {
+                     type="range",
+                     name=L["Cast Time Text Size"],
+                     desc=L["Text size of the cast time text"],
+                     min=1, max=20, step=1,
+                     disabled=function() return not Gladius.dbi.profile.castTimeText or not Gladius.dbi.profile.modules[self.name] end,
+                     order=10,
+                  },
+                  castTimeTextColor = {
+                     type="color",
+                     name=L["Cast Time Text Color"],
+                     desc=L["Text color of the cast time text"],
+                     hasAlpha=true,
+                     get=function(info) return Gladius:GetColorOption(info) end,
+                     set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, a) end,
+                     disabled=function() return not Gladius.dbi.profile.castTimeText or not Gladius.dbi.profile.modules[self.name] end,
+                     order=15,
+                  },
+               },
             },
-            castTimeTextFont = {
-               type="select",
-               name=L["Cast time text font"],
-               desc=L["Text font of the cast time text"],
-               dialogControl = "LSM30_Font",
-               values = AceGUIWidgetLSMlists.font,
-               disabled=function() return not Gladius.dbi.profile.castTimeText or not Gladius.dbi.profile.modules[self.name] end,
-               order=5,					
-            },
-            castTimeTextSize = {
-               type="range",
-               name=L["Cast time text size"],
-               desc=L["Text size of the cast time text"],
-               min=1, max=20, step=1,
-               disabled=function() return not Gladius.dbi.profile.castTimeText or not Gladius.dbi.profile.modules[self.name] end,
-               order=10,
-            },
-            castTimeTextColor = {
-               type="color",
-               name=L["Cast time text color"],
-               desc=L["Text color of the cast time text"],
-               hasAlpha=true,
-               get=function(info) return Gladius:GetColorOption(info) end,
-               set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, a) end,
-               width="double",
-               disabled=function() return not Gladius.dbi.profile.castTimeText or not Gladius.dbi.profile.modules[self.name] end,
-               order=15,
-            },
-            castTimeTextAlign = {
-               type="select",
-               name=L["Cast time text align"],
-               desc=L["Text align of the cast time text"],
-               values={ ["LEFT"] = L["LEFT"], ["CENTER"] = L["CENTER"], ["RIGHT"] = L["RIGHT"] },
-               disabled=function() return not Gladius.dbi.profile.castTimeText or not Gladius.dbi.profile.modules[self.name] end,
-               order=20,
-            },
-            castTimeTextAnchor = {
-               type="select",
-               name=L["Cast time text anchor"],
-               desc=L["Text Anchor of the cast time text"],
-               values={ ["LEFT"] = L["LEFT"], ["CENTER"] = L["CENTER"], ["RIGHT"] = L["RIGHT"] },
-               disabled=function() return not Gladius.dbi.profile.castTimeText or not Gladius.dbi.profile.modules[self.name] end,
-               order=25,
-            },
-            castTimeTextOffsetX = {
-               type="range",
-               name=L["Cast time offset X"],
-               desc=L["X Offset of the cast time text"],
-               min=-100, max=100, step=1,
-               disabled=function() return not Gladius.dbi.profile.castTimeText or not Gladius.dbi.profile.modules[self.name] end,
-               order=30,
-            },
-            castTimeTextOffsetY = {
-               type="range",
-               name=L["Cast time offset Y"],
-               desc=L["Y Offset of the cast time text"],
-               disabled=function() return not Gladius.dbi.profile.castTimeText or not Gladius.dbi.profile.modules[self.name] end,
-               min=-100, max=100, step=1,
-               order=35,
+            position = {  
+               type="group",
+               name=L["Position"],
+               desc=L["Position settings"],  
+               inline=true,
+               hidden=function() return not Gladius.db.advancedOptions end,                
+               order=2,
+               args = {
+                  castTimeTextAlign = {
+                     type="select",
+                     name=L["Cast Time Text Align"],
+                     desc=L["Text align of the cast time text"],
+                     values={ ["LEFT"] = L["LEFT"], ["CENTER"] = L["CENTER"], ["RIGHT"] = L["RIGHT"] },
+                     disabled=function() return not Gladius.dbi.profile.castTimeText or not Gladius.dbi.profile.modules[self.name] end,
+                     width="double",
+                     order=5,
+                  },
+                  castTimeTextOffsetX = {
+                     type="range",
+                     name=L["Cast Time Offset X"],
+                     desc=L["X Offset of the cast time text"],
+                     min=-100, max=100, step=1,
+                     disabled=function() return not Gladius.dbi.profile.castTimeText or not Gladius.dbi.profile.modules[self.name] end,
+                     order=10,
+                  },
+                  castTimeTextOffsetY = {
+                     type="range",
+                     name=L["Cast Time Offset Y"],
+                     desc=L["Y Offset of the cast time text"],
+                     disabled=function() return not Gladius.dbi.profile.castTimeText or not Gladius.dbi.profile.modules[self.name] end,
+                     min=-100, max=100, step=1,
+                     order=15,
+                  },
+               },
             },
          },
       },

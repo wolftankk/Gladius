@@ -22,3 +22,5 @@ modules\powerbar.lua
 modules\castbar.lua
 modules\classicon.lua
 modules\trinket.lua
+modules\tags.lua
+modules\highlight.lua

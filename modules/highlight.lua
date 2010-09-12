@@ -1,0 +1,250 @@
+local Gladius = _G.Gladius
+if not Gladius then
+  DEFAULT_CHAT_FRAME:AddMessage(format("Module %s requires Gladius", "Highlight"))
+end
+local L = Gladius.L
+local LSM
+
+local Highlight = Gladius:NewModule("Highlight", "AceEvent-3.0")
+Gladius:SetModule(Highlight, "Highlight", false, {
+   highlightHover = true,
+   highlightHoverColor = { r = 1.0, 1.0, 1.0, 1.0 },
+   
+   highlightTarget = true,
+   highlightTargetColor = { r = 1, g = .7, b = 0, a = 1 },
+   highlightTargetPriority = 10,
+   
+   highlightFocus = true,
+   highlightFocusColor = { r = 1, g = 0, b = 0, a = 1 },
+   highlightFocusPriority = 0,
+   
+   highlightAssist = true,
+   highlightAssistColor = { r = 0, g = 1, b = 0, a = 1 },
+   highlightAssistPriority = 9,
+   
+   highlightRaidIcon1 = false,
+   highlightRaidIcon1Color = { r = 1, g = 1, b = 0, a = 1 },
+   highlightRaidIcon1Priority = 8,
+   
+   highlightRaidIcon2 = false,
+   highlightRaidIcon2Color = { r = 1, g = 0.55, b = 0, a = 1 },
+   highlightRaidIcon2Priority = 7,
+   
+   highlightRaidIcon3 = false,
+   highlightRaidIcon3Color = { r = 1, g = 0.08, b = 0.58, a = 1 },
+   highlightRaidIcon3Priority = 6,
+   
+   highlightRaidIcon4 = false,
+   highlightRaidIcon4Color = { r = 0.13, g = 0.55, b = 0.13, a = 1 },
+   highlightRaidIcon4Priority = 5,
+   
+   highlightRaidIcon5 = false,
+   highlightRaidIcon5Color = { r = 0.86, g = 0.86, b = 0.86, a = 1 },
+   highlightRaidIcon5Priority = 4,
+   
+   highlightRaidIcon6 = false,
+   highlightRaidIcon6Color = { r = 0.12, g = 0.56, b = 1.0, a = 1 },
+   highlightRaidIcon6Priority = 3,
+   
+   highlightRaidIcon7 = false,
+   highlightRaidIcon7Color = { r = 1, g = 0.27, b = 0, a = 1 },
+   highlightRaidIcon7Priority = 2,
+   
+   highlightRaidIcon8 = false,
+   highlightRaidIcon8Color = { r = 1, g = 1, b = 1, a = 1 },
+   highlightRaidIcon8Priority = 1,
+})
+
+function Highlight:OnEnable()
+   self:RegisterEvent("UNIT_TARGET")
+   self:RegisterEvent("PLAYER_FOCUS_CHANGED", "UNIT_TARGET")
+   self:RegisterEvent("PLAYER_TARGET_CHANGED", "UNIT_TARGET")
+      
+   LSM = Gladius.LSM   
+   
+   -- frame
+   if (not self.frame) then
+      self.frame = {}
+   end
+end
+
+function Highlight:OnDisable()
+   for unit in pairs(self.frame) do
+      self.frame[unit]:SetAlpha(0)
+   end
+end
+
+function Highlight:GetAttachTo()
+   return ""
+end
+
+function Highlight:GetFrame(unit)
+   return ""
+end
+
+function Highlight:UNIT_TARGET(event, unit)
+   local unit = unit or ""
+   if (unit ~= "" and (GetRealNumRaidMembers() == 0 or unit:find("pet") or (not unit:find("raid") and not unit:find("party")))) then return end  
+
+   local playerTargetGUID = UnitGUID("target")
+   local focusGUID = UnitGUID("focus")
+   local targetGUID = UnitGUID(unit .. "target")
+
+   for arenaUnit, frame in pairs(self.frame) do
+      -- reset
+      self:Reset(arenaUnit)
+   
+      if (targetGUID and UnitGUID(arenaUnit) == targetGUID and unit ~= "") then 
+         -- main assist
+         if (Gladius.db.highlightAssist and GetPartyAssignment("MAINASSIST", unit) == 1) then            
+            if (frame.priority < Gladius.db.highlightTargetPriority) then
+               frame.priority = Gladius.db.highlightTargetPriority
+               frame:SetBackdropBorderColor(Gladius.db.highlightTargetColor.r, Gladius.db.highlightTargetColor.g, Gladius.db.highlightTargetColor.b, Gladius.db.highlightTargetColor.a)            
+            end
+         end
+         
+         -- raid target icon
+         local icon = GetRaidTargetIndex(unit)
+         if (icon and Gladius.db["highlightRaidIcon" .. icon]) then            
+            if (frame.priority < Gladius.db["highlightRaidIcon" .. icon .. "Priority"]) then
+               frame.priority = Gladius.db["highlightRaidIcon" .. icon .. "Priority"]
+               frame:SetBackdropBorderColor(Gladius.db["highlightRaidIcon" .. icon .. "Color"].r, Gladius.db["highlightRaidIcon" .. icon .. "Color"].g, 
+                  Gladius.db["highlightRaidIcon" .. icon .. "Color"].b, Gladius.db["highlightRaidIcon" .. icon .. "Color"].a)            
+            end
+         end
+      end
+      
+      -- focus
+      if (focusGUID and UnitGUID(arenaUnit) == focusGUID) then
+         if (frame.priority < Gladius.db.highlightFocusPriority) then
+            frame.priority = Gladius.db.highlightFocusPriority
+            frame:SetBackdropBorderColor(Gladius.db.highlightFocusColor.r, Gladius.db.highlightFocusColor.g, Gladius.db.highlightFocusColor.b, Gladius.db.highlightFocusColor.a)            
+         end
+      end
+      
+      -- player target
+      if (playerTargetGUID and UnitGUID(arenaUnit) == playerTargetGUID) then
+         if (frame.priority < Gladius.db.highlightTargetPriority) then
+            frame.priority = Gladius.db.highlightTargetPriority
+            frame:SetBackdropBorderColor(Gladius.db.highlightTargetColor.r, Gladius.db.highlightTargetColor.g, Gladius.db.highlightTargetColor.b, Gladius.db.highlightTargetColor.a)            
+         end
+      end
+   end
+end
+
+function Highlight:CreateFrame(unit)
+   local button = Gladius.buttons[unit]
+   if (not button) then return end       
+   
+   -- create frame
+   self.frame[unit] = CreateFrame("Frame", "Gladius" .. self.name .. unit, button)
+   
+   -- set priority
+   self.frame[unit].priority = -1
+end
+
+function Highlight:Update(unit) 
+   -- create frame
+   if (not self.frame[unit]) then 
+      self:CreateFrame(unit)
+   end
+
+   -- update frame 
+   local left, right, top, bottom = Gladius.buttons[unit]:GetHitRectInsets()
+     
+   self.frame[unit]:ClearAllPoints()
+   self.frame[unit]:SetPoint("TOPLEFT", Gladius.buttons[unit], "TOPLEFT", left - 3, top + 3)
+   
+   self.frame[unit]:SetWidth(Gladius.buttons[unit]:GetWidth() + abs(left) + abs(right) + 3)
+   self.frame[unit]:SetHeight(Gladius.buttons[unit]:GetHeight() + abs(bottom) + abs(top) + 3)
+
+   self.frame[unit]:SetBackdrop({edgeFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeSize = 1,})
+   self.frame[unit]:SetBackdropBorderColor(0, 0, 0, 0)
+   
+   self.frame[unit]:SetFrameStrata("LOW")
+   
+   -- update highlight
+   local button = Gladius.buttons[unit]
+   local secure = button.secure
+   
+   if (Gladius.db.highlightHover) then
+      button:SetScript("OnEnter", function(f, motion)
+         if (motion and f:GetAlpha() > 0) then
+            for _, m in pairs(Gladius.modules) do
+               if (m:IsEnabled() and m.frame[unit].highlight and m.frame[unit]:GetAlpha() > 0) then
+                  m.frame[unit].highlight:SetAlpha(0.5)
+               end
+            end
+         end
+      end)
+      
+      button:SetScript("OnLeave", function(f, motion)
+         if (motion) then
+            for _, m in pairs(Gladius.modules) do
+               if (m:IsEnabled() and m.frame[unit].highlight) then
+                  m.frame[unit].highlight:SetAlpha(0)
+               end
+            end
+         end
+      end)           
+      
+      secure:SetScript("OnEnter", function(f, motion)
+         if (motion and f:GetAlpha() > 0) then
+            for _, m in pairs(Gladius.modules) do
+               if (m:IsEnabled() and m.frame[unit].highlight and m.frame[unit]:GetAlpha() > 0) then
+                  m.frame[unit].highlight:SetAlpha(0.5)
+               end
+            end
+         end
+      end)
+      
+      secure:SetScript("OnLeave", function(f, motion)
+         if (motion) then
+            for _, m in pairs(Gladius.modules) do
+               if (m:IsEnabled() and m.frame[unit].highlight) then
+                  m.frame[unit].highlight:SetAlpha(0)
+               end
+            end
+         end
+      end)
+   else
+      button:SetScript("OnEnter", nil)      
+      button:SetScript("OnLeave", nil)     
+      
+      secure:SetScript("OnEnter", nil)      
+      secure:SetScript("OnLeave", nil)
+   end
+
+   -- hide
+   self.frame[unit]:SetAlpha(0)
+end
+
+function Highlight:Show(unit)
+   -- show
+   self.frame[unit]:SetAlpha(1)
+end
+
+function Highlight:Reset(unit) 
+   -- set priority
+   self.frame[unit].priority = -1
+   
+   -- hide border
+   self.frame[unit]:SetBackdropBorderColor(0, 0, 0, 0)
+end
+
+function Highlight:Test(unit)   
+   -- test
+end
+
+function Highlight:GetOptions()
+   return {
+      general = {  
+         type="group",
+         name=L["General"],
+         order=1,
+         args = {
+
+         },
+      },
+   }
+end
