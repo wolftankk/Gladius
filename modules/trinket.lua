@@ -191,7 +191,7 @@ function Trinket:Update(unit)
    
    -- style action button   
    self.frame[unit].normalTexture:SetHeight(self.frame[unit]:GetHeight() + self.frame[unit]:GetHeight() * 0.4)
-	self.frame[unit].normalTexture:SetWidth(self.frame[unit]:GetWidth() + self.frame[unit]:GetWeight() * 0.4)
+	self.frame[unit].normalTexture:SetWidth(self.frame[unit]:GetWidth() + self.frame[unit]:GetWidth() * 0.4)
 	
 	self.frame[unit].normalTexture:ClearAllPoints()
 	self.frame[unit].normalTexture:SetPoint("CENTER", 0, 0)
