@@ -255,7 +255,6 @@ function PowerBar:GetOptions()
                      name=L["Power Bar Default Color"],
                      desc=L["Toggle power bar default color"],
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-                     width="double",
                      order=5,
                   },
                   sep = {                     
@@ -285,7 +284,13 @@ function PowerBar:GetOptions()
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      hidden=function() return not Gladius.db.advancedOptions end,
                      order=15,
-                  },   
+                  }, 
+                  sep2 = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=17,
+                  }, 
                   powerBarInverse = {
                      type="toggle",
                      name=L["Power Bar Inverse"],
@@ -317,8 +322,13 @@ function PowerBar:GetOptions()
                      name=L["Power Bar Adjust Width"],
                      desc=L["Adjust health bar width to the frame width"],
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-                     width="double",
                      order=5,
+                  },
+                  sep = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=7,
                   },
                   powerBarWidth = {
                      type="range",
@@ -354,6 +364,12 @@ function PowerBar:GetOptions()
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      width="double",
                      order=5,
+                  },
+                  sep = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=7,
                   },
                   powerBarOffsetX = {
                      type="range",
@@ -396,6 +412,12 @@ function PowerBar:GetOptions()
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=5,
             },
+            sep = {                     
+               type = "description",
+               name="",
+               width="full",
+               order=7,
+            },
             powerBarUseDefaultColorRage = {
                type="toggle",
                name=L["Default Power Rage Color"],
@@ -410,6 +432,12 @@ function PowerBar:GetOptions()
                set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, 1) end,
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=15,
+            },
+            sep2 = {                     
+               type = "description",
+               name="",
+               width="full",
+               order=17,
             },
             powerBarUseDefaultColorFocus = {
                type="toggle",
@@ -426,6 +454,12 @@ function PowerBar:GetOptions()
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=25,
             },
+            sep3 = {                     
+               type = "description",
+               name="",
+               width="full",
+               order=27,
+            },
             powerBarUseDefaultColorEnergy = {
                type="toggle",
                name=L["Default Power Energy Color"],
@@ -440,6 +474,12 @@ function PowerBar:GetOptions()
                set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, 1) end,
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=35,
+            },
+            sep4 = {                     
+               type = "description",
+               name="",
+               width="full",
+               order=37,
             },
             powerBarUseDefaultColorRunicPower = {
                type="toggle",

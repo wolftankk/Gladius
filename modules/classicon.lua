@@ -357,7 +357,6 @@ function ClassIcon:GetOptions()
                      type = "description",
                      name="",
                      width="full",
-                     hidden=function() return not Gladius.db.advancedOptions end,
                      order=7,
                   },
                   classIconGloss = {
@@ -378,6 +377,12 @@ function ClassIcon:GetOptions()
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      hidden=function() return not Gladius.db.advancedOptions end,
                      order=15,
+                  },
+                  sep2 = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=17,
                   },
                   classIconFrameLevel = {
                      type="range",
@@ -411,6 +416,12 @@ function ClassIcon:GetOptions()
                      desc=L["Adjust class icon height to the frame height"],
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      order=10,
+                  },
+                  sep = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=13,
                   },
                   classIconWidth = {
                      type="range",
@@ -447,6 +458,12 @@ function ClassIcon:GetOptions()
                      width="double",
                      order=5,
                   },
+                  sep = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=7,
+                  },
                   classIconPosition = {
                      type="select",
                      name=L["Class Icon Position"],
@@ -462,6 +479,12 @@ function ClassIcon:GetOptions()
                      values={ ["TOP"] = L["TOP"], ["CENTER"] = L["CENTER"], ["BOTTOM"] = L["BOTTOM"] },
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      order=15,
+                  },
+                  sep2 = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=17,
                   },
                   classIconOffsetX = {
                      type="range",

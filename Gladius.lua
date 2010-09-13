@@ -126,7 +126,6 @@ end
 
 function Gladius:OnProfileChanged(event, database, newProfileKey)
    -- update frame on profile change
-   self.db = self.dbi.profile
    self:UpdateFrame()   
 end
 
@@ -212,7 +211,9 @@ function Gladius:ARENA_OPPONENT_UPDATE(event, unit, type)
    end
 end
 
-function Gladius:UpdateFrame()   
+function Gladius:UpdateFrame()  
+   self.db = self.dbi.profile
+ 
    for unit, _ in pairs(self.buttons) do
       local unitId = tonumber(string.match(unit, "^arena(.+)"))      
       if (self.testCount >= unitId) then      

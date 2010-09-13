@@ -293,6 +293,12 @@ function Trinket:GetOptions()
                      disabled=function() return not Gladius.dbi.profile.trinketGridStyleIcon or not Gladius.dbi.profile.modules[self.name] end,
                      order=10,
                   }, 
+                  sep = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=13,
+                  },
                   trinketGloss = {
                      type="toggle",
                      name=L["Trinket Gloss"],
@@ -311,6 +317,13 @@ function Trinket:GetOptions()
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      hidden=function() return not Gladius.db.advancedOptions end,
                      order=20,
+                  },
+                  sep2 = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     hidden=function() return not Gladius.db.advancedOptions end,
+                     order=23,
                   },
                   trinketFrameLevel = {
                      type="range",
@@ -344,6 +357,12 @@ function Trinket:GetOptions()
                      desc=L["Adjust trinket height to the frame height"],
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      order=10,
+                  },
+                  sep = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=13,
                   },
                   trinketWidth = {
                      type="range",
@@ -380,6 +399,12 @@ function Trinket:GetOptions()
                      width="double",
                      order=5,
                   },
+                  sep = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=7,
+                  },
                   trinketPosition = {
                      type="select",
                      name=L["Trinket Position"],
@@ -395,6 +420,12 @@ function Trinket:GetOptions()
                      values={ ["TOP"] = L["TOP"], ["CENTER"] = L["CENTER"], ["BOTTOM"] = L["BOTTOM"] },
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      order=15,               
+                  },
+                  sep2 = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=17,
                   },
                   trinketOffsetX = {
                      type="range",

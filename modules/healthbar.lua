@@ -282,6 +282,12 @@ function HealthBar:GetOptions()
                      hidden=function() return not Gladius.db.advancedOptions end,
                      order=15,
                   },
+                  sep2 = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=17,
+                  },
                   healthBarInverse = {
                      type="toggle",
                      name=L["Health bar inverse"],
@@ -313,8 +319,13 @@ function HealthBar:GetOptions()
                      name=L["Health bar adjust width"],
                      desc=L["Adjust health bar width to the frame width"],
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-                     width="full",
                      order=5,
+                  },
+                  sep = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=7,
                   },                  
                   healthBarWidth = {
                      type="range",
@@ -350,6 +361,12 @@ function HealthBar:GetOptions()
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      width="double",
                      order=5,
+                  },
+                  sep = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=7,
                   },
                   healthBarOffsetX = {
                      type="range",
@@ -392,6 +409,12 @@ function HealthBar:GetOptions()
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=5,
             },
+            sep = {                     
+               type = "description",
+               name="",
+               width="full",
+               order=7,
+            },
             healthBarUseDefaultColorPaladin = {
                type="toggle",
                name=L["Default paladin color"],
@@ -406,6 +429,12 @@ function HealthBar:GetOptions()
                set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, 1) end,
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=15,
+            },
+            sep2 = {                     
+               type = "description",
+               name="",
+               width="full",
+               order=17,
             },
             healthBarUseDefaultColorShaman = {
                type="toggle",
@@ -422,6 +451,12 @@ function HealthBar:GetOptions()
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=25,
             },
+            sep3 = {                     
+               type = "description",
+               name="",
+               width="full",
+               order=27,
+            },
             healthBarUseDefaultColorDruid = {
                type="toggle",
                name=L["Default druid color"],
@@ -436,6 +471,12 @@ function HealthBar:GetOptions()
                set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, 1) end,
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=35,
+            },
+            sep4 = {                     
+               type = "description",
+               name="",
+               width="full",
+               order=37,
             },
             healthBarUseDefaultColorMage = {
                type="toggle",
@@ -452,6 +493,12 @@ function HealthBar:GetOptions()
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=45,
             },
+            sep5 = {                     
+               type = "description",
+               name="",
+               width="full",
+               order=47,
+            },
             healthBarUseDefaultColorWarlock = {
                type="toggle",
                name=L["Default warlock color"],
@@ -466,6 +513,12 @@ function HealthBar:GetOptions()
                set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, 1) end,
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=55,
+            },
+            sep6 = {                     
+               type = "description",
+               name="",
+               width="full",
+               order=57,
             },
             healthBarUseDefaultColorHunter = {
                type="toggle",
@@ -482,6 +535,12 @@ function HealthBar:GetOptions()
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=65,
             },
+            sep7 = {                     
+               type = "description",
+               name="",
+               width="full",
+               order=67,
+            },
             healthBarUseDefaultColorWarrior = {
                type="toggle",
                name=L["Default warrior color"],
@@ -497,6 +556,12 @@ function HealthBar:GetOptions()
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=75,
             },
+            sep8 = {                     
+               type = "description",
+               name="",
+               width="full",
+               order=77,
+            },
             healthBarUseDefaultColorRogue = {
                type="toggle",
                name=L["Default rogue color"],
@@ -511,6 +576,12 @@ function HealthBar:GetOptions()
                set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, 1) end,
                disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                order=85,
+            },
+            sep9 = {                     
+               type = "description",
+               name="",
+               width="full",
+               order=87,
             },
             healthBarUseDefaultColorDeathknight = {
                type="toggle",

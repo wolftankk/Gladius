@@ -8,7 +8,7 @@ local LSM
 local Highlight = Gladius:NewModule("Highlight", "AceEvent-3.0")
 Gladius:SetModule(Highlight, "Highlight", false, {
    highlightHover = true,
-   highlightHoverColor = { r = 1.0, 1.0, 1.0, 1.0 },
+   highlightHoverColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 },
    
    highlightTarget = true,
    highlightTargetColor = { r = 1, g = .7, b = 0, a = 1 },
@@ -167,11 +167,17 @@ function Highlight:Update(unit)
    local button = Gladius.buttons[unit]
    local secure = button.secure
    
-   if (Gladius.db.highlightHover) then
+   if (Gladius.db.highlightHover) then      
+      -- set scripts
       button:SetScript("OnEnter", function(f, motion)
          if (motion and f:GetAlpha() > 0) then
             for _, m in pairs(Gladius.modules) do
                if (m:IsEnabled() and m.frame[unit].highlight and m.frame[unit]:GetAlpha() > 0) then
+                  -- set color
+                  m.frame[unit].highlight:SetVertexColor(Gladius.db.highlightHoverColor.r, Gladius.db.highlightHoverColor.g,
+                     Gladius.db.highlightHoverColor.b, Gladius.db.highlightHoverColor.a)
+                     
+                  -- set alpha
                   m.frame[unit].highlight:SetAlpha(0.5)
                end
             end
@@ -192,6 +198,11 @@ function Highlight:Update(unit)
          if (motion and f:GetAlpha() > 0) then
             for _, m in pairs(Gladius.modules) do
                if (m:IsEnabled() and m.frame[unit].highlight and m.frame[unit]:GetAlpha() > 0) then
+                  -- set color
+                  m.frame[unit].highlight:SetVertexColor(Gladius.db.highlightHoverColor.r, Gladius.db.highlightHoverColor.g,
+                     Gladius.db.highlightHoverColor.b, Gladius.db.highlightHoverColor.a)
+                     
+                  -- set alpha
                   m.frame[unit].highlight:SetAlpha(0.5)
                end
             end
@@ -237,14 +248,200 @@ function Highlight:Test(unit)
 end
 
 function Highlight:GetOptions()
-   return {
-      general = {  
+   local options = {
+      general = {
          type="group",
-         name=L["General"],
+         name=L["General"],                 
          order=1,
          args = {
-
+            hover = {
+               type="group",
+               name=L["Hover"],
+               desc=L["Hover settings"],  
+               inline=true,                
+               order=1,
+               args = {
+                  highlightHover = {
+                     type="toggle",
+                     name=L["Highlight On Mouseover"],
+                     desc=L["Highlight frame on mouseover"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=5,
+                  },  
+                  highlightHoverColor = {
+                     type="color",
+                     name=L["Highlight Color"],
+                     desc=L["Color of the highlight frame"],
+                     hasAlpha=true,
+                     get=function(info) return Gladius:GetColorOption(info) end,
+                     set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, a) end,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=10,
+                  }, 
+               },
+            },
+            target = {
+               type="group",
+               name=L["Player Target"],
+               desc=L["Player target settings"],  
+               inline=true,                
+               order=2,
+               args = {
+                  highlightTarget = {
+                     type="toggle",
+                     name=L["Highlight Target"],
+                     desc=L["Show border around player target"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=5,
+                  },  
+                  highlightTargetColor = {
+                     type="color",
+                     name=L["Highlight Target Color"],
+                     desc=L["Color of the target border"],
+                     hasAlpha=true,
+                     get=function(info) return Gladius:GetColorOption(info) end,
+                     set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, a) end,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=10,
+                  }, 
+                  highlightTargetPriority = {
+                     type="range",
+                     name=L["Highlight Target Priority"],
+                     desc=L["Priority of the target border"],
+                     min=0, max=10, step=1,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return not Gladius.db.advancedOptions end,
+                     width="double",
+                     order=15,
+                  }, 
+               },
+            },
+            focus = {
+               type="group",
+               name=L["Player Focus Target"],
+               desc=L["Player focus target settings"],  
+               inline=true,                
+               order=2,
+               args = {
+                  highlightFocus = {
+                     type="toggle",
+                     name=L["Highlight Focus Target"],
+                     desc=L["Show border around player target"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=5,
+                  },  
+                  highlightFocusColor = {
+                     type="color",
+                     name=L["Highlight Focus Target Color"],
+                     desc=L["Color of the focus target border"],
+                     hasAlpha=true,
+                     get=function(info) return Gladius:GetColorOption(info) end,
+                     set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, a) end,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=10,
+                  }, 
+                  highlightFocusPriority = {
+                     type="range",
+                     name=L["Highlight Focus Target Priority"],
+                     desc=L["Priority of the focus target border"],
+                     min=0, max=10, step=1,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return not Gladius.db.advancedOptions end,
+                     width="double",
+                     order=15,
+                  }, 
+               },
+            },
+            assist = {
+               type="group",
+               name=L["Raid Assist Target"],
+               desc=L["Raid assist settings"],  
+               inline=true,                
+               order=2,
+               args = {
+                  highlightAssist = {
+                     type="toggle",
+                     name=L["Highlight Raid Assist"],
+                     desc=L["Show border around raid assist"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=5,
+                  },  
+                  highlightAssistColor = {
+                     type="color",
+                     name=L["Highlight Raid Assist Color"],
+                     desc=L["Color of the raid assist border"],
+                     hasAlpha=true,
+                     get=function(info) return Gladius:GetColorOption(info) end,
+                     set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, a) end,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=10,
+                  }, 
+                  highlightAssistPriority = {
+                     type="range",
+                     name=L["Highlight Raid Assist Priority"],
+                     desc=L["Priority of the raid assist border"],
+                     min=0, max=10, step=1,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return not Gladius.db.advancedOptions end,
+                     width="double",
+                     order=15,
+                  }, 
+               },
+            },
          },
       },
+      raidTargets = {
+         type="group",
+         name=L["Raid Icon Targets"],
+         hidden=function() return not Gladius.db.advancedOptions end,                 
+         order=2,
+         args = {
+         },
+      },     
    }
+   
+   -- raid targets
+   for i=1, 8 do
+      options.raidTargets.args["raidTarget" .. i] = {
+         type="group",
+         name="|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_" .. i .. ".blp:0|t" .. L["Raid Icon Target " .. i],
+         desc=L["Raid Icon target " .. i .. " settings"], 
+         inline=true,                
+         order=i,
+         args = {
+            highlightRaidIcon = {
+               type="toggle",
+               name=L["Highlight Raid Target " .. i],
+               desc=L["Show border around raid target " .. i],
+               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+               arg="highlightRaidIcon" .. i,
+               order=5,
+            },  
+            highlightRaidIconColor = {
+               type="color",
+               name=L["Highlight Raid Assist Color"],
+               desc=L["Color of the raid assist border"],
+               hasAlpha=true,
+               get=function(info) return Gladius:GetColorOption(info) end,
+               set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, a) end,
+               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+               arg="highlightRaidIcon" .. i .. "Color",
+               order=10,
+            }, 
+            highlightRaidIconPriority = {
+               type="range",
+               name=L["Highlight Raid Assist Priority"],
+               desc=L["Priority of the raid assist border"],
+               min=0, max=10, step=1,
+               disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+               hidden=function() return not Gladius.db.advancedOptions end,
+               arg="highlightRaidIcon" .. i .. "Priority",
+               width="double",
+               order=15,
+            }, 
+         },
+      }
+   end
+   
+   return options
 end

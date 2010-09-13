@@ -51,7 +51,7 @@ SlashCmdList["GLADIUS"] = function(msg)
       
       if (not Gladius.options) then
          Gladius:SetupOptions()
-         AceDialog:SetDefaultSize("Gladius", 640, 500)
+         AceDialog:SetDefaultSize("Gladius", 830, 530)
       end
       
       AceDialog:Open("Gladius")
@@ -171,6 +171,12 @@ function Gladius:SetupOptions()
                         disabled=function() return not self.dbi.profile.groupButtons end,
                         order=5,
                      },
+                     sep = {                     
+                        type = "description",
+                        name="",
+                        width="full",                     
+                        order=7,
+                     }, 
                      groupButtons = {
                         type="toggle",
                         name=L["Group Buttons"],
