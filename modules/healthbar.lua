@@ -6,9 +6,10 @@ local L = Gladius.L
 local LSM
 
 local HealthBar = Gladius:NewModule("HealthBar", "AceEvent-3.0")
-Gladius:SetModule(HealthBar, "HealthBar", true, {
+Gladius:SetModule(HealthBar, "HealthBar", true, true, {
    healthBarAttachTo = "Frame",
    
+   healthBarAdjustHeight = true,
    healthBarHeight = 25,
    healthBarAdjustWidth = true,
    healthBarWidth = 200,
@@ -21,6 +22,9 @@ Gladius:SetModule(HealthBar, "HealthBar", true, {
    
    healthBarOffsetX = 0,
    healthBarOffsetY = 0,  
+   
+   healthBarAnchor = "TOPLEFT",
+   healthBarRelativePoint = "TOPLEFT",
    
    healthBarUseDefaultColorPriest = true,
    healthBarColorPriest = RAID_CLASS_COLORS["PRIEST"],
@@ -49,6 +53,13 @@ function HealthBar:OnEnable()
    self:RegisterEvent("UNIT_MAXHEALTH", "UNIT_HEALTH")
    
    LSM = Gladius.LSM
+   
+   -- set frame type
+   if (Gladius.db.healthBarAttachTo == "Frame" or Gladius.db.healthBarRelativePoint:find("BOTTOM")) then
+      self.isBar = true
+   else
+      self.isBar = false
+   end
    
    if (not self.frame) then
       self.frame = {}
@@ -114,19 +125,37 @@ function HealthBar:Update(unit)
       self:CreateBar(unit)
    end
    
+   -- set bar type 
+   local parent = Gladius:GetParent(unit, Gladius.db.healthBarAttachTo)
+     
+   if (Gladius.db.healthBarAttachTo == "Frame" or Gladius.db.healthBarRelativePoint:find("BOTTOM")) then
+      self.isBar = true
+   else
+      self.isBar = false
+   end
+      
    -- update health bar   
    self.frame[unit]:ClearAllPoints()
-   
-   local parent = Gladius:GetParent(unit, Gladius.db.healthBarAttachTo)  
-   	
-	if (Gladius.db.healthBarAttachTo == "Frame") then 
-      self.frame[unit]:SetPoint("TOPLEFT", parent, "TOPLEFT", Gladius.db.healthBarOffsetX, Gladius.db.healthBarOffsetY)
-   else
-      self.frame[unit]:SetPoint("TOPLEFT", parent, "BOTTOMLEFT", Gladius.db.healthBarOffsetX, Gladius.db.healthBarOffsetY)
+
+   local width = Gladius.db.healthBarAdjustWidth and Gladius.db.barWidth or Gladius.db.healthBarWidth
+	
+	-- add width of the widget if attached to an widget
+	if (Gladius.db.healthBarAttachTo ~= "Frame" and not Gladius.db.healthBarRelativePoint:find("BOTTOM") and Gladius.db.healthBarAdjustWidth) then
+      if (not Gladius:GetModule(Gladius.db.healthBarAttachTo).frame[unit]) then
+         Gladius:GetModule(Gladius.db.healthBarAttachTo):Update(unit)
+      end
+      
+      width = width + Gladius:GetModule(Gladius.db.healthBarAttachTo).frame[unit]:GetWidth()
 	end
-	   
-	self.frame[unit]:SetWidth(Gladius.db.healthBarAdjustWidth and Gladius.db.barWidth or Gladius.db.healthBarWidth)
-	self.frame[unit]:SetHeight(Gladius.db.healthBarHeight)	
+		 
+	if (Gladius.db.healthBarAttachTo ~= "Frame" and not Gladius.db.healthBarRelativePoint:find("BOTTOM") and Gladius.db.healthBarAdjustHeight) then
+      self.frame[unit]:SetHeight(Gladius.buttons[unit].frameHeight)   
+   else
+      self.frame[unit]:SetHeight(Gladius.db.healthBarHeight)  
+   end  
+   self.frame[unit]:SetWidth(width) 
+   	
+	self.frame[unit]:SetPoint(Gladius.db.healthBarAnchor, parent, Gladius.db.healthBarRelativePoint, Gladius.db.healthBarOffsetX, Gladius.db.healthBarOffsetY)
 	self.frame[unit]:SetMinMaxValues(0, 100)
 	self.frame[unit]:SetValue(100)
 	self.frame[unit]:SetStatusBarTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, Gladius.db.healthBarTexture))
@@ -321,11 +350,18 @@ function HealthBar:GetOptions()
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      order=5,
                   },
+                  healthBarAdjustHeight = {
+                     type="toggle",
+                     name=L["Health bar adjust height"],
+                     desc=L["Adjust health bar width to the frame height"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=10,
+                  },
                   sep = {                     
                      type = "description",
                      name="",
                      width="full",
-                     order=7,
+                     order=13,
                   },                  
                   healthBarWidth = {
                      type="range",
@@ -333,7 +369,7 @@ function HealthBar:GetOptions()
                      desc=L["Width of the health bar"],
                      min=10, max=500, step=1,
                      disabled=function() return Gladius.dbi.profile.healthBarAdjustWidth or not Gladius.dbi.profile.modules[self.name] end,
-                     order=10,
+                     order=15,
                   },
                   healthBarHeight = {
                      type="range",
@@ -341,7 +377,7 @@ function HealthBar:GetOptions()
                      desc=L["Height of the health bar"],
                      min=10, max=200, step=1,
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-                     order=15,
+                     order=20,
                   },
                },
             },
@@ -355,9 +391,21 @@ function HealthBar:GetOptions()
                args = {
                   healthBarAttachTo = {
                      type="select",
-                     name=L["Health bar attach to"],
+                     name=L["Health Bar Attach To"],
                      desc=L["Attach health bar to the given frame"],
                      values=function() return Gladius:GetModules(self.name) end,
+                     set=function(info, value) 
+                        local key = info.arg or info[#info]
+                        
+                        if (Gladius.db.healthBarRelativePoint:find("BOTTOM")) then
+                           self.isBar = true
+                        else
+                           self.isBar = false
+                        end
+                        
+                        Gladius.dbi.profile[key] = value
+                        Gladius:UpdateFrame()
+                     end,
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      width="double",
                      order=5,
@@ -368,13 +416,35 @@ function HealthBar:GetOptions()
                      width="full",
                      order=7,
                   },
+                  healthBarAnchor = {
+                     type="select",
+                     name=L["Health Bar Anchor"],
+                     desc=L["Anchor of the health bar"],
+                     values=function() return Gladius:GetPositions() end,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=10,
+                  },
+                  healthBarRelativePoint = {
+                     type="select",
+                     name=L["Health Bar Relative Point"],
+                     desc=L["Relative point of the health bar"],
+                     values=function() return Gladius:GetPositions() end,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=15,               
+                  },
+                  sep2 = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=17,
+                  },
                   healthBarOffsetX = {
                      type="range",
                      name=L["Health bar offset X"],
                      desc=L["X offset of the health bar"],
                      min=-100, max=100, step=1,
                      disabled=function() return  not Gladius.dbi.profile.modules[self.name] end,
-                     order=10,
+                     order=20,
                   },
                   healthBarOffsetY = {
                      type="range",
@@ -382,7 +452,7 @@ function HealthBar:GetOptions()
                      desc=L["Y offset of the health bar"],
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      min=-100, max=100, step=1,
-                     order=15,
+                     order=25,
                   },  
                },
             },             

@@ -6,7 +6,7 @@ local L = Gladius.L
 local LSM
 
 local Highlight = Gladius:NewModule("Highlight", "AceEvent-3.0")
-Gladius:SetModule(Highlight, "Highlight", false, {
+Gladius:SetModule(Highlight, "Highlight", false, false, {
    highlightHover = true,
    highlightHoverColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 },
    
@@ -172,7 +172,7 @@ function Highlight:Update(unit)
       button:SetScript("OnEnter", function(f, motion)
          if (motion and f:GetAlpha() > 0) then
             for _, m in pairs(Gladius.modules) do
-               if (m:IsEnabled() and m.frame[unit].highlight and m.frame[unit]:GetAlpha() > 0) then
+               if (m:IsEnabled() and m.frame and m.frame[unit].highlight) then
                   -- set color
                   m.frame[unit].highlight:SetVertexColor(Gladius.db.highlightHoverColor.r, Gladius.db.highlightHoverColor.g,
                      Gladius.db.highlightHoverColor.b, Gladius.db.highlightHoverColor.a)
@@ -187,7 +187,7 @@ function Highlight:Update(unit)
       button:SetScript("OnLeave", function(f, motion)
          if (motion) then
             for _, m in pairs(Gladius.modules) do
-               if (m:IsEnabled() and m.frame[unit].highlight) then
+               if (m:IsEnabled() and m.frame and m.frame[unit].highlight) then
                   m.frame[unit].highlight:SetAlpha(0)
                end
             end
@@ -197,7 +197,7 @@ function Highlight:Update(unit)
       secure:SetScript("OnEnter", function(f, motion)
          if (motion and f:GetAlpha() > 0) then
             for _, m in pairs(Gladius.modules) do
-               if (m:IsEnabled() and m.frame[unit].highlight and m.frame[unit]:GetAlpha() > 0) then
+               if (m:IsEnabled() and m.frame and m.frame[unit].highlight) then
                   -- set color
                   m.frame[unit].highlight:SetVertexColor(Gladius.db.highlightHoverColor.r, Gladius.db.highlightHoverColor.g,
                      Gladius.db.highlightHoverColor.b, Gladius.db.highlightHoverColor.a)
@@ -212,7 +212,7 @@ function Highlight:Update(unit)
       secure:SetScript("OnLeave", function(f, motion)
          if (motion) then
             for _, m in pairs(Gladius.modules) do
-               if (m:IsEnabled() and m.frame[unit].highlight) then
+               if (m:IsEnabled() and m.frame and m.frame[unit].highlight) then
                   m.frame[unit].highlight:SetAlpha(0)
                end
             end

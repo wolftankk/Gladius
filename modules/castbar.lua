@@ -6,7 +6,7 @@ local L = Gladius.L
 local LSM
 
 local CastBar = Gladius:NewModule("CastBar", "AceEvent-3.0")
-Gladius:SetModule(CastBar, "CastBar", true, {
+Gladius:SetModule(CastBar, "CastBar", true, true, {
    castBarAttachTo = "ClassIcon",
    
    castBarAdjustHeight = true,
@@ -17,8 +17,8 @@ Gladius:SetModule(CastBar, "CastBar", true, {
    castBarOffsetX = 0,
    castBarOffsetY = 0,
    
-   castBarPosition = "CENTER",
-   castBarAnchor = "TOP",
+   castBarAnchor = "TOPLEFT",
+   castBarRelativePoint = "BOTTOMLEFT",
    
    castBarInverse = false,
    castBarColor = { r = 1, g = 1, b = 0, a = 1 },
@@ -55,14 +55,16 @@ function CastBar:OnEnable()
    
    LSM = Gladius.LSM
    
-   if (not self.frame) then
-      self.frame = {}
-   end
-   
-   if (Gladius.db.castBarPosition == "CENTER") then
+   --[[ set frame type
+   if (Gladius.db.castBarAttachTo == "Frame" or Gladius:GetModule(Gladius.db.castBarAttachTo).isBar) then
       self.isBar = true
    else
       self.isBar = false
+   end]]
+   self.isBar = true
+   
+   if (not self.frame) then
+      self.frame = {}
    end
 end
 
@@ -84,6 +86,10 @@ function CastBar:GetFrame(unit)
    else
       return self.frame[unit]
    end
+end
+
+function CastBar:GetIndicatorHeight()
+   return Gladius.db.castBarHeight
 end
 
 function CastBar:UNIT_SPELLCAST_START(event, unit)
@@ -204,6 +210,15 @@ function CastBar:Update(unit)
    if (not self.frame[unit]) then 
       self:CreateBar(unit)
    end
+   
+   -- set bar type 
+   local parent = Gladius:GetParent(unit, Gladius.db.castBarAttachTo)
+     
+  --[[ if (Gladius.db.castBarAttachTo == "Frame" or Gladius:GetModule(Gladius.db.castBarAttachTo).isBar) then
+      self.isBar = true
+   else
+      self.isBar = false
+   end]]
       
    -- update power bar   
    self.frame[unit]:ClearAllPoints()
@@ -213,8 +228,8 @@ function CastBar:Update(unit)
        width = width - Gladius.db.castBarHeight
 	end
 	
-	-- add width of the indicator if attached to an indicator
-	if (Gladius.db.castBarAttachTo ~= "Frame" and Gladius.db.castBarAdjustWidth and Gladius.db.castBarPosition == "CENTER") then
+	-- add width of the widget if attached to an widget
+	if (Gladius.db.castBarAttachTo ~= "Frame" and not Gladius:GetModule(Gladius.db.castBarAttachTo).isBar and Gladius.db.castBarAdjustWidth) then
       if (not Gladius:GetModule(Gladius.db.castBarAttachTo).frame[unit]) then
          Gladius:GetModule(Gladius.db.castBarAttachTo):Update(unit)
       end
@@ -222,39 +237,25 @@ function CastBar:Update(unit)
       width = width + Gladius:GetModule(Gladius.db.castBarAttachTo).frame[unit]:GetWidth()
 	end
 		 
-	if (Gladius.db.castBarPosition ~= "CENTER" and Gladius.db.castBarAdjustHeight) then
+	if (not self.isBar and Gladius.db.castBarRelativePoint:find("TOP") and Gladius.db.castBarAdjustHeight) then
       self.frame[unit]:SetHeight(Gladius.buttons[unit].frameHeight)   
    else
       self.frame[unit]:SetHeight(Gladius.db.castBarHeight)  
    end  
    self.frame[unit]:SetWidth(width)
 	
-	local parent, point, relativePoint, offsetX
-	if (Gladius.db.castBarPosition ~= "CENTER") then
-      parent = Gladius:GetParent(unit, Gladius.db.castBarAttachTo)     
-      point = Gladius.db.castBarPosition == "LEFT" and "RIGHT" or "LEFT" 
-      relativePoint = Gladius.db.castBarPosition    
-      
-      if (Gladius.db.castBarAnchor ~= "CENTER") then
-         local anchor = Gladius.db.castBarAnchor       
-         point, relativePoint = anchor .. point, anchor .. relativePoint      
-      end  
-      
-      if (Gladius.db.castBarPosition == "RIGHT") then
-         offsetX = Gladius.db.castIcon and Gladius.db.castIconPosition == "LEFT" and self.frame[unit]:GetHeight() or 0
-      elseif (Gladius.db.castBarPosition == "LEFT") then
-         offsetX = Gladius.db.castIcon and Gladius.db.castIconPosition == "RIGHT" and -self.frame[unit]:GetHeight() or 0
-      end
-   else
-      parent = Gladius:GetParent(unit, Gladius.db.castBarAttachTo)  
-      relativePoint = "BOTTOMLEFT"
-      point = "TOPLEFT"	
-      if (Gladius.db.castBarAttachTo == "Frame") then relativePoint = point end
-      
-      offsetX = Gladius.db.castIcon and Gladius.db.castIconPosition == "LEFT" and self.frame[unit]:GetHeight() or 0
-	end
+	local offsetX
+   if (not Gladius.db.castBarAnchor:find("RIGHT") and Gladius.db.castBarRelativePoint:find("RIGHT")) then
+      offsetX = Gladius.db.castIcon and Gladius.db.castIconPosition == "LEFT" and self.frame[unit]:GetHeight() or 0      
+   elseif (not Gladius.db.castBarAnchor:find("LEFT") and Gladius.db.castBarRelativePoint:find("LEFT")) then
+      offsetX = Gladius.db.castIcon and Gladius.db.castIconPosition == "RIGHT" and -self.frame[unit]:GetHeight() or 0      
+   elseif (Gladius.db.castBarAnchor:find("LEFT") and Gladius.db.castBarRelativePoint:find("LEFT")) then
+      offsetX = Gladius.db.castIcon and Gladius.db.castIconPosition == "LEFT" and self.frame[unit]:GetHeight() or 0      
+   elseif (Gladius.db.castBarAnchor:find("RIGHT") and Gladius.db.castBarRelativePoint:find("RIGHT")) then
+      offsetX = Gladius.db.castIcon and Gladius.db.castIconPosition == "RIGHT" and -self.frame[unit]:GetHeight() or 0      
+   end
 	
-	self.frame[unit]:SetPoint(point, parent, relativePoint, Gladius.db.castBarOffsetX + (offsetX or 0), Gladius.db.castBarOffsetY)	
+	self.frame[unit]:SetPoint(Gladius.db.castBarAnchor, parent, Gladius.db.castBarRelativePoint, Gladius.db.castBarOffsetX + (offsetX or 0), Gladius.db.castBarOffsetY)	
 	self.frame[unit]:SetMinMaxValues(0, 100)
 	self.frame[unit]:SetValue(0)
 	self.frame[unit]:SetStatusBarTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, Gladius.db.castBarTexture))
@@ -307,7 +308,7 @@ function CastBar:Update(unit)
       self.frame[unit].icon:SetAlpha(1)
 	end
 	
-	-- update health bar background
+	-- update cast bar background
    self.frame[unit].background:ClearAllPoints()
 	self.frame[unit].background:SetAllPoints(self:GetFrame(unit))	
 	
@@ -481,11 +482,18 @@ function CastBar:GetOptions()
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      order=5,
                   },
+                  castBarAdjustHeight = {
+                     type="toggle",
+                     name=L["Cast Bar Adjust Height"],
+                     desc=L["Adjust cast bar height to the frame height"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=10,
+                  },
                   sep = {                     
                      type = "description",
                      name="",
                      width="full",
-                     order=7,
+                     order=13,
                   },
                   castBarWidth = {
                      type="range",
@@ -493,15 +501,15 @@ function CastBar:GetOptions()
                      desc=L["Width of the cast bar"],
                      min=10, max=500, step=1,
                      disabled=function() return Gladius.dbi.profile.castBarAdjustWidth or not Gladius.dbi.profile.modules[self.name] end,
-                     order=10,
+                     order=15,
                   },
                   castBarHeight = {
                      type="range",
                      name=L["Cast Bar Height"],
                      desc=L["Height of the cast bar"],
                      min=10, max=200, step=1,
-                     disabled=function() return not Gladius.dbi.profile.modules[self.name] or (Gladius.dbi.profile.castBarPosition ~= "CENTER" and Gladius.dbi.profile.castBarAdjustHeight) end,
-                     order=15,
+                     disabled=function() return Gladius.dbi.profile.castBarAdjustHeight or not Gladius.dbi.profile.modules[self.name] end,
+                     order=20,
                   },                  
                },
             },
@@ -518,6 +526,18 @@ function CastBar:GetOptions()
                      name=L["Cast Bar Attach To"],
                      desc=L["Attach cast bar to the given frame"],
                      values=function() return Gladius:GetModules(self.name) end,
+                     set=function(info, value) 
+                        local key = info.arg or info[#info]
+                        
+                        --[[if (Gladius.db.castBarAttachTo == "Frame" or Gladius:GetModule(Gladius.db.castBarAttachTo).isBar) then
+                           self.isBar = true
+                        else
+                           self.isBar = false
+                        end]]
+                        
+                        Gladius.dbi.profile[key] = value
+                        Gladius:UpdateFrame()
+                     end,
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      width="double",
                      order=5,
@@ -528,32 +548,20 @@ function CastBar:GetOptions()
                      width="full",
                      order=7,
                   },
-                  castBarPosition = {
-                     type="select",
-                     name=L["Cast Bar Position"],
-                     desc=L["Position of the cast bar"],
-                     values={ ["LEFT"] = L["LEFT"], ["CENTER"] = L["CENTER"], ["RIGHT"] = L["RIGHT"] },
-                     set=function(info, value) 
-                        local key = info.arg or info[#info]
-                        
-                        if (value == "CENTER") then
-                           self.isBar = true
-                        else
-                           self.isBar = false
-                        end
-                        
-                        Gladius.dbi.profile[key] = value
-                        Gladius:UpdateFrame()
-                     end,
-                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-                     order=10,
-                  },
                   castBarAnchor = {
                      type="select",
                      name=L["Cast Bar Anchor"],
                      desc=L["Anchor of the cast bar"],
-                     values={ ["TOP"] = L["TOP"], ["CENTER"] = L["CENTER"], ["BOTTOM"] = L["BOTTOM"] },
-                     disabled=function() return not Gladius.dbi.profile.modules[self.name] or Gladius.dbi.profile.castBarPosition == "CENTER" end,
+                     values=function() return Gladius:GetPositions() end,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=10,
+                  },
+                  castBarRelativePoint = {
+                     type="select",
+                     name=L["Cast Bar Relative Point"],
+                     desc=L["Relative point of the cast bar"],
+                     values=function() return Gladius:GetPositions() end,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      order=15,               
                   },
                   sep2 = {                     

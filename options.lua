@@ -10,18 +10,12 @@ Gladius.defaults = {
       groupButtons = true,
       advancedOptions = false,
       backgroundColor = { r = 0, g = 0, b = 0, a = 0.4 },
-      bottomMargin = 25,
+      bottomMargin = 10,
       globalFontSize = 11,
       globalFont = "Friz Quadrata TT",
       barWidth = 200,
       frameScale = 1,
    },
-}
-
-local textalign = {
-   ["LEFT"] = L["LEFT"],
-   ["CENTER"] = L["CENTER"],
-   ["RIGHT"] = L["RIGHT"],
 }
 
 SLASH_GLADIUS1 = "/gladius"
@@ -56,7 +50,11 @@ SlashCmdList["GLADIUS"] = function(msg)
       
       AceDialog:Open("Gladius")
    elseif (msg == "hide") then
-      -- hide buttons
+      -- reset test environment
+      Gladius.testCount = 0
+      Gladius.test = false
+      
+      -- hide buttons      
       Gladius:HideFrame()
    end
 end
@@ -80,6 +78,17 @@ function Gladius:SetColorOption(info, r, g, b, a)
    local key = info.arg or info[#info]
    self.dbi.profile[key].r, self.dbi.profile[key].g, self.dbi.profile[key].b, self.dbi.profile[key].a = r, g, b, a
    self:UpdateFrame()
+end
+
+function Gladius:GetPositions()
+   return {
+      ["TOPLEFT"] = L["Top Left"],
+      ["TOPRIGHT"] = L["Top Right"],
+      ["LEFT"] = L["Center Left"],
+      ["RIGHT"] = L["Center Right"],
+      ["BOTTOMLEFT"] = L["Bottom Left"],
+      ["BOTTOMRIGHT"] = L["Bottom Right"],
+   }
 end
 
 function Gladius:SetupModule(key, module, order)

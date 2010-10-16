@@ -6,7 +6,7 @@ local L = Gladius.L
 local LSM
 
 local Tags = Gladius:NewModule("Tags", "AceEvent-3.0")
-Gladius:SetModule(Tags, "Tags", false, {
+Gladius:SetModule(Tags, "Tags", false, false, {
    tagsTexts = {
       ["HealthBar Left Text"] = {
          attachTo = "HealthBar",
@@ -399,6 +399,46 @@ function Tags:GetOptions()
                            -- add to options
                            Gladius.options.args[self.name].args.tagList.args[self.addTagName] = self:GetTagOptionTable(self.addTagName, order)
                            
+                           -- add to text option tags
+                           for text, v in pairs(Gladius.options.args[self.name].args.textList.args) do
+                              if (v.args.tag) then
+                                 local tag = self.addTagName
+                                 local tagName = L[tag .. "Tag"] ~= tag .. "Tag" and L[tag .. "Tag"] or string.format(L["Tag: %s"], tag) 
+                              
+                                 Gladius.options.args[self.name].args.textList.args[text].args.tag.args[tag] = {
+                                    type="toggle",
+                                    name=tagName,
+                                    get=function(info) 
+                                       local key = info[#info - 2]
+                                       
+                                       -- check if the tag is in the text
+                                       if (Gladius.dbi.profile.tagsTexts[key].text:find("%[" .. info[#info] .. "%]")) then
+                                          return true
+                                       else
+                                          return false
+                                       end
+                                    end,
+                                    set=function(info, v) 
+                                       local key = info[#info - 2]
+                                       
+                                       -- add/remove tag to the text               
+                                       if (not v) then
+                                          Gladius.dbi.profile.tagsTexts[key].text = string.gsub(Gladius.dbi.profile.tagsTexts[key].text, "%[" .. info[#info] .. "%]", "")
+                                          
+                                          -- trim right
+                                          Gladius.dbi.profile.tagsTexts[key].text = string.gsub(Gladius.dbi.profile.tagsTexts[key].text, "^(.-)%s*$", "%1")
+                                       else
+                                          Gladius.dbi.profile.tagsTexts[key].text = Gladius.dbi.profile.tagsTexts[key].text .. " [" .. info[#info] .. "]"
+                                       end
+                                       
+                                       -- update
+                                       Gladius:UpdateFrame()
+                                    end,
+                                    order=order,
+                                 }
+                              end
+                           end  
+                           
                            -- update
                            Gladius:UpdateFrame()
                         end
@@ -411,7 +451,7 @@ function Tags:GetOptions()
       },
    }
 
-   -- tags
+   -- text option tags
    self.optionTags = {
       text = {
          type="input",
@@ -602,6 +642,13 @@ function Tags:GetTagOptionTable(tag, order)
                -- remove from options
                Gladius.options.args[self.name].args.tagList.args[tag] = nil
                
+               -- remove from text option tags
+               for text, v in pairs(Gladius.options.args[self.name].args.textList.args) do
+                  if (v.args.tag and v.args.tag.args[tag]) then
+                     Gladius.options.args[self.name].args.textList.args[text].args.tag.args[tag] = nil
+                  end
+               end               
+               
                -- update
                Gladius:UpdateFrame()
             end,
@@ -782,10 +829,10 @@ function Tags:GetTagsEvents()
       ["maxhealth:short"] = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_NAME_UPDATE",
       ["health:percentage"] = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_NAME_UPDATE",
       
-      ["power"] = "UNIT_POWER UNIT_MAXPOWER UNIT_MANA UNIT_RAGE UNIT_ENERGY UNIT_FOCUS UNIT_RUNIC_POWER UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXRUNIC_POWER UNIT_DISPLAYPOWER UNIT_NAME_UPDATE",
-      ["maxpower"] = "UNIT_POWER UNIT_MAXPOWER UNIT_MANA UNIT_RAGE UNIT_ENERGY UNIT_FOCUS UNIT_RUNIC_POWER UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXRUNIC_POWER UNIT_DISPLAYPOWER UNIT_NAME_UPDATE",
-      ["power:short"] = "UNIT_POWER UNIT_MAXPOWER UNIT_MANA UNIT_RAGE UNIT_ENERGY UNIT_FOCUS UNIT_RUNIC_POWER UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXRUNIC_POWER UNIT_DISPLAYPOWER UNIT_NAME_UPDATE",
-      ["maxpower:short"] = "UNIT_POWER UNIT_MAXPOWER UNIT_MANA UNIT_RAGE UNIT_ENERGY UNIT_FOCUS UNIT_RUNIC_POWER UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXRUNIC_POWER UNIT_DISPLAYPOWER UNIT_NAME_UPDATE",
-      ["power:percentage"] = "UNIT_POWER UNIT_MAXPOWER UNIT_MANA UNIT_RAGE UNIT_ENERGY UNIT_FOCUS UNIT_RUNIC_POWER UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXRUNIC_POWER UNIT_DISPLAYPOWER UNIT_NAME_UPDATE",
+      ["power"] = "UNIT_POWER UNIT_DISPLAYPOWER UNIT_NAME_UPDATE",
+      ["maxpower"] = "UNIT_MAXPOWER UNIT_DISPLAYPOWER UNIT_NAME_UPDATE",
+      ["power:short"] = "UNIT_POWER UNIT_DISPLAYPOWER UNIT_NAME_UPDATE",
+      ["maxpower:short"] = "UNIT_MAXPOWER UNIT_DISPLAYPOWER UNIT_NAME_UPDATE",
+      ["power:percentage"] = "UNIT_POWER UNIT_MAXPOWER UNIT_DISPLAYPOWER UNIT_NAME_UPDATE",
    }
 end

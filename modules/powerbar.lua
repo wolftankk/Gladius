@@ -6,9 +6,10 @@ local L = Gladius.L
 local LSM
 
 local PowerBar = Gladius:NewModule("PowerBar", "AceEvent-3.0")
-Gladius:SetModule(PowerBar, "PowerBar", true, {
+Gladius:SetModule(PowerBar, "PowerBar", true, true, {
    powerBarAttachTo = "HealthBar",
    
+   powerBarAdjustHeight = true,
    powerBarHeight = 15,
    powerBarAdjustWidth = true,
    powerBarWidth = 200,
@@ -20,7 +21,10 @@ Gladius:SetModule(PowerBar, "PowerBar", true, {
    powerBarTexture = "Minimalist",   
    
    powerBarOffsetX = 0,
-   powerBarOffsetY = 0,   
+   powerBarOffsetY = 0, 
+   
+   powerBarAnchor = "TOPLEFT",
+   powerBarRelativePoint = "BOTTOMLEFT",  
    
    powerBarUseDefaultColorMana = false,
    powerBarColorMana = {r = .18, g = .44, b = .75, a = 1},
@@ -51,6 +55,13 @@ function PowerBar:OnEnable()
    self:RegisterEvent("UNIT_DISPLAYPOWER", "UNIT_POWER")
    
    LSM = Gladius.LSM
+   
+   -- set frame type
+   if (Gladius.db.healthBarAttachTo == "Frame" or Gladius.db.powerBarRelativePoint:find("BOTTOM")) then
+      self.isBar = true
+   else
+      self.isBar = false
+   end
    
    if (not self.frame) then
       self.frame = {}
@@ -132,17 +143,37 @@ function PowerBar:Update(unit)
       self:CreateBar(unit)
    end
      
+   -- set bar type 
+   local parent = Gladius:GetParent(unit, Gladius.db.powerBarAttachTo)
+     
+   if (Gladius.db.healthBarAttachTo == "Frame" or Gladius.db.powerBarRelativePoint:find("BOTTOM")) then
+      self.isBar = true
+   else
+      self.isBar = false
+   end
+      
    -- update power bar   
    self.frame[unit]:ClearAllPoints()
-   
-	local parent = Gladius:GetParent(unit, Gladius.db.powerBarAttachTo)  
-	local relativePoint = "BOTTOMLEFT"
-	local point = "TOPLEFT"	
-	if (Gladius.db.powerBarAttachTo == "Frame") then relativePoint = point end
-	   
-	self.frame[unit]:SetPoint(point, parent, relativePoint, Gladius.db.powerBarOffsetX, Gladius.db.powerBarOffsetY)
-	self.frame[unit]:SetWidth(Gladius.db.powerBarAdjustWidth and Gladius.db.barWidth or Gladius.db.powerBarWidth)
-	self.frame[unit]:SetHeight(Gladius.db.powerBarHeight)	
+
+   local width = Gladius.db.powerBarAdjustWidth and Gladius.db.barWidth or Gladius.db.powerBarWidth
+	
+	-- add width of the widget if attached to an widget
+	if (Gladius.db.healthBarAttachTo ~= "Frame" and not Gladius.db.powerBarRelativePoint:find("BOTTOM") and Gladius.db.powerBarAdjustWidth) then
+      if (not Gladius:GetModule(Gladius.db.powerBarAttachTo).frame[unit]) then
+         Gladius:GetModule(Gladius.db.powerBarAttachTo):Update(unit)
+      end
+      
+      width = width + Gladius:GetModule(Gladius.db.powerBarAttachTo).frame[unit]:GetWidth()
+	end
+		 
+	if (Gladius.db.healthBarAttachTo ~= "Frame" and not Gladius.db.powerBarRelativePoint:find("BOTTOM") and Gladius.db.powerBarAdjustHeight) then
+      self.frame[unit]:SetHeight(Gladius.buttons[unit].frameHeight)   
+   else
+      self.frame[unit]:SetHeight(Gladius.db.powerBarHeight)  
+   end  
+   self.frame[unit]:SetWidth(width) 
+   	
+	self.frame[unit]:SetPoint(Gladius.db.powerBarAnchor, parent, Gladius.db.powerBarRelativePoint, Gladius.db.powerBarOffsetX, Gladius.db.powerBarOffsetY)
 	self.frame[unit]:SetMinMaxValues(0, 100)
 	self.frame[unit]:SetValue(100)
 	self.frame[unit]:SetStatusBarTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, Gladius.db.powerBarTexture))
@@ -151,7 +182,7 @@ function PowerBar:Update(unit)
 	self.frame[unit]:GetStatusBarTexture():SetHorizTile(false)
    self.frame[unit]:GetStatusBarTexture():SetVertTile(false)
    
-   -- update health bar background
+   -- update power bar background
    self.frame[unit].background:ClearAllPoints()
 	self.frame[unit].background:SetAllPoints(self.frame[unit])
 	
@@ -320,15 +351,22 @@ function PowerBar:GetOptions()
                   powerBarAdjustWidth = {
                      type="toggle",
                      name=L["Power Bar Adjust Width"],
-                     desc=L["Adjust health bar width to the frame width"],
+                     desc=L["Adjust power bar width to the frame width"],
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      order=5,
+                  },
+                  powerBarAdjustHeight = {
+                     type="toggle",
+                     name=L["Power Bar Adjust Height"],
+                     desc=L["Adjust power bar height to the frame height"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=10,
                   },
                   sep = {                     
                      type = "description",
                      name="",
                      width="full",
-                     order=7,
+                     order=13,
                   },
                   powerBarWidth = {
                      type="range",
@@ -336,7 +374,7 @@ function PowerBar:GetOptions()
                      desc=L["Width of the power bar"],
                      min=10, max=500, step=1,
                      disabled=function() return Gladius.dbi.profile.powerBarAdjustWidth or not Gladius.dbi.profile.modules[self.name] end,
-                     order=10,
+                     order=15,
                   },
                   powerBarHeight = {
                      type="range",
@@ -344,7 +382,7 @@ function PowerBar:GetOptions()
                      desc=L["Height of the power bar"],
                      min=10, max=200, step=1,
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-                     order=15,
+                     order=20,
                   },
                },
             },
@@ -361,6 +399,18 @@ function PowerBar:GetOptions()
                      name=L["Power Bar Attach To"],
                      desc=L["Attach power bar to the given frame"],
                      values=function() return Gladius:GetModules(self.name) end,
+                     set=function(info, value) 
+                        local key = info.arg or info[#info]
+                        
+                        if (Gladius.db.powerBarRelativePoint:find("BOTTOM")) then
+                           self.isBar = true
+                        else
+                           self.isBar = false
+                        end
+                        
+                        Gladius.dbi.profile[key] = value
+                        Gladius:UpdateFrame()
+                     end,
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      width="double",
                      order=5,
@@ -371,13 +421,35 @@ function PowerBar:GetOptions()
                      width="full",
                      order=7,
                   },
+                  powerBarAnchor = {
+                     type="select",
+                     name=L["Power Bar Anchor"],
+                     desc=L["Anchor of the power bar"],
+                     values=function() return Gladius:GetPositions() end,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=10,
+                  },
+                  powerBarRelativePoint = {
+                     type="select",
+                     name=L["Power Bar Relative Point"],
+                     desc=L["Relative point of the power bar"],
+                     values=function() return Gladius:GetPositions() end,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=15,               
+                  },
+                  sep2 = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=17,
+                  },
                   powerBarOffsetX = {
                      type="range",
                      name=L["Power Bar Offset X"],
                      desc=L["X offset of the power bar"],
                      min=-100, max=100, step=1,
                      disabled=function() return  not Gladius.dbi.profile.modules[self.name] end,
-                     order=10,
+                     order=20,
                   },
                   powerBarOffsetY = {
                      type="range",
@@ -385,7 +457,7 @@ function PowerBar:GetOptions()
                      desc=L["X offset of the power bar"],
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      min=-100, max=100, step=1,
-                     order=15,
+                     order=25,
                   },
                },
             },

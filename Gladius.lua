@@ -13,14 +13,17 @@ function Gladius:Debug(...)
    print("Gladius:", ...)
 end
 
-function Gladius:SetModule(module, key, bar, defaults)
-   if (not self.modules) then self.modules = {} end
+function Gladius:SetModule(module, key, bar, attachTo, defaults)
+   if (not self.modules) then 
+      self.modules = {} 
+   end
 
    -- register module
    self.modules[key] = module
    module.name = key
    module.isBar = bar
    module.defaults = defaults
+   module.attachTo = attachTo
    
    -- set db defaults
    self.defaults.profile.modules[key] = true
@@ -36,16 +39,23 @@ function Gladius:GetParent(unit, module)
       return self.buttons[unit]
    else
       -- get parent module frame
-      local m = self:GetModule(module)
+      local m = self:GetModule(module, true)
       
-      -- update module, if frame doesn't exist
-      local frame = m:GetFrame(unit)
-      if (not frame) then
-         self:Call(m, "Update", unit)
-         frame = m:GetFrame(unit)
+      if (m) then
+         -- return frame as parent, if parent module is not enabled
+         if (not m:IsEnabled()) then return self.buttons[unit] end
+      
+         -- update module, if frame doesn't exist
+         local frame = m:GetFrame(unit)
+         if (not frame) then
+            self:Call(m, "Update", unit)
+            frame = m:GetFrame(unit)
+         end
+         
+         return frame
       end
       
-      return frame
+      return nil
    end
 end
 
@@ -53,7 +63,7 @@ function Gladius:GetModules(module)
    -- get module list for frame anchor
    local t = { ["Frame"] = L["Frame"] }
    for moduleName, m in pairs(self.modules) do
-      if (moduleName ~= module and m:GetAttachTo() ~= module) then
+      if (moduleName ~= module and m:GetAttachTo() ~= module and m.attachTo and m:IsEnabled()) then
          t[moduleName] = L[moduleName]
       end
    end
@@ -277,9 +287,15 @@ function Gladius:UpdateUnit(unit)
    self.buttons[unit]:SetHeight(frameHeight)
    
    -- update modules (indicator)
+   local indicatorHeight = 0
+   
    for _, m in pairs(self.modules) do
       if (m:IsEnabled() and not m.isBar) then
          self:Call(m, "Update", unit)
+         
+         if (m.GetIndicatorHeight) then
+            --indicatorHeight = indicatorHeight + m:GetIndicatorHeight()
+         end
       end
 	end
    
@@ -298,9 +314,9 @@ function Gladius:UpdateUnit(unit)
       
       if (parentButton) then       
          if (self.db.growUp) then
-            self.buttons[unit]:SetPoint("BOTTOMLEFT", parentButton, "TOPLEFT", 0, self.db.bottomMargin)
+            self.buttons[unit]:SetPoint("BOTTOMLEFT", parentButton, "TOPLEFT", 0, self.db.bottomMargin + indicatorHeight)
          else
-            self.buttons[unit]:SetPoint("TOPLEFT", parentButton, "BOTTOMLEFT", 0, -self.db.bottomMargin)
+            self.buttons[unit]:SetPoint("TOPLEFT", parentButton, "BOTTOMLEFT", 0, -self.db.bottomMargin - indicatorHeight)
          end
       end
    end	

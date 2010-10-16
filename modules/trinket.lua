@@ -6,10 +6,10 @@ local L = Gladius.L
 local LSM
 
 local Trinket = Gladius:NewModule("Trinket", "AceEvent-3.0")
-Gladius:SetModule(Trinket, "Trinket", false, {
+Gladius:SetModule(Trinket, "Trinket", false, true, {
    trinketAttachTo = "Frame",
-   trinketPosition = "RIGHT",
-   trinketAnchor = "TOP",
+   trinketAnchor = "TOPLEFT",
+   trinketRelativePoint = "TOPRIGHT",
    trinketGridStyleIcon = false,
    trinketGridStyleIconColor = { r = 0, g = 1, b = 0, a = 1 },
    trinketAdjustHeight = true,
@@ -104,15 +104,7 @@ function Trinket:Update(unit)
    
    -- anchor point 
    local parent = Gladius:GetParent(unit, Gladius.db.trinketAttachTo)     
-   local point = Gladius.db.trinketPosition == "LEFT" and "RIGHT" or "LEFT" 
-   local relativePoint = Gladius.db.trinketPosition
-   
-   if (Gladius.db.trinketAnchor ~= "CENTER") then
-      local anchor = Gladius.db.trinketAnchor       
-      point, relativePoint = anchor .. point, anchor .. relativePoint      
-   end
-	
-   self.frame[unit]:SetPoint(point, parent, relativePoint, Gladius.db.trinketOffsetX, Gladius.db.trinketOffsetY)
+   self.frame[unit]:SetPoint(Gladius.db.trinketAnchor, parent, Gladius.db.trinketRelativePoint, Gladius.db.trinketOffsetX, Gladius.db.trinketOffsetY)
    
    -- frame level
    self.frame[unit]:SetFrameLevel(Gladius.db.trinketFrameLevel)
@@ -161,7 +153,7 @@ function Trinket:Update(unit)
    if (self:GetAttachTo() == "Frame") then
       local left, right, top, bottom = Gladius.buttons[unit]:GetHitRectInsets()
       
-      if (Gladius.db.trinketPosition == "LEFT") then
+      if (Gladius.db.trinketRelativePoint:find("LEFT")) then
          left = -self.frame[unit]:GetWidth()
       else
          right = -self.frame[unit]:GetWidth()
@@ -169,12 +161,12 @@ function Trinket:Update(unit)
       
       -- search for an attached frame
       for _, module in pairs(Gladius.modules) do
-         if (module:GetAttachTo() == self.name and module.frame[unit]) then
+         if (module.attachTo and module:GetAttachTo() == self.name and module.frame and module.frame[unit]) then
             local attachedPoint = module.frame[unit]:GetPoint()
             
-            if (Gladius.db.trinketPosition == "LEFT" and (not attachedPoint or (attachedPoint and attachedPoint:find("RIGHT")))) then
+            if (Gladius.db.trinketRelativePoint:find("LEFT") and (not attachedPoint or (attachedPoint and attachedPoint:find("RIGHT")))) then
                left = left - module.frame[unit]:GetWidth()
-            elseif (Gladius.db.trinketPosition == "RIGHT" and (not attachedPoint or (attachedPoint and attachedPoint:find("LEFT")))) then
+            elseif (Gladius.db.trinketRelativePoint:find("RIGHT") and (not attachedPoint or (attachedPoint and attachedPoint:find("LEFT")))) then
                right = right - module.frame[unit]:GetWidth()
             end
          end
@@ -405,19 +397,19 @@ function Trinket:GetOptions()
                      width="full",
                      order=7,
                   },
-                  trinketPosition = {
-                     type="select",
-                     name=L["Trinket Position"],
-                     desc=L["Position of the trinket"],
-                     values={ ["LEFT"] = L["LEFT"], ["RIGHT"] = L["RIGHT"] },
-                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-                     order=10,
-                  },
                   trinketAnchor = {
                      type="select",
                      name=L["Trinket Anchor"],
                      desc=L["Anchor of the trinket"],
-                     values={ ["TOP"] = L["TOP"], ["CENTER"] = L["CENTER"], ["BOTTOM"] = L["BOTTOM"] },
+                     values=function() return Gladius:GetPositions() end,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=10,
+                  },
+                  trinketRelativePoint = {
+                     type="select",
+                     name=L["Trinket Relative Point"],
+                     desc=L["Relative point of the trinket"],
+                     values=function() return Gladius:GetPositions() end,
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      order=15,               
                   },
