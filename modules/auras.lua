@@ -985,13 +985,12 @@ function Auras:SetupAura(aura, priority)
 end
 
 function Auras:GetAuraList()
-	return {
+	local auraTable = setmetatable({
 		-- Spell Name			Priority (higher = more priority)
 		-- Crowd control
 		[GetSpellInfo(33786)] 	= 3, 	-- Cyclone
 		[GetSpellInfo(2637)] 	= 3,	-- Hibernate
-		[GetSpellInfo(3355)] 	= 3, 	-- Freezing Trap Effect
-		[GetSpellInfo(60210) or ""]	= 3,	-- Freezing arrow effect
+		[GetSpellInfo(55041)] 	= 3, 	-- Freezing Trap Effect
 		[GetSpellInfo(6770)]	= 3, 	-- Sap
 		[GetSpellInfo(2094)]	= 3, 	-- Blind
 		[GetSpellInfo(5782)]	= 3, 	-- Fear
@@ -1006,11 +1005,11 @@ function Auras:GetAuraList()
 		[GetSpellInfo(61305)] 	= 3,	-- Polymorph black cat
 		[GetSpellInfo(61025)] 	= 3,	-- Polymorph serpent
 		[GetSpellInfo(51514)]	= 3,	-- Hex
-		[GetSpellInfo(710)]	= 3,	-- Banish
+		[GetSpellInfo(710)]		= 3,	-- Banish
 		
 		-- Roots
-		[GetSpellInfo(338) or ""] 	= 3, 	-- Entangling Roots
-		[GetSpellInfo(112) or ""]	= 3,	-- Frost Nova
+		[GetSpellInfo(339)] 	= 3, 	-- Entangling Roots
+		[GetSpellInfo(122)]		= 3,	-- Frost Nova
 		[GetSpellInfo(16979)] 	= 3, 	-- Feral Charge
 		[GetSpellInfo(13809)] 	= 1, 	-- Frost Trap
 		
@@ -1020,11 +1019,11 @@ function Auras:GetAuraList()
 		[GetSpellInfo(408)] 	= 3, 	-- Kidney Shot
 		[GetSpellInfo(1776)]	= 3, 	-- Gouge
 		[GetSpellInfo(44572)]	= 3, 	-- Deep Freeze
-		[GetSpellInfo(49012) or ""]	= 3, 	-- Wyvern Sting
+		[GetSpellInfo(19386)]	= 3, 	-- Wyvern Sting
 		[GetSpellInfo(19503)] 	= 3, 	-- Scatter Shot
 		[GetSpellInfo(9005)]	= 3, 	-- Pounce
-		[GetSpellInfo(49802) or ""]	= 3, 	-- Maim
-		[GetSpellInfo(853)]	= 3, 	-- Hammer of Justice
+		[GetSpellInfo(22570)]	= 3, 	-- Maim
+		[GetSpellInfo(853)]		= 3, 	-- Hammer of Justice
 		[GetSpellInfo(20066)] 	= 3, 	-- Repentance
 		[GetSpellInfo(46968)] 	= 3, 	-- Shockwave
 		[GetSpellInfo(49203)] 	= 3,	-- Hungering Cold
@@ -1035,15 +1034,13 @@ function Auras:GetAuraList()
 		[GetSpellInfo(15487)] 	= 1, 	-- Silence
 		[GetSpellInfo(34490)] 	= 1, 	-- Silencing Shot	
 		[GetSpellInfo(18425)]	= 1,	-- Improved Kick
-		[GetSpellInfo(49916) or ""]	= 1,	-- Strangulate
+		[GetSpellInfo(47476)]	= 1,	-- Strangulate
 		
 		-- Disarms
 		[GetSpellInfo(676)] 	= 1, 	-- Disarm
-		[GetSpellInfo(51722)] 	= 1,	-- Dismantle
-		[GetSpellInfo(53359)] 	= 1,	-- Chimera Shot - Scorpid	
-				
+		[GetSpellInfo(51722)] 	= 1,	-- Dismantle				
 		-- Buffs
-		[GetSpellInfo(10278) or GetSpellInfo(1022)] 	= 1,	-- Hand of Protection
+		[GetSpellInfo(1022)] 	= 1,	-- Blessing of Protection
 		[GetSpellInfo(1044)] 	= 1, 	-- Blessing of Freedom
 		[GetSpellInfo(2825)] 	= 1, 	-- Bloodlust
 		[GetSpellInfo(32182)] 	= 1, 	-- Heroism
@@ -1063,5 +1060,15 @@ function Auras:GetAuraList()
 		[GetSpellInfo(34692)] 	= 2, 	-- The Beast Within
 		[GetSpellInfo(45438)] 	= 2, 	-- Ice Block
 		[GetSpellInfo(642)] 	= 2,	-- Divine Shield
-	}
+	}, {
+      __index = function(t, index) 
+         if (index ~= nil) then
+            return rawget(t, index)
+         else
+            return nil
+         end            
+      end
+   })
+   
+   return auraTable
 end
