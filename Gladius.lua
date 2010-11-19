@@ -168,19 +168,9 @@ function Gladius:JoinedArena()
 	self.test = false
 	self.testCount = 0
 	
-   -- find out the current bracket size
-	for i=1, MAX_BATTLEFIELD_QUEUES do
-		local status, _, _, _, _, teamSize = GetBattlefieldStatus(i)
-		if (status == "active" and teamSize > 0) then
-			self.currentBracket = teamSize
-			break
-		end
-	end
-	
 	-- create and update buttons on first launch
-	for i=1, MAX_ARENA_ENEMIES do
+	for i=1, MAX_ARENA_ENEMIES do  
       self:UpdateUnit("arena" .. i)
-      self.buttons["arena" .. i]:Show()	
       self.buttons["arena" .. i]:RegisterForDrag("LeftButton")
 	end
 	
@@ -191,6 +181,9 @@ end
 function Gladius:LeftArena()
    -- reset units
    for unit, _ in pairs(self.buttons) do
+      Gladius.buttons[unit]:RegisterForDrag()
+      Gladius.buttons[unit]:Hide()
+          
       self:ResetUnit(unit)
    end
    
@@ -208,6 +201,7 @@ end
 function Gladius:UNIT_DIED(event, unit)
    if (not unit:find("arena") or unit:find("pet")) then return end
    self:ShowUnit(unit)
+   self.buttons[unit]:SetAlpha(0.1)
 end
 
 function Gladius:ARENA_OPPONENT_UPDATE(event, unit, type)
@@ -449,6 +443,10 @@ function Gladius:UNIT_HEALTH(event, unit)
    -- update unit
    if (self.buttons[unit] and self.buttons[unit]:GetAlpha() == 0) then
       self:ShowUnit(unit)
+      
+      if (UnitIsDeadOrGhost(unit)) then
+         self:UpdateAlpha(unit, 0.5)
+      end
    end
    
    if (UnitIsDeadOrGhost(unit)) then

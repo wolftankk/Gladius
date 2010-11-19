@@ -87,11 +87,14 @@ end
 
 function Auras:UNIT_AURA(event, unit)
    if (not unit:find("arena") or unit:find("pet")) then return end
+   if (not self.buffFrame[unit]) then
+      print("aura unit_aura " .. unit)
+      return
+   end
    
    -- buff frame
    for i=1, 40 do
-      local name, rank, icon, count, dispelType, duration, expires, caster, isStealable = UnitBuff(unit, i)
-      
+      local name, rank, icon, count, dispelType, duration, expires, caster, isStealable = UnitBuff(unit, i)      
       if (not self.buffFrame[unit][i]) then break end
       
       if (name) then       

@@ -133,6 +133,7 @@ function Tags:CreateFrame(unit, text)
 end
 
 function Tags:UpdateText(unit, text)
+   if (not self.frame[unit]) then return end   
    if (not self.frame[unit][text]) then return end
 
    -- tags
