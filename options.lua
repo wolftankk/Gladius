@@ -36,7 +36,7 @@ SlashCmdList["GLADIUS"] = function(msg)
             Gladius:UpdateUnit("arena" .. i)
          end
          
-         if (Gladius.buttons["arena" .. i]:IsVisible()) then
+         if (Gladius.buttons["arena" .. i]) then
             Gladius.buttons["arena" .. i]:RegisterForDrag("LeftButton")
             Gladius.buttons["arena" .. i]:Show()
          end

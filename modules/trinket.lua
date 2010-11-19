@@ -154,13 +154,13 @@ function Trinket:Update(unit)
       local left, right, top, bottom = Gladius.buttons[unit]:GetHitRectInsets()
       
       if (Gladius.db.trinketRelativePoint:find("LEFT")) then
-         left = -self.frame[unit]:GetWidth()
+         left = -self.frame[unit]:GetWidth() + Gladius.db.trinketOffsetX
       else
-         right = -self.frame[unit]:GetWidth()
+         right = -self.frame[unit]:GetWidth() + -Gladius.db.trinketOffsetX
       end
       
       -- search for an attached frame
-      for _, module in pairs(Gladius.modules) do
+      --[[for _, module in pairs(Gladius.modules) do
          if (module.attachTo and module:GetAttachTo() == self.name and module.frame and module.frame[unit]) then
             local attachedPoint = module.frame[unit]:GetPoint()
             
@@ -170,11 +170,11 @@ function Trinket:Update(unit)
                right = right - module.frame[unit]:GetWidth()
             end
          end
-      end
+      end]]
       
       -- top / bottom
       if (self.frame[unit]:GetHeight() > Gladius.buttons[unit]:GetHeight()) then
-         bottom = -(self.frame[unit]:GetHeight() - Gladius.buttons[unit]:GetHeight())
+         bottom = -(self.frame[unit]:GetHeight() - Gladius.buttons[unit]:GetHeight()) + Gladius.db.trinketOffsetY
       end
 
       Gladius.buttons[unit]:SetHitRectInsets(left, right, top, bottom) 

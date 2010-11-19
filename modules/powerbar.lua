@@ -92,6 +92,7 @@ function PowerBar:UNIT_POWER(event, unit)
 end
 
 function PowerBar:UpdatePower(unit, power, maxPower, powerType)
+   if (not self.frame[unit]) then return end   
    local testing = Gladius.test
    
    if (not self.frame[unit]) then

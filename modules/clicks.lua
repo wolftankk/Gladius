@@ -73,7 +73,7 @@ end
 
 -- Applies attributes to a specific frame
 function Clicks:ApplyAttributes(unit, frame)
-   frame:SetAttribute("unit", "player")
+   frame:SetAttribute("unit", unit)
    for _, attr in pairs(Gladius.dbi.profile.clickAttributes) do
       frame:SetAttribute(attr.modifier .. "type" .. attr.button, attr.action)
       if (attr.action == "macro" and attr.macro ~= "") then

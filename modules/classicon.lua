@@ -56,7 +56,8 @@ function ClassIcon:UNIT_AURA(event, unit)
 end
 
 function ClassIcon:UpdateAura(unit)  
-   if (not self.frame[unit] or not Gladius.db.classIconImportantAuras or not Gladius:GetModule("Auras"):IsEnabled()) then return end
+   if (not self.frame[unit] or not Gladius.db.classIconImportantAuras or not Gladius:GetModule("Auras"):IsEnabled()) then return end   
+   if (not Gladius.db.aurasFrameAuras) then return end
    
    local aura   
    local index = 1
@@ -212,12 +213,12 @@ function ClassIcon:Update(unit)
       local left, right, top, bottom = Gladius.buttons[unit]:GetHitRectInsets()
       
       if (Gladius.db.classIconRelativePoint:find("LEFT")) then
-         left = -self.frame[unit]:GetWidth()
+         left = -self.frame[unit]:GetWidth() + Gladius.db.classIconOffsetX
       else
-         right = -self.frame[unit]:GetWidth()
+         right = -self.frame[unit]:GetWidth() + -Gladius.db.classIconOffsetX
       end
       
-      -- search for an attached frame
+      --[[ search for an attached frame
       for _, module in pairs(Gladius.modules) do
          if (module.attachTo and module:GetAttachTo() == self.name and module.frame and module.frame[unit]) then
             local attachedPoint = module.frame[unit]:GetPoint()
@@ -225,14 +226,14 @@ function ClassIcon:Update(unit)
             if (Gladius.db.classIconRelativePoint:find("LEFT") and (not attachedPoint or (attachedPoint and attachedPoint:find("RIGHT")))) then
                left = left - module.frame[unit]:GetWidth()
             elseif (Gladius.db.classIconRelativePoint:find("LEFT") and (not attachedPoint or (attachedPoint and attachedPoint:find("LEFT")))) then
-               right = right - module.frame[unit]:GetWidth()
+               right = right - module.frame[unit]:GetWidth() 
             end
          end
-      end
+      end]]
       
       -- top / bottom
       if (self.frame[unit]:GetHeight() > Gladius.buttons[unit]:GetHeight()) then
-         bottom = -(self.frame[unit]:GetHeight() - Gladius.buttons[unit]:GetHeight())
+         bottom = -(self.frame[unit]:GetHeight() - Gladius.buttons[unit]:GetHeight()) + Gladius.db.classIconOffsetY
       end
 
       Gladius.buttons[unit]:SetHitRectInsets(left, right, top, bottom) 
