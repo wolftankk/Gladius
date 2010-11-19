@@ -179,6 +179,9 @@ function Gladius:JoinedArena()
 	
 	-- create and update buttons on first launch
 	for i=1, self.currentBracket do
+      self.buttons["arena" .. i]:Show()	
+      self.buttons["arena" .. i]:RegisterForDrag("LeftButton")
+      
       self:UpdateUnit("arena" .. i)
 	end
 	

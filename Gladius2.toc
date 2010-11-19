@@ -1,9 +1,9 @@
-﻿## Interface: 30300
+﻿## Interface: 40000
 ## X-Compatible-With: 40000
 ## Title: Gladius 2
 ## Notes: Arena enemy unit frames
 ## Version: @project-version@
-## Author: Rinu
+## Author: Rinu, Proditor
 ## SavedVariables: Gladius2DB
 ## OptionalDeps: Ace3, LibStub, LibSharedMedia-3.0
 

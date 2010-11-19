@@ -35,6 +35,11 @@ SlashCmdList["GLADIUS"] = function(msg)
          if (not Gladius.buttons["arena" .. i]) then
             Gladius:UpdateUnit("arena" .. i)
          end
+         
+         if (Gladius.buttons["arena" .. i]:IsVisible()) then
+            Gladius.buttons["arena" .. i]:RegisterForDrag("LeftButton")
+            Gladius.buttons["arena" .. i]:Show()
+         end
       end
       
       -- update buttons, so every module should be fine
@@ -53,6 +58,13 @@ SlashCmdList["GLADIUS"] = function(msg)
       -- reset test environment
       Gladius.testCount = 0
       Gladius.test = false
+      
+      for i=1, 5 do
+         if (Gladius.buttons["arena" .. i]) then
+            Gladius.buttons["arena" .. i]:RegisterForDrag()
+            Gladius.buttons["arena" .. i]:Hide()
+         end
+      end
       
       -- hide buttons      
       Gladius:HideFrame()
