@@ -332,10 +332,6 @@ function Gladius:UpdateUnit(unit)
    self.buttons[unit].secure:ClearAllPoints()
    self.buttons[unit].secure:SetAllPoints(self.buttons[unit])
    
-   self.buttons[unit].secure:SetAttribute("unit", unit)
-   self.buttons[unit].secure:SetAttribute("type1", "target")
-   self.buttons[unit].secure:SetAttribute("type2", "focus")
-   
    -- show the secure frame
    self.buttons[unit].secure:Show()
    self.buttons[unit].secure:SetAlpha(0)

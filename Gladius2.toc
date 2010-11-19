@@ -25,3 +25,4 @@ modules\classicon.lua
 modules\trinket.lua
 modules\tags.lua
 modules\highlight.lua
+modules\clicks.lua
