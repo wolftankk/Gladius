@@ -17,7 +17,7 @@ Gladius:SetModule(Tags, "Tags", false, false, {
          size = 11,
          color = { r = 1, g = 1, b = 1, a = 1 },
          
-         text = "[name]",
+         text = "[name:status]",
       },
       ["HealthBar Right Text"] = {
          attachTo = "HealthBar",
@@ -742,7 +742,10 @@ function Tags:GetTags()
    return {
       ["name"] = [[function(unit)
          return UnitName(unit) or unit
-      end]], 
+      end]],
+      ["name:status"] = [[function(unit)
+         return UnitIsDeadOrGhost(unit) and Gladius.L["DEAD"] or UnitName(unit) or unit
+      end]],
       ["class"] = [[function(unit)
          return not Gladius.test and UnitClass(unit) or LOCALIZED_CLASS_NAMES_MALE[Gladius.testing[unit].unitClass]
       end]],
@@ -819,7 +822,8 @@ end
 
 function Tags:GetTagsEvents()
    return {
-      ["name"] = "UNIT_NAME_UPDATE", 
+      ["name"] = "UNIT_NAME_UPDATE",
+      ["name:status"] = "UNIT_NAME_UPDATE UNIT_HEALTH",
       ["class"] = "UNIT_NAME_UPDATE", 
       ["race"] = "UNIT_NAME_UPDATE", 
       ["spec"] = "UNIT_NAME_UPDATE", 
