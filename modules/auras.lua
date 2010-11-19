@@ -205,23 +205,23 @@ function Auras:Update(unit)
       self.buffFrame[unit]:SetPoint(Gladius.db.aurasBuffsAnchor, parent, Gladius.db.aurasBuffsRelativePoint, Gladius.db.aurasBuffsOffsetX, Gladius.db.aurasBuffsOffsetY)
 
       -- size
-      self.buffFrame[unit]:SetWidth(1)
-      self.buffFrame[unit]:SetHeight(1)
+      self.buffFrame[unit]:SetWidth(Gladius.db.aurasBuffsWidth*Gladius.db.aurasBuffsPerColumn+Gladius.db.aurasBuffsSpacingX*Gladius.db.aurasBuffsPerColumn)
+      self.buffFrame[unit]:SetHeight(Gladius.db.aurasBuffsHeight*math.ceil(Gladius.db.aurasBuffsMax/Gladius.db.aurasBuffsPerColumn)+(Gladius.db.aurasBuffsSpacingY*(math.ceil(Gladius.db.aurasBuffsMax/Gladius.db.aurasBuffsPerColumn)+1)))
       
       -- icon points
       local anchor, parent, relativePoint, offsetX, offsetY
       local start, startAnchor = 1, self.buffFrame[unit]
       
       -- grow anchor
-      local grow1, grow2, grow3
-      if (Gladius.db.aurasBuffsGrow == "DOWNRIGHT") then
-         grow1, grow2, grow3 = "TOPLEFT", "BOTTOMLEFT", "TOPRIGHT"      
-      elseif (Gladius.db.aurasBuffsGrow == "DOWNLEFT") then
-         grow1, grow2, grow3 = "TOPRIGHT", "BOTTOMRIGHT", "TOPLEFT"
-      elseif (Gladius.db.aurasBuffsGrow == "UPRIGHT") then
-         grow1, grow2, grow3 = "BOTTOMLEFT", "TOPLEFT", "BOTTOMRIGHT"
-      elseif (Gladius.db.aurasBuffsGrow == "UPLEFT") then
-         grow1, grow2, grow3 = "BOTTOMRIGHT", "TOPRIGHT", "BOTTOMLEFT"
+      local grow1, grow2, grow3, startRelPoint
+      if (Gladius.db.aurasDebuffsGrow == "DOWNRIGHT") then
+         grow1, grow2, grow3, startRelPoint = "TOPLEFT", "BOTTOMLEFT", "TOPRIGHT", "TOPLEFT"
+      elseif (Gladius.db.aurasDebuffsGrow == "DOWNLEFT") then
+         grow1, grow2, grow3, startRelPoint = "TOPRIGHT", "BOTTOMRIGHT", "TOPLEFT", "TOPRIGHT"
+      elseif (Gladius.db.aurasDebuffsGrow == "UPRIGHT") then
+         grow1, grow2, grow3, startRelPoint = "BOTTOMLEFT", "TOPLEFT", "BOTTOMRIGHT", "BOTTOMLEFT"
+      elseif (Gladius.db.aurasDebuffsGrow == "UPLEFT") then
+         grow1, grow2, grow3, startRelPoint = "BOTTOMRIGHT", "TOPRIGHT", "BOTTOMLEFT", "BOTTOMRIGHT"
       end
             
       for i=1, 40 do
@@ -229,13 +229,14 @@ function Auras:Update(unit)
          
          if (Gladius.db.aurasBuffsMax >= i) then        
             if (start == 1) then
-               anchor, parent, relativePoint, offsetX, offsetY = grow1, startAnchor, grow2, 0, Gladius.db.aurasBuffsGrow:find("DOWN") and -Gladius.db.aurasBuffsSpacingY or Gladius.db.aurasBuffsSpacingY                  
+               anchor, parent, relativePoint, offsetX, offsetY = grow1, startAnchor, startRelPoint, 0, Gladius.db.aurasBuffsGrow:find("DOWN") and -Gladius.db.aurasBuffsSpacingY or Gladius.db.aurasBuffsSpacingY                  
             else
                anchor, parent, relativePoint, offsetX, offsetY = grow1, self.buffFrame[unit][i-1], grow3, Gladius.db.aurasBuffsGrow:find("LEFT") and -Gladius.db.aurasBuffsSpacingX or Gladius.db.aurasBuffsSpacingX, 0                                
                
                if (start == Gladius.db.aurasBuffsPerColumn) then
                   start = 0
                   startAnchor = self.buffFrame[unit][i - Gladius.db.aurasBuffsPerColumn + 1]
+                  startRelPoint = grow2
                end
             end
             
@@ -276,23 +277,23 @@ function Auras:Update(unit)
       self.debuffFrame[unit]:SetPoint(Gladius.db.aurasDebuffsAnchor, parent, Gladius.db.aurasDebuffsRelativePoint, Gladius.db.aurasDebuffsOffsetX, Gladius.db.aurasDebuffsOffsetY)
 
       -- size
-      self.debuffFrame[unit]:SetWidth(1)
-      self.debuffFrame[unit]:SetHeight(1)
-      
+      self.debuffFrame[unit]:SetWidth(Gladius.db.aurasDebuffsWidth*Gladius.db.aurasDebuffsPerColumn+Gladius.db.aurasDebuffsSpacingX*Gladius.db.aurasDebuffsPerColumn)
+      self.debuffFrame[unit]:SetHeight(Gladius.db.aurasDebuffsHeight*math.ceil(Gladius.db.aurasDebuffsMax/Gladius.db.aurasDebuffsPerColumn)+(Gladius.db.aurasDebuffsSpacingY*(math.ceil(Gladius.db.aurasDebuffsMax/Gladius.db.aurasDebuffsPerColumn)+1)))
+
       -- icon points
       local anchor, parent, relativePoint, offsetX, offsetY
       local start, startAnchor = 1, self.debuffFrame[unit]
       
       -- grow anchor
-      local grow1, grow2, grow3
+      local grow1, grow2, grow3, startRelPoint
       if (Gladius.db.aurasDebuffsGrow == "DOWNRIGHT") then
-         grow1, grow2, grow3 = "TOPLEFT", "BOTTOMLEFT", "TOPRIGHT"      
+         grow1, grow2, grow3, startRelPoint = "TOPLEFT", "BOTTOMLEFT", "TOPRIGHT", "TOPLEFT"
       elseif (Gladius.db.aurasDebuffsGrow == "DOWNLEFT") then
-         grow1, grow2, grow3 = "TOPRIGHT", "BOTTOMRIGHT", "TOPLEFT"
+         grow1, grow2, grow3, startRelPoint = "TOPRIGHT", "BOTTOMRIGHT", "TOPLEFT", "TOPRIGHT"
       elseif (Gladius.db.aurasDebuffsGrow == "UPRIGHT") then
-         grow1, grow2, grow3 = "BOTTOMLEFT", "TOPLEFT", "BOTTOMRIGHT"
+         grow1, grow2, grow3, startRelPoint = "BOTTOMLEFT", "TOPLEFT", "BOTTOMRIGHT", "BOTTOMLEFT"
       elseif (Gladius.db.aurasDebuffsGrow == "UPLEFT") then
-         grow1, grow2, grow3 = "BOTTOMRIGHT", "TOPRIGHT", "BOTTOMLEFT"
+         grow1, grow2, grow3, startRelPoint = "BOTTOMRIGHT", "TOPRIGHT", "BOTTOMLEFT", "BOTTOMRIGHT"
       end
             
       for i=1, 40 do
@@ -300,13 +301,14 @@ function Auras:Update(unit)
          
          if (Gladius.db.aurasDebuffsMax >= i) then        
             if (start == 1) then
-               anchor, parent, relativePoint, offsetX, offsetY = grow1, startAnchor, grow2, 0, Gladius.db.aurasDebuffsGrow:find("DOWN") and -Gladius.db.aurasDebuffsSpacingY or Gladius.db.aurasDebuffsSpacingY                  
+               anchor, parent, relativePoint, offsetX, offsetY = grow1, startAnchor, startRelPoint, 0, Gladius.db.aurasDebuffsGrow:find("DOWN") and -Gladius.db.aurasDebuffsSpacingY or Gladius.db.aurasDebuffsSpacingY                  
             else
                anchor, parent, relativePoint, offsetX, offsetY = grow1, self.debuffFrame[unit][i-1], grow3, Gladius.db.aurasDebuffsGrow:find("LEFT") and -Gladius.db.aurasDebuffsSpacingX or Gladius.db.aurasDebuffsSpacingX, 0                                
                
                if (start == Gladius.db.aurasDebuffsPerColumn) then
                   start = 0
                   startAnchor = self.debuffFrame[unit][i - Gladius.db.aurasDebuffsPerColumn + 1]
+                  startRelPoint = grow2
                end
             end
             

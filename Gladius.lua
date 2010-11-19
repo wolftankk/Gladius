@@ -178,11 +178,10 @@ function Gladius:JoinedArena()
 	end
 	
 	-- create and update buttons on first launch
-	for i=1, self.currentBracket do
+	for i=1, MAX_ARENA_ENEMIES do
+      self:UpdateUnit("arena" .. i)
       self.buttons["arena" .. i]:Show()	
       self.buttons["arena" .. i]:RegisterForDrag("LeftButton")
-      
-      self:UpdateUnit("arena" .. i)
 	end
 	
 	-- hide buttons
@@ -450,5 +449,9 @@ function Gladius:UNIT_HEALTH(event, unit)
    -- update unit
    if (self.buttons[unit] and self.buttons[unit]:GetAlpha() == 0) then
       self:ShowUnit(unit)
+   end
+   
+   if (UnitIsDeadOrGhost(unit)) then
+      self:UpdateAlpha(unit,0.5)
    end
 end

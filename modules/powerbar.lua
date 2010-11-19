@@ -453,7 +453,7 @@ function PowerBar:GetOptions()
                   },
                   powerBarOffsetY = {
                      type="range",
-                     name=L["Power Bar Offset X"],
+                     name=L["Power Bar Offset Y"],
                      desc=L["X offset of the power bar"],
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      min=-100, max=100, step=1,
