@@ -378,12 +378,12 @@ end
 function Auras:Test(unit)   
    -- test buff frame
    for i=1, Gladius.db.aurasBuffsMax do
-      self.buffFrame[unit][i].texture:SetTexture(GetSpellTexture("Power Word: Fortitude"))
+      self.buffFrame[unit][i].texture:SetTexture(GetSpellTexture(21562))
    end
    
    -- test debuff frame
    for i=1, Gladius.db.aurasDebuffsMax do
-      self.debuffFrame[unit][i].texture:SetTexture(GetSpellTexture("Shadow Word: Pain"))
+      self.debuffFrame[unit][i].texture:SetTexture(GetSpellTexture(589))
    end
 end
 
