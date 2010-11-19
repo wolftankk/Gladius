@@ -5,7 +5,7 @@ end
 local L = Gladius.L
 
 local Clicks = Gladius:NewModule("Clicks", "AceEvent-3.0")
-Gladius:SetModule(Clicks, "Click Actions", false, false, {
+Gladius:SetModule(Clicks, "Clicks", false, false, {
    clickAttributes = {
       ["Left"] = { button = "1", modifier = "", action = "target", macro = ""},
       ["Right"] = { button = "2", modifier = "", action = "focus", macro = ""},
@@ -14,7 +14,7 @@ Gladius:SetModule(Clicks, "Click Actions", false, false, {
 
 function Clicks:OnEnable()
    -- Table that holds all of the secure frames to apply click actions to.
-   self.secureFrames = {}
+   self.secureFrames = self.secureFrames or {}
 end
 
 function Clicks:OnDisable()
@@ -33,33 +33,30 @@ function Clicks:GetAttachTo()
    return ""
 end
 
--- Registers a custom secure frame and immediately  applies
+-- Registers a secure frame and immediately  applies
 -- click actions to it.
-function Clicks:RegisterSecureFrame(unit, frame)
+function Clicks:RegisterSecureFrame(unit, frame)   
    if (not self.secureFrames[unit]) then 
       self.secureFrames[unit] = {} 
    end
-   self.secureFrames[unit][frame] = true
-   self:ApplyAttributes(unit, frame)
+   
+   if (not self.secureFrames[unit][frame]) then
+      self.secureFrames[unit][frame] = true
+      self:ApplyAttributes(unit, frame)
+   end
 end
 
--- Finds all the secure frames belonging to a specific unit
--- then adds them to self.secureFrames.
--- Only searches for secure frames located at module.frame[unit].secure
+-- Finds all the secure frames belonging to a specific unit and registers them.
+-- Uses [module:GetFrame()].secure to find the frames.
 function Clicks:GetSecureFrames(unit)
-   if (not self.secureFrames[unit]) then 
-      self.secureFrames[unit] = {} 
-   end
-   
    -- Add the default secure frame
-   if (not self.secureFrames[unit][Gladius.buttons[unit].secure]) then
-      self.secureFrames[unit][Gladius.buttons[unit].secure] = true
-   end
-   
+   self:RegisterSecureFrame(unit, Gladius.buttons[unit].secure)
+ 
    -- Find secure frames in other modules
    for _,m in pairs(Gladius.modules) do
-      if (m.frame and m.frame[unit] and m.frame[unit].secure and not self.secureFrames[m.frame[unit].secure]) then
-         self.secureFrames[unit][m.frame[unit].secure] = true
+      local frame = Gladius:GetParent(unit, m:GetName())
+      if (frame and frame.secure) then
+         self:RegisterSecureFrame(unit, frame.secure)
       end
    end  
 end

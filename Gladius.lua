@@ -41,7 +41,7 @@ function Gladius:GetParent(unit, module)
       -- get parent module frame
       local m = self:GetModule(module, true)
       
-      if (m) then
+      if (m and type(m.GetFrame) == "function") then
          -- return frame as parent, if parent module is not enabled
          if (not m:IsEnabled()) then return self.buttons[unit] end
       
