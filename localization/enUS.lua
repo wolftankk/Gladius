@@ -15,6 +15,7 @@ local L = setmetatable({
    ["power:shortTag"] = "Power (Short)",
    ["raceTag"] = "Unit Race",
    ["nameTag"] = "Unit Name",
+   ["name:statusTag"] = "Unit Name/Status",  
    ["specTag"] = "Unit Spec",
    ["health:percentageTag"] = "Health (Percentage)",
    ["healthTag"] = "Health",

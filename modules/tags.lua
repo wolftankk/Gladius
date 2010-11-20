@@ -370,7 +370,7 @@ function Tags:GetOptions()
          args = {
             add = {  
                type="group",
-               name=L["Add text"],
+               name=L["Add tag"],
                inline=true,
                order=1,
                args = {
@@ -744,7 +744,7 @@ function Tags:GetTags()
          return UnitName(unit) or unit
       end]],
       ["name:status"] = [[function(unit)
-         return UnitIsDeadOrGhost(unit) and Gladius.L["DEAD"] or UnitName(unit) or unit
+         return UnitIsDeadOrGhost(unit) and Gladius.L["DEAD"] or (UnitName(unit) or unit)
       end]],
       ["class"] = [[function(unit)
          return not Gladius.test and UnitClass(unit) or LOCALIZED_CLASS_NAMES_MALE[Gladius.testing[unit].unitClass]
