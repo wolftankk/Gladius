@@ -1,3 +1,4 @@
+
 local Gladius = _G.Gladius
 if not Gladius then
   DEFAULT_CHAT_FRAME:AddMessage(format("Module %s requires Gladius", "Tags"))
@@ -51,6 +52,28 @@ Gladius:SetModule(Tags, "Tags", false, false, {
          color = { r = 1, g = 1, b = 1, a = 1 },
          
          text = "[power:short] / [maxpower:short] ([power:percentage])",
+      },
+       ["TargetBar Left Text"] = {
+         attachTo = "TargetBar",
+         position = "LEFT",
+         offsetX = 2,
+         offsetY = 0,
+         
+         size = 11,
+         color = { r = 1, g = 1, b = 1, a = 1 },
+         
+         text = "[name:status]",
+      },
+      ["TargetBar Right Text"] = {
+         attachTo = "TargetBar",
+         position = "RIGHT",
+         offsetX = -2,
+         offsetY = 0,
+         
+         size = 11,
+         color = { r = 1, g = 1, b = 1, a = 1 },
+         
+         text = "[health:short] / [maxhealth:short] ([health:percentage])",
       },
    },
 })
@@ -141,6 +164,14 @@ function Tags:UpdateText(unit, text)
       Gladius.dbi.profile.tags = self:GetTags()
       Gladius.dbi.profile.tagEvents = self:GetTagsEvents()
    end
+   
+   -- set unit
+   local unitParameter = unit
+   
+   local parent = self.frame[unit][text]:GetParent()
+   if (parent and parent.unit) then
+      unitParameter = parent.unit
+   end
 
    -- update tag
    local tagText = Gladius.db.tagsTexts[text].text
@@ -150,7 +181,7 @@ function Tags:UpdateText(unit, text)
          local escapedText
          
          -- clear the tag, if unit does not exist
-         if (not Gladius.test and not UnitName(unit)) then
+         if (not Gladius.test and not UnitName(unitParameter)) then
             escapedText = ""
          else
             -- create function
@@ -162,7 +193,7 @@ function Tags:UpdateText(unit, text)
             -- escape return string
             funcText = self.func[tag]()
             if (funcText) then            
-               escapedText = string.gsub(funcText(unit) or "", "%%", "%%%%")
+               escapedText = string.gsub(funcText(unitParameter) or "", "%%", "%%%%")
             else
                escapedText = ""
             end
@@ -182,6 +213,8 @@ function Tags:Update(unit)
    end
    
    for text, _ in pairs(Gladius.db.tagsTexts) do
+      if (not Gladius:GetModule(Gladius.db.tagsTexts[text].attachTo)) then return end
+   
       -- create frame
       if (not self.frame[unit][text]) then 
          self:CreateFrame(unit, text)
@@ -310,7 +343,7 @@ function Tags:GetOptions()
                         local t = {}
                         
                         for moduleName, module in pairs(Gladius.modules) do
-                           if (module.isBar) then
+                           if (module.isBarOption) then
                               t[moduleName] = moduleName
                            end
                         end

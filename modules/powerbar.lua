@@ -131,6 +131,14 @@ function PowerBar:CreateBar(unit)
 end
 
 function PowerBar:Update(unit)
+   -- check parent module
+   if (not Gladius:GetModule(Gladius.db.castBarAttachTo)) then
+      if (self.frame[unit]) then
+         self.frame[unit]:Hide()
+      end
+      return
+   end
+
    -- get unit powerType
    local powerType
    if (not testing) then

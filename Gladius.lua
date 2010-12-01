@@ -13,7 +13,7 @@ function Gladius:Debug(...)
    print("Gladius:", ...)
 end
 
-function Gladius:SetModule(module, key, bar, attachTo, defaults)
+function Gladius:SetModule(module, key, bar, attachTo, defaults, templates)
    if (not self.modules) then 
       self.modules = {} 
    end
@@ -21,13 +21,13 @@ function Gladius:SetModule(module, key, bar, attachTo, defaults)
    -- register module
    self.modules[key] = module
    module.name = key
+   module.isBarOption = bar
    module.isBar = bar
    module.defaults = defaults
    module.attachTo = attachTo
+   module.templates = templates
    
    -- set db defaults
-   self.defaults.profile.modules[key] = true
-   
    for k,v in pairs(defaults) do
       self.defaults.profile[k] = v
    end
@@ -242,7 +242,7 @@ function Gladius:HideFrame()
    end
 end
 
-function Gladius:UpdateUnit(unit)
+function Gladius:UpdateUnit(unit, module)
    if (not unit:find("arena") or unit:find("pet")) then return end
    if (InCombatLockdown()) then return end
    
@@ -254,15 +254,18 @@ function Gladius:UpdateUnit(unit)
    local height = 0
    local frameHeight = 0
    
-   -- need to set this
+   -- default height values
    self.buttons[unit].frameHeight = 1
+   self.buttons[unit].height = 1
    
    -- update modules (bars first, because we need the height)
    for _, m in pairs(self.modules) do
       if (m:IsEnabled()) then
          -- update and get bar height
-         if (m.isBar) then
-            self:Call(m, "Update", unit)
+         if (m.isBarOption) then
+            if (module == nil or (module and m.name == module)) then
+               self:Call(m, "Update", unit)
+            end
                         
             local attachTo = m:GetAttachTo()
             if (attachTo == "Frame" or self.modules[attachTo].isBar) then
@@ -273,7 +276,7 @@ function Gladius:UpdateUnit(unit)
          end
       end
 	end
-	
+
 	self.buttons[unit].height = height + frameHeight
 	self.buttons[unit].frameHeight = frameHeight
 	
@@ -286,7 +289,7 @@ function Gladius:UpdateUnit(unit)
    local indicatorHeight = 0
    
    for _, m in pairs(self.modules) do
-      if (m:IsEnabled() and not m.isBar) then
+      if (m:IsEnabled() and not m.isBarOption) then
          self:Call(m, "Update", unit)
          
          if (m.GetIndicatorHeight) then
@@ -333,7 +336,7 @@ function Gladius:UpdateUnit(unit)
    self.buttons[unit].secure:SetAlpha(0)
 end
 
-function Gladius:ShowUnit(unit, testing)
+function Gladius:ShowUnit(unit, testing, module)
    if (unit:find("pet")) then return end
    if (not self.buttons[unit]) then return end
    
@@ -355,18 +358,22 @@ function Gladius:ShowUnit(unit, testing)
    
    for _, m in pairs(self.modules) do
       if (m:IsEnabled()) then
-         self:Call(m, "Show", unit)
+         if (module == nil or (module and m.name == module)) then
+            self:Call(m, "Show", unit)
+         end
       end
    end
 end
 
-function Gladius:TestUnit(unit)
+function Gladius:TestUnit(unit, module)
    if (unit:find("pet")) then return end
    
    -- test modules
    for _, m in pairs(self.modules) do
       if (m:IsEnabled()) then
-         self:Call(m, "Test", unit)
+         if (module == nil or (module and m.name == module)) then
+            self:Call(m, "Test", unit)
+         end
       end
 	end
 	
@@ -375,14 +382,16 @@ function Gladius:TestUnit(unit)
    self.buttons[unit].secure:SetFrameStrata("LOW")
 end
 
-function Gladius:ResetUnit(unit)
+function Gladius:ResetUnit(unit, module)
    if (unit:find("pet")) then return end
    if (not self.buttons[unit]) then return end
    
    -- reset modules
    for _, m in pairs(self.modules) do
       if (m:IsEnabled()) then
-         self:Call(m, "Reset", unit)
+         if (module == nil or (module and m.name == module)) then
+            self:Call(m, "Reset", unit)
+         end
       end
 	end
 

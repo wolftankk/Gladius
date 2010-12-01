@@ -204,6 +204,14 @@ local function CastUpdate(self, elapsed)
 end
 
 function CastBar:Update(unit)
+   -- check parent module
+   if (not Gladius:GetModule(Gladius.db.castBarAttachTo)) then
+      if (self.frame[unit]) then
+         self.frame[unit]:Hide()
+      end
+      return
+   end
+
    local testing = Gladius.test
    
    -- create power bar
@@ -238,7 +246,7 @@ function CastBar:Update(unit)
 	end
 		 
 	if (not self.isBar and Gladius.db.castBarRelativePoint:find("TOP") and Gladius.db.castBarAdjustHeight) then
-      self.frame[unit]:SetHeight(Gladius.buttons[unit].frameHeight)   
+      self.frame[unit]:SetHeight(Gladius.buttons[unit].height)   
    else
       self.frame[unit]:SetHeight(Gladius.db.castBarHeight)  
    end  

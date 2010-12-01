@@ -4,13 +4,16 @@ Gladius.defaults = {
    profile = {
       x = {},
       y = {},
-      modules = {},
+      modules = {
+         ["*"] = true,
+         ["Auras"] = false,
+      },
       locked = false,
       growUp = false,
       groupButtons = true,
       advancedOptions = false,
       backgroundColor = { r = 0, g = 0, b = 0, a = 0.4 },
-      bottomMargin = 10,
+      bottomMargin = 20,
       globalFontSize = 11,
       globalFont = "Friz Quadrata TT",
       barWidth = 200,
@@ -31,7 +34,7 @@ SlashCmdList["GLADIUS"] = function(msg)
       Gladius:HideFrame()
       
       -- create and update buttons on first launch
-      for i=1, 5 do
+      for i=1, test do
          if (not Gladius.buttons["arena" .. i]) then
             Gladius:UpdateUnit("arena" .. i)
          end
@@ -78,7 +81,12 @@ end
 local function setOption(info, value)
    local key = info.arg or info[#info]
    Gladius.dbi.profile[key] = value
-   Gladius:UpdateFrame()
+   
+   if (info[1] == "general") then
+      Gladius:UpdateFrame()
+   else
+      Gladius:UpdateFrame(info[1])
+   end
 end
 
 function Gladius:GetColorOption(info)
@@ -89,7 +97,12 @@ end
 function Gladius:SetColorOption(info, r, g, b, a) 
    local key = info.arg or info[#info]
    self.dbi.profile[key].r, self.dbi.profile[key].g, self.dbi.profile[key].b, self.dbi.profile[key].a = r, g, b, a
-   self:UpdateFrame()
+   
+   if (info[1] == "general") then
+      Gladius:UpdateFrame()
+   else
+      Gladius:UpdateFrame(info[1])
+   end
 end
 
 function Gladius:GetPositions()
@@ -156,6 +169,20 @@ function Gladius:SetupModule(key, module, order)
       end,
       order=0.5,
    }
+   
+   -- set template module option
+   if (module.templates) then
+      self.options.args[key].args.templates = {
+         type="select",
+         name=L["Module Templates"],
+         values=function() return module.templates end,
+         set=function(info, value)                       
+            Gladius:Call(module, "SetTemplate", value)
+            Gladius:UpdateFrame()
+         end,
+         order=0.7,
+      }
+   end
 end
 
 function Gladius:SetupOptions()
@@ -232,7 +259,7 @@ function Gladius:SetupOptions()
                         type="range",
                         name=L["Bottom Margin"],
                         desc=L["Margin between each button"],
-                        min=0, max=100, step=1,
+                        min=0, max=300, step=1,
                         disabled=function() return not self.dbi.profile.groupButtons end,
                         order=5,
                      },

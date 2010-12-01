@@ -111,13 +111,14 @@ function Trinket:Update(unit)
    
    if (Gladius.db.trinketAdjustHeight) then
       if (self:GetAttachTo() == "Frame") then   
-         local height = true
+         local height = false
+         --[[ need to rethink that
          for _, module in pairs(Gladius.modules) do
             if (module:GetAttachTo() == self.name) then
                height = false
             end
-         end
-      
+         end]]
+         
          if (height) then
             if (Gladius.db.trinketAdjustWidth) then
                self.frame[unit]:SetWidth(Gladius.buttons[unit].height) 

@@ -58,8 +58,12 @@ end
 function Auras:OnDisable()
    self:UnregisterAllEvents()
    
+   for unit in pairs(self.debuffFrame) do
+      self.debuffFrame[unit]:Hide()
+   end
+   
    for unit in pairs(self.buffFrame) do
-      self.buffFrame[unit]:SetAlpha(0)
+      self.buffFrame[unit]:Hide()
    end
 end
 
@@ -87,10 +91,6 @@ end
 
 function Auras:UNIT_AURA(event, unit)
    if (not unit:find("arena") or unit:find("pet")) then return end
-   if (not self.buffFrame[unit]) then
-      print("aura unit_aura " .. unit)
-      return
-   end
    
    -- buff frame
    for i=1, 40 do
@@ -217,13 +217,13 @@ function Auras:Update(unit)
       
       -- grow anchor
       local grow1, grow2, grow3, startRelPoint
-      if (Gladius.db.aurasDebuffsGrow == "DOWNRIGHT") then
+      if (Gladius.db.aurasBuffsGrow == "DOWNRIGHT") then
          grow1, grow2, grow3, startRelPoint = "TOPLEFT", "BOTTOMLEFT", "TOPRIGHT", "TOPLEFT"
-      elseif (Gladius.db.aurasDebuffsGrow == "DOWNLEFT") then
+      elseif (Gladius.db.aurasBuffsGrow == "DOWNLEFT") then
          grow1, grow2, grow3, startRelPoint = "TOPRIGHT", "BOTTOMRIGHT", "TOPLEFT", "TOPRIGHT"
-      elseif (Gladius.db.aurasDebuffsGrow == "UPRIGHT") then
+      elseif (Gladius.db.aurasBuffsGrow == "UPRIGHT") then
          grow1, grow2, grow3, startRelPoint = "BOTTOMLEFT", "TOPLEFT", "BOTTOMRIGHT", "BOTTOMLEFT"
-      elseif (Gladius.db.aurasDebuffsGrow == "UPLEFT") then
+      elseif (Gladius.db.aurasBuffsGrow == "UPLEFT") then
          grow1, grow2, grow3, startRelPoint = "BOTTOMRIGHT", "TOPRIGHT", "BOTTOMLEFT", "BOTTOMRIGHT"
       end
             

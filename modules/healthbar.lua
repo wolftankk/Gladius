@@ -120,6 +120,14 @@ function HealthBar:CreateBar(unit)
 end
 
 function HealthBar:Update(unit)
+   -- check parent module
+   if (not Gladius:GetModule(Gladius.db.castBarAttachTo)) then
+      if (self.frame[unit]) then
+         self.frame[unit]:Hide()
+      end
+      return
+   end
+
    -- create power bar
    if (not self.frame[unit]) then 
       self:CreateBar(unit)

@@ -10,8 +10,8 @@ Gladius:SetModule(ClassIcon, "ClassIcon", false, true, {
    classIconAttachTo = "Frame",
    classIconAnchor = "TOPRIGHT",
    classIconRelativePoint = "TOPLEFT",
-   classIconAdjustHeight = true,
-   classIconHeight = 40,
+   classIconAdjustHeight = false,
+   classIconHeight = 38,
    classIconAdjustWidth = true,
    classIconWidth = 40,
    classIconOffsetX = 0,
@@ -172,12 +172,13 @@ function ClassIcon:Update(unit)
    self.frame[unit]:SetFrameLevel(Gladius.db.classIconFrameLevel)
    
    if (Gladius.db.classIconAdjustHeight) then
-      local height = true
+      local height = false
+      --[[ need to rethink that
       for _, module in pairs(Gladius.modules) do
          if (module:GetAttachTo() == self.name) then
             height = false
          end
-      end
+      end]]
    
       if (height) then
          if (Gladius.db.classIconAdjustWidth) then
