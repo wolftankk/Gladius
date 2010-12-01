@@ -35,14 +35,16 @@ function Announcements:GetAttachTo()
    return ""
 end
 
-function Announcements:Show(unit)
-   if (Gladius.db.announcements.enemies) then return end
-   
-   self:Send(string.format(L["%s - %s"], UnitName(unit), UnitClass(unit)), 2, unit)
+-- Reset throttled messages
+function Announcements:Reset(unit)
+   self.throttled = wipe(self.throttled)
 end
 
-function Announcements:Reset()
-   self.throttled = wipe(self.throttled)
+-- New enemy announcement, could be broken.
+function Announcements:Show(unit)
+   if (not Gladius.db.announcements.enemies or not UnitName(unit)) then return end
+   
+   self:Send(string.format(L["%s - %s"], UnitName(unit), UnitClass(unit)), 2, unit)
 end
 
 function Announcements:UNIT_HEALTH(event, unit)
@@ -63,7 +65,6 @@ function Announcements:UNIT_AURA(event, unit)
    end 
 end
 
-
 local RES_SPELLS = { 
 	[GetSpellInfo(2008)] = true, -- Ancestral Spirit
 	[GetSpellInfo(50769)] = true, -- Revive
@@ -79,7 +80,7 @@ function Announcements:UNIT_SPELLCAST_START(event, unit, spell, rank)
 end
 
 -- Sends an announcement
--- Param unit is used for class coloring of messages
+-- Param unit is only used for class coloring of messages
 function Announcements:Send(msg, throttle, unit)
    local color = unit and RAID_CLASS_COLORS[UnitClass(unit)] or { r=0, g=1, b=0 }
    local dest = Gladius.db.announcements.dest
@@ -88,9 +89,9 @@ function Announcements:Send(msg, throttle, unit)
    if (throttle and throttle > 0) then
       if (not self.throttled[msg]) then
          self.throttled[msg] = GetTime()+throttle
-      elseif (self.throttled[msg] and self.throttled[msg] < GetTime()) then
+      elseif (self.throttled[msg] < GetTime()) then
          self.throttled[msg] = nil
-      elseif (self.throttled[msg]) then
+      else
          return
       end
    end
@@ -222,5 +223,5 @@ function Announcements:GetOptions()
             },
          },
       }
-  }
+   }
 end

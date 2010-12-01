@@ -30,7 +30,7 @@ function Trinket:OnEnable()
    
    if (not self.frame) then
       self.frame = {}
-   end
+   end 
 end
 
 function Trinket:OnDisable()
@@ -76,6 +76,22 @@ function Trinket:UpdateTrinket(unit, duration)
       end)
    else
       self.frame[unit].cooldown:SetCooldown(GetTime(), duration)
+   end
+   
+   if (Gladius.db.announcements.trinket) then
+      Gladius:Call(Gladius.modules.Announcements, "Send", string.format(L["TRINKET USED: %s (%s)"], UnitName("unit") or "test", UnitClass("unit") or "test"), 2, unit)   
+      
+      if (not self.frame[unit].timer) then
+         self.frame[unit].timer = CreateFrame("Frame")
+      end
+      
+      self.frame[unit].timer.endTime = GetTime() + duration
+      self.frame[unit].timer:SetScript("OnUpdate", function(self)
+         if (self.endTime < GetTime()) then
+            Gladius:Call(Gladius.modules.Announcements, "Send", string.format(L["TRINKET READY: %s (%s)"], UnitName("unit") or "test", UnitClass("unit") or "test"), 2, unit)
+            self:SetScript("OnUpdate", nil)
+         end
+      end)
    end
 end
 
@@ -253,6 +269,16 @@ end
 
 function Trinket:Test(unit)   
    -- test
+end
+
+-- Add the announcement toggle
+function Trinket:OptionsLoad()
+   Gladius.options.args.Announcements.args.general.args.announcements.args.trinket = {
+      type="toggle",
+      name=L["Trinket"],
+      desc=L["Announces when an enemy uses a PvP trinket."],
+      disabled=function() return not Gladius.db.modules[self.name] end,
+   }
 end
 
 function Trinket:GetOptions()

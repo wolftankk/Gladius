@@ -325,6 +325,10 @@ function Gladius:SetupOptions()
       order = order + 5
    end
    
+   for _,module in pairs(self.modules) do
+      self:Call(module,"OptionsLoad")
+   end
+   
    self.options.plugins.profiles = { profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.dbi) }
 	LibStub("AceConfig-3.0"):RegisterOptionsTable("Gladius", self.options)
 	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Gladius", "Gladius")
