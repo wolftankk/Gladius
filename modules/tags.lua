@@ -227,8 +227,8 @@ function Tags:Update(unit)
          
       self.frame[unit][text]:SetParent(Gladius:GetModule(Gladius.db.tagsTexts[text].attachTo).frame[unit])
       
-      self.frame[unit][text]:SetFont(LSM:Fetch(LSM.MediaType.FONT, "Friz Quadrata TT"), 11)
-      self.frame[unit][text]:SetTextColor(1, 1, 1, 1)
+      self.frame[unit][text]:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.globalFont), (Gladius.db.useGlobalFontSize and Gladius.db.globalFontSize or Gladius.db.tagsTexts[text].size))
+      self.frame[unit][text]:SetTextColor(Gladius.db.tagsTexts[text].color.r, Gladius.db.tagsTexts[text].color.g, Gladius.db.tagsTexts[text].color.b, Gladius.db.tagsTexts[text].color.a)
       
       self.frame[unit][text]:SetShadowOffset(1, -1)
       self.frame[unit][text]:SetShadowColor(0, 0, 0, 1)
@@ -291,8 +291,8 @@ end
 
 local function setColorOption(info, r, g, b, a) 
    local key = info[#info - 2]
-   Gladius.dbi.profile.tagsTexts[key][info[#info]].r, Gladius.dbi.profile.tagsTexts[key][info[#info]][key].g, 
-      Gladius.dbi.profile.tagsTexts[key][info[#info]][key].b, Gladius.dbi.profile.tagsTexts[key][info[#info]][key].a = r, g, b, a
+   Gladius.dbi.profile.tagsTexts[key][info[#info]].r, Gladius.dbi.profile.tagsTexts[key][info[#info]].g, 
+   Gladius.dbi.profile.tagsTexts[key][info[#info]].b, Gladius.dbi.profile.tagsTexts[key][info[#info]].a = r, g, b, a
    Gladius:UpdateFrame()
 end
 
@@ -611,7 +611,7 @@ function Tags:GetTextOptionTable(text, order)
                   name=L["Text Size"],
                   desc=L["Text size of the text"],
                   min=1, max=20, step=1,
-                  disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                  disabled=function() return not Gladius.dbi.profile.modules[self.name] or Gladius.db.useGlobalFontSize end,
                   order=10,
                },                  
             },
