@@ -213,7 +213,9 @@ function Tags:Update(unit)
    end
    
    for text, _ in pairs(Gladius.db.tagsTexts) do
-      if (not Gladius:GetModule(Gladius.db.tagsTexts[text].attachTo)) then return end
+      if (not Gladius:GetModule(Gladius.db.tagsTexts[text].attachTo) or
+          not Gladius:GetModule(Gladius.db.tagsTexts[text].attachTo).frame or 
+          not Gladius:GetModule(Gladius.db.tagsTexts[text].attachTo).frame[unit]) then return end
    
       -- create frame
       if (not self.frame[unit][text]) then 

@@ -7,6 +7,7 @@ Gladius.defaults = {
       modules = {
          ["*"] = true,
          ["Auras"] = false,
+         ["TargetBar"] = false,
       },
       locked = false,
       growUp = false,
@@ -107,6 +108,9 @@ SlashCmdList["GLADIUS"] = function(msg)
       
       -- hide buttons      
       Gladius:HideFrame()
+   elseif (msg == "reset") then
+      -- reset profile      
+      Gladius.dbi:ResetProfile()   
    end
 end
 

@@ -20,6 +20,8 @@ externals:
     libs/CallBackHandler-1.0: 
         url: svn://svn.wowace.com/wow/ace3/mainline/trunk/CallbackHandler-1.0
     libs/LibSharedMedia-3.0:
-        url: svn://svn.wowace.com/wow/libsharedmedia-3-0/mainline/trunk
+        url: svn://svn.wowace.com/wow/libsharedmedia-3-0/mainline/trunk        
     libs/LibStub:
         url: svn://svn.wowace.com/wow/ace3/mainline/trunk/LibStub
+    libs/DRData-1.0:
+        url: git://git.wowace.com/wow/drdata-1-0/mainline

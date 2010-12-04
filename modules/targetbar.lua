@@ -53,7 +53,7 @@ function TargetBar:OnDisable()
    self:UnregisterAllEvents()
    
    for unit in pairs(self.frame) do
-      self.frame[unit]:SetAlpha(0)
+      self.frame[unit].frame:SetAlpha(0)
    end
 end
 
@@ -307,7 +307,7 @@ function TargetBar:Update(unit)
    self.frame[unit].highlight:SetAlpha(0)
 	
 	-- hide frame
-	self.frame[unit]:SetAlpha(0)
+	self.frame[unit].frame:SetAlpha(0)
 end
 
 function TargetBar:GetBarColor(class)
@@ -340,7 +340,7 @@ function TargetBar:Show(unit)
    local testing = Gladius.test
    
    -- show frame
-   self.frame[unit]:SetAlpha(1)
+   self.frame[unit].frame:SetAlpha(1)
    
    -- set secure frame
    self.frame[unit].secure:SetFrameStrata("DIALOG")
@@ -377,8 +377,7 @@ function TargetBar:Reset(unit)
    self.frame[unit]:SetValue(1)
    
    -- hide
-	self.frame[unit]:SetAlpha(0)
-	self.frame[unit].icon:SetAlpha(0)
+	self.frame[unit].frame:SetAlpha(0)
 end
 
 function TargetBar:Test(unit)   
