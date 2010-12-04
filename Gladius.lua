@@ -101,6 +101,10 @@ function Gladius:OnInitialize()
       end
 	})
 	
+	-- spec detection
+	self.specBuffs = self:GetSpecBuffList()
+	self.specSpells = self:GetSpecSpellList()
+	
 	-- buttons
    self.buttons = {}
 end
@@ -163,6 +167,10 @@ function Gladius:JoinedArena()
 	
 	self:RegisterEvent("UNIT_HEALTH")	
 	self:RegisterEvent("UNIT_MAXHEALTH", "UNIT_HEALTH")
+	
+	-- spec detection
+	self:RegisterEvent("UNIT_AURA")	
+	self:RegisterEvent("UNIT_SPELLCAST_START")
 		
 	-- reset test
 	self.test = false
@@ -444,6 +452,31 @@ function Gladius:CreateButton(unit)
 	   
    button.secure = secure
    self.buttons[unit] = button
+end
+
+function Gladius:UNIT_AURA(event, unit)
+   if (not unit:find("arena") or unit:find("pet")) then return end
+
+   while (true) do
+      local name = UnitAura(unit, index, "HELPFUL")
+      if (not name) then break end
+      
+      if (self.specSpells[name]) then
+         self.buttons[unit].spec = self.specSpells[name]
+         self:SendMessage("GLADIUS_SPEC_UPDATE", unit)
+      end
+   end
+end
+
+function Gladius:UNIT_SPELLCAST_START(event, unit)
+   if (not unit:find("arena") or unit:find("pet")) then return end
+   
+   local spell = UnitCastingInfo(unit)
+   
+   if (self.specBuffs[spell]) then
+      self.buttons[unit].spec = self.specBuffs[spell]
+      self:SendMessage("GLADIUS_SPEC_UPDATE", unit)
+   end
 end
 
 function Gladius:UNIT_HEALTH(event, unit)

@@ -116,7 +116,11 @@ function Tags:OnEnable()
    
    -- register events
    for event in pairs(self.events) do
-      self:RegisterEvent(event, "OnEvent")
+      if (event:find("GLADIUS")) then
+         self:RegisterMessage(event, "OnMessage")
+      else
+         self:RegisterEvent(event, "OnEvent")
+      end
    end
 end
 
@@ -134,6 +138,17 @@ end
 
 function Tags:GetFrame(unit)
    return ""
+end
+
+function Tags:OnMessage(unit, event)
+   if (not unit:find("arena") or unit:find("pet")) then return end
+   
+   if (self.events[event]) then
+      -- update texts
+      for text, _ in pairs(self.events[event]) do
+         self:UpdateText(unit, text)
+      end
+   end
 end
 
 function Tags:OnEvent(event, unit)
@@ -861,7 +876,7 @@ function Tags:GetTagsEvents()
       ["name:status"] = "UNIT_NAME_UPDATE UNIT_HEALTH",
       ["class"] = "UNIT_NAME_UPDATE", 
       ["race"] = "UNIT_NAME_UPDATE", 
-      ["spec"] = "UNIT_NAME_UPDATE", 
+      ["spec"] = "UNIT_NAME_UPDATE GLADIUS_SPEC_UPDATE", 
            
       ["health"] = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_NAME_UPDATE",
       ["maxhealth"] = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_NAME_UPDATE",

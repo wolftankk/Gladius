@@ -404,7 +404,7 @@ function Gladius:SetupOptions()
    end
    
    for _,module in pairs(self.modules) do
-      self:Call(module,"OptionsLoad")
+      self:Call(module, "OptionsLoad")
    end
    
    self.options.plugins.profiles = { profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.dbi) }

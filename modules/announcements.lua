@@ -11,6 +11,7 @@ Gladius:SetModule(Announcements, "Announcements", false, false, {
       enemies = true,
       health = true,
       resurrect = true,
+      spec = true,
       healthThreshold = 25,
       dest = "rw",
    }
@@ -21,6 +22,9 @@ function Announcements:OnEnable()
    self:RegisterEvent("UNIT_HEALTH")
    self:RegisterEvent("UNIT_AURA")
    self:RegisterEvent("UNIT_SPELLCAST_START")
+   
+   -- register custom events
+   self:RegisterMessage("GLADIUS_SPEC_UPDATE")
    
    -- Table holding messages to throttle
    self.throttled = {}
@@ -45,6 +49,11 @@ function Announcements:Show(unit)
    if (not Gladius.db.announcements.enemies or not UnitName(unit)) then return end
    
    self:Send(string.format(L["%s - %s"], UnitName(unit), UnitClass(unit)), 2, unit)
+end
+
+function Announcements:GLADIUS_SPEC_UPDATE(unit, event)
+   if (not unit:find("arena") or unit:find("pet") or not Gladius.db.announcements.spec) then return end
+   self:Send(string.format(L["SPEC DETECTED: %s (%s)"], UnitName(unit), self.buttons[unit].spec), 2, unit)
 end
 
 function Announcements:UNIT_HEALTH(event, unit)
@@ -217,6 +226,12 @@ function Announcements:GetOptions()
                      type="toggle",
                      name=L["Resurrection"],
                      desc=L["Announces when an enemy tries to resurrect a teammate."],
+                     order=40,
+                  },
+                  spec = {
+                     type="toggle",
+                     name=L["Spec Detection"],
+                     desc=L["Announces when the spec of an enemy was detected."],
                      order=40,
                   },
                },

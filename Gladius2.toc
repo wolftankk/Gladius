@@ -16,6 +16,7 @@ Gladius.lua
 localization\enUS.lua
 
 options.lua
+speclist.lua
 
 modules\healthbar.lua
 modules\powerbar.lua
