@@ -14,6 +14,7 @@ Gladius.defaults = {
       advancedOptions = false,
       backgroundColor = { r = 0, g = 0, b = 0, a = 0.4 },
       bottomMargin = 20,
+      useGlobalFontSize = true,
       globalFontSize = 11,
       globalFont = "Friz Quadrata TT",
       barWidth = 200,
@@ -344,8 +345,27 @@ function Gladius:SetupOptions()
                         type="range",
                         name=L["Global Font Size"],
                         desc=L["Text size of the power info text"],
+                        disabled=function() return not self.db.useGlobalFontSize end,
                         min=1, max=20, step=1,
                         order=5,
+                     },
+                     sep = {                     
+                        type = "description",
+                        name="",
+                        width="full",
+                        order=7,
+                     },
+                     sep2 = {                     
+                        type = "toggle",
+                        name="NYI",
+                        disabled=true,
+                        order=8,
+                     },
+                     useGlobalFontSize = {
+                        type="toggle",
+                        name=L["Use Global Font Size"],
+                        desc=L["Toggle if you want to use the global font size"],
+                        order=10,
                      },
                   },
                },		
@@ -377,6 +397,10 @@ function Gladius:SetupOptions()
    for moduleName, module in pairsByKeys(self.modules) do
       self:SetupModule(moduleName, module, order)
       order = order + 5
+   end
+   
+   for _,module in pairs(self.modules) do
+      self:Call(module,"OptionsLoad")
    end
    
    self.options.plugins.profiles = { profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.dbi) }

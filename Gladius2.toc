@@ -27,3 +27,4 @@ modules\highlight.lua
 modules\clicks.lua
 modules\targetbar.lua
 modules\tags.lua
+modules\announcements.lua
