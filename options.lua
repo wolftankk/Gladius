@@ -21,6 +21,41 @@ Gladius.defaults = {
    },
 }
 
+function pairsByKeys(t, f)
+   local a = {}
+   for n in pairs(t) do table.insert(a, n) end
+   table.sort(a, f)
+   local i = 0      -- iterator variable
+   local iter = function ()   -- iterator function
+      i = i + 1
+      if a[i] == nil then return nil
+      else return a[i], t[a[i]]
+      end
+   end
+   return iter
+end
+
+Gladius.templates = {
+   "Gladius Classic",
+   "Gladius Light",
+   "Gladius Advanced",
+}
+
+function Gladius:SetTemplate(template)
+   if (template == 1) then
+      -- classic Gladius1 template
+      print("Gladius:", "Template not available!")   
+   elseif (template == 2) then
+      -- reset to default
+      for k, v in pairs(self.defaults) do
+         self.db[k] = v
+      end
+   else
+      -- enable all features
+      print("Gladius:", "Template not available!")      
+   end   
+end
+
 SLASH_GLADIUS1 = "/gladius"
 SlashCmdList["GLADIUS"] = function(msg)
    if (msg:find("test")) then
@@ -180,7 +215,7 @@ function Gladius:SetupModule(key, module, order)
             Gladius:Call(module, "SetTemplate", value)
             Gladius:UpdateFrame()
          end,
-         order=0.7,
+         order=0.3,
       }
    end
 end
@@ -238,7 +273,7 @@ function Gladius:SetupOptions()
                         order=15,
                      },
                   },
-               },
+               },               
                frame = {
                   type="group",
                   name=L["Frame"],
@@ -314,13 +349,32 @@ function Gladius:SetupOptions()
                      },
                   },
                },		
+               templates = {
+                  type="group",
+                  name=L["Global Templates"],
+                  desc=L["Global templates"],  
+                  inline=true,                
+                  order=5,
+                  args = {    
+                     templates = {
+                        type="select",
+                        name=L["Global Templates"],
+                        values=function() return self.templates end,
+                        set=function(info, value)                       
+                           self:SetTemplate(value)
+                           self:UpdateFrame()
+                        end,
+                        order=1,
+                     },
+                  },
+               },
             },
          },
       },
    }
    
    local order = 10
-   for moduleName, module in pairs(self.modules) do
+   for moduleName, module in pairsByKeys(self.modules) do
       self:SetupModule(moduleName, module, order)
       order = order + 5
    end

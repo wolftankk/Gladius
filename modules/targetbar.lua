@@ -11,7 +11,6 @@ Gladius:SetModule(TargetBar, "TargetBar", true, true, {
    
    targetBarEnableBar = true,
    
-   targetBarAdjustHeight = false,
    targetBarHeight = 30,
    targetBarAdjustWidth = true,
    targetBarWidth = 200,
@@ -38,6 +37,13 @@ function TargetBar:OnEnable()
    
    LSM = Gladius.LSM
    
+   -- set frame type
+   if (Gladius.db.targetBarAttachTo == "Frame" or Gladius.db.targetBarRelativePoint:find("BOTTOM")) then
+      self.isBar = true
+   else
+      self.isBar = false
+   end
+   
    if (not self.frame) then
       self.frame = {}
    end
@@ -53,6 +59,11 @@ end
 
 function TargetBar:SetTemplate(template)
    if (template == 1) then
+      -- reset width
+      if (Gladius.db.targetBarAttachTo == "HealthBar" and not Gladius.db.healthBarAdjustWidth) then
+         Gladius.db.healthBarAdjustWidth = true
+      end
+   
       -- reset to default
       for k, v in pairs(self.defaults) do
          Gladius.db[k] = v
@@ -77,6 +88,13 @@ function TargetBar:SetTemplate(template)
          Gladius.db.targetBarOffsetX = 0
          Gladius.db.targetBarOffsetY = 0         
       end
+   end
+   
+   -- set frame type
+   if (Gladius.db.targetBarAttachTo == "Frame" or Gladius.db.targetBarRelativePoint:find("BOTTOM")) then
+      self.isBar = true
+   else
+      self.isBar = false
    end
 end
 
@@ -155,6 +173,8 @@ function TargetBar:CreateBar(unit)
    self.frame[unit] = CreateFrame("STATUSBAR", "Gladius" .. self.name .. "Bar" .. unit, button) 
    self.frame[unit].frame = CreateFrame("Frame", "Gladius" .. self.name .. unit, button)   
    self.frame[unit]:SetParent(self.frame[unit].frame)
+   
+   self.frame[unit].secure = CreateFrame("Button", "Gladius" .. self.name .. "Secure" .. unit, self.frame[unit].frame, "SecureActionButtonTemplate")	
     
    self.frame[unit].background = self.frame[unit]:CreateTexture("Gladius" .. self.name .. unit .. "Background", "BACKGROUND") 
    self.frame[unit].highlight = self.frame[unit]:CreateTexture("Gladius" .. self.name .. "Highlight" .. unit, "OVERLAY")
@@ -179,6 +199,13 @@ function TargetBar:Update(unit)
    
    -- set bar type 
    local parent = Gladius:GetParent(unit, Gladius.db.targetBarAttachTo)
+   
+   -- set frame type
+   if (Gladius.db.targetBarAttachTo == "Frame" or Gladius.db.targetBarRelativePoint:find("BOTTOM")) then
+      self.isBar = true
+   else
+      self.isBar = false
+   end
            
    -- update health bar   
    self.frame[unit].frame:ClearAllPoints()
@@ -197,11 +224,7 @@ function TargetBar:Update(unit)
       end
    end
        
-   if (Gladius.db.targetBarAttachTo ~= "Frame" and not Gladius.db.targetBarRelativePoint:find("BOTTOM") and Gladius.db.targetBarAdjustHeight) then
-      self.frame[unit].frame:SetHeight(Gladius.buttons[unit].height)   
-   else
-      self.frame[unit].frame:SetHeight(Gladius.db.targetBarHeight)  
-   end  
+   self.frame[unit].frame:SetHeight(Gladius.db.targetBarHeight)  
    self.frame[unit].frame:SetHeight(Gladius.db.targetBarHeight) 
    
    if (Gladius.db.targetBarIcon) then
@@ -266,8 +289,18 @@ function TargetBar:Update(unit)
       self.frame[unit]:Hide()
    end
    
+   -- update secure frame
+   self.frame[unit].secure:RegisterForClicks("AnyUp")
+   self.frame[unit].secure:SetAllPoints(self.frame[unit].frame)
+   self.frame[unit].secure:SetWidth(self.frame[unit].frame:GetWidth())
+   self.frame[unit].secure:SetHeight(self.frame[unit].frame:GetHeight())
+   self.frame[unit].secure:SetFrameStrata("LOW")
+   
+   self.frame[unit].secure:SetAttribute("unit", unit .. "target")
+   self.frame[unit].secure:SetAttribute("type1", "target")
+   
 	-- update highlight texture
-   self.frame[unit].highlight:SetAllPoints(self.frame[unit])   
+   self.frame[unit].highlight:SetAllPoints(self.frame[unit].frame)   
 	self.frame[unit].highlight:SetTexture([=[Interface\QuestFrame\UI-QuestTitleHighlight]=])
    self.frame[unit].highlight:SetBlendMode("ADD")   
    self.frame[unit].highlight:SetVertexColor(1.0, 1.0, 1.0, 1.0)
@@ -308,6 +341,9 @@ function TargetBar:Show(unit)
    
    -- show frame
    self.frame[unit]:SetAlpha(1)
+   
+   -- set secure frame
+   self.frame[unit].secure:SetFrameStrata("DIALOG")
    
    -- get unit class
    local class
@@ -468,13 +504,6 @@ function TargetBar:GetOptions()
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      order=5,
                   },
-                  targetBarAdjustHeight = {
-                     type="toggle",
-                     name=L["Target bar adjust height"],
-                     desc=L["Adjust health bar width to the frame height"],
-                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-                     order=10,
-                  },
                   sep = {                     
                      type = "description",
                      name="",
@@ -494,7 +523,7 @@ function TargetBar:GetOptions()
                      name=L["Target bar height"],
                      desc=L["Height of the health bar"],
                      min=10, max=200, step=1,
-                     disabled=function() return Gladius.dbi.profile.targetBarAdjustHeight or not Gladius.dbi.profile.modules[self.name] end,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      order=20,
                   },
                },
@@ -513,9 +542,16 @@ function TargetBar:GetOptions()
                      desc=L["Attach health bar to the given frame"],
                      values=function() return Gladius:GetModules(self.name) end,
                      set=function(info, value) 
-                        local key = info.arg or info[#info]
-                                                
+                        local key = info.arg or info[#info]                                                                        
                         Gladius.dbi.profile[key] = value
+                        
+                        -- set frame type
+                        if (Gladius.db.targetBarAttachTo == "Frame" or Gladius.db.targetBarRelativePoint:find("BOTTOM")) then
+                           self.isBar = true
+                        else
+                           self.isBar = false
+                        end
+                                             
                         Gladius:UpdateFrame()
                      end,
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,

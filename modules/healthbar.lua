@@ -9,7 +9,6 @@ local HealthBar = Gladius:NewModule("HealthBar", "AceEvent-3.0")
 Gladius:SetModule(HealthBar, "HealthBar", true, true, {
    healthBarAttachTo = "Frame",
    
-   healthBarAdjustHeight = true,
    healthBarHeight = 25,
    healthBarAdjustWidth = true,
    healthBarWidth = 200,
@@ -156,11 +155,7 @@ function HealthBar:Update(unit)
       width = width + Gladius:GetModule(Gladius.db.healthBarAttachTo).frame[unit]:GetWidth()
 	end
 		 
-	if (Gladius.db.healthBarAttachTo ~= "Frame" and not Gladius.db.healthBarRelativePoint:find("BOTTOM") and Gladius.db.healthBarAdjustHeight) then
-      self.frame[unit]:SetHeight(Gladius.buttons[unit].frameHeight)   
-   else
-      self.frame[unit]:SetHeight(Gladius.db.healthBarHeight)  
-   end  
+   self.frame[unit]:SetHeight(Gladius.db.healthBarHeight)   
    self.frame[unit]:SetWidth(width) 
    	
 	self.frame[unit]:SetPoint(Gladius.db.healthBarAnchor, parent, Gladius.db.healthBarRelativePoint, Gladius.db.healthBarOffsetX, Gladius.db.healthBarOffsetY)
@@ -357,13 +352,6 @@ function HealthBar:GetOptions()
                      desc=L["Adjust health bar width to the frame width"],
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      order=5,
-                  },
-                  healthBarAdjustHeight = {
-                     type="toggle",
-                     name=L["Health bar adjust height"],
-                     desc=L["Adjust health bar width to the frame height"],
-                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-                     order=10,
                   },
                   sep = {                     
                      type = "description",

@@ -9,7 +9,6 @@ local PowerBar = Gladius:NewModule("PowerBar", "AceEvent-3.0")
 Gladius:SetModule(PowerBar, "PowerBar", true, true, {
    powerBarAttachTo = "HealthBar",
    
-   powerBarAdjustHeight = true,
    powerBarHeight = 15,
    powerBarAdjustWidth = true,
    powerBarWidth = 200,
@@ -175,11 +174,7 @@ function PowerBar:Update(unit)
       width = width + Gladius:GetModule(Gladius.db.powerBarAttachTo).frame[unit]:GetWidth()
 	end
 		 
-	if (Gladius.db.healthBarAttachTo ~= "Frame" and not Gladius.db.powerBarRelativePoint:find("BOTTOM") and Gladius.db.powerBarAdjustHeight) then
-      self.frame[unit]:SetHeight(Gladius.buttons[unit].frameHeight)   
-   else
-      self.frame[unit]:SetHeight(Gladius.db.powerBarHeight)  
-   end  
+	self.frame[unit]:SetHeight(Gladius.db.powerBarHeight)    
    self.frame[unit]:SetWidth(width) 
    	
 	self.frame[unit]:SetPoint(Gladius.db.powerBarAnchor, parent, Gladius.db.powerBarRelativePoint, Gladius.db.powerBarOffsetX, Gladius.db.powerBarOffsetY)
@@ -363,13 +358,6 @@ function PowerBar:GetOptions()
                      desc=L["Adjust power bar width to the frame width"],
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      order=5,
-                  },
-                  powerBarAdjustHeight = {
-                     type="toggle",
-                     name=L["Power Bar Adjust Height"],
-                     desc=L["Adjust power bar height to the frame height"],
-                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-                     order=10,
                   },
                   sep = {                     
                      type = "description",

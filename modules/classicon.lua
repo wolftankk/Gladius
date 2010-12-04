@@ -10,10 +10,8 @@ Gladius:SetModule(ClassIcon, "ClassIcon", false, true, {
    classIconAttachTo = "Frame",
    classIconAnchor = "TOPRIGHT",
    classIconRelativePoint = "TOPLEFT",
-   classIconAdjustHeight = false,
-   classIconHeight = 38,
-   classIconAdjustWidth = true,
-   classIconWidth = 40,
+   classIconAdjustSize = false,
+   classIconSize = 40,
    classIconOffsetX = 0,
    classIconOffsetY = 0,
    classIconFrameLevel = 2,
@@ -171,7 +169,7 @@ function ClassIcon:Update(unit)
    -- frame level
    self.frame[unit]:SetFrameLevel(Gladius.db.classIconFrameLevel)
    
-   if (Gladius.db.classIconAdjustHeight) then
+   if (Gladius.db.classIconAdjustSize) then
       local height = false
       --[[ need to rethink that
       for _, module in pairs(Gladius.modules) do
@@ -181,30 +179,15 @@ function ClassIcon:Update(unit)
       end]]
    
       if (height) then
-         if (Gladius.db.classIconAdjustWidth) then
-            self.frame[unit]:SetWidth(Gladius.buttons[unit].height) 
-         else
-            self.frame[unit]:SetWidth(Gladius.db.classIconWidth)
-         end
- 
+         self.frame[unit]:SetWidth(Gladius.buttons[unit].height)  
          self.frame[unit]:SetHeight(Gladius.buttons[unit].height)   
       else
-         if (Gladius.db.classIconAdjustWidth) then
-            self.frame[unit]:SetWidth(Gladius.buttons[unit].frameHeight) 
-         else
-            self.frame[unit]:SetWidth(Gladius.db.classIconWidth)
-         end
- 
+         self.frame[unit]:SetWidth(Gladius.buttons[unit].frameHeight) 
          self.frame[unit]:SetHeight(Gladius.buttons[unit].frameHeight)   
       end 
    else
-      if (Gladius.db.classIconAdjustWidth) then
-         self.frame[unit]:SetWidth(Gladius.db.classIconHeight) 
-      else
-         self.frame[unit]:SetWidth(Gladius.db.classIconWidth)
-      end
-        
-      self.frame[unit]:SetHeight(Gladius.db.classIconHeight)  
+      self.frame[unit]:SetWidth(Gladius.db.classIconSize)        
+      self.frame[unit]:SetHeight(Gladius.db.classIconSize)  
    end  
    
    self.frame[unit].texture:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
@@ -360,42 +343,21 @@ function ClassIcon:GetOptions()
                inline=true,                
                order=2,
                args = {
-                  classIconAdjustWidth = {
+                  classIconAdjustSize = {
                      type="toggle",
-                     name=L["Class Icon Adjust Width"],
-                     desc=L["Adjust class icon width to the frame width"],
+                     name=L["Class Icon Adjust Size"],
+                     desc=L["Adjust class icon size to the frame size"],
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      order=5,
                   },
-                  classIconAdjustHeight = {
-                     type="toggle",
-                     name=L["Class Icon Adjust Height"],
-                     desc=L["Adjust class icon height to the frame height"],
-                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                  classIconSize = {
+                     type="range",
+                     name=L["Class Icon Size"],
+                     desc=L["Size of the class icon"],
+                     min=10, max=100, step=1,
+                     disabled=function() return Gladius.dbi.profile.classIconAdjustSize or not Gladius.dbi.profile.modules[self.name] end,
                      order=10,
-                  },
-                  sep = {                     
-                     type = "description",
-                     name="",
-                     width="full",
-                     order=13,
-                  },
-                  classIconWidth = {
-                     type="range",
-                     name=L["Class Icon Width"],
-                     desc=L["Width of the class icon"],
-                     min=10, max=100, step=1,
-                     disabled=function() return Gladius.dbi.profile.classIconAdjustWidth or not Gladius.dbi.profile.modules[self.name] end,
-                     order=15,
-                  },
-                  classIconHeight = {
-                     type="range",
-                     name=L["Class Icon Height"],
-                     desc=L["Height of the class icon"],
-                     min=10, max=100, step=1,
-                     disabled=function() return Gladius.dbi.profile.classIconAdjustHeight or not Gladius.dbi.profile.modules[self.name] end,
-                     order=20,
-                  },        
+                  },       
                },
             },
             position = {

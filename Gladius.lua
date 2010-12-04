@@ -22,7 +22,7 @@ function Gladius:SetModule(module, key, bar, attachTo, defaults, templates)
    self.modules[key] = module
    module.name = key
    module.isBarOption = bar
-   module.isBar = bar
+   --module.isBar = bar
    module.defaults = defaults
    module.attachTo = attachTo
    module.templates = templates
@@ -268,7 +268,7 @@ function Gladius:UpdateUnit(unit, module)
             end
                         
             local attachTo = m:GetAttachTo()
-            if (attachTo == "Frame" or self.modules[attachTo].isBar) then
+            if (attachTo == "Frame" or m.isBar) then
                frameHeight = frameHeight + m.frame[unit]:GetHeight()
             else
                height = height + m.frame[unit]:GetHeight()

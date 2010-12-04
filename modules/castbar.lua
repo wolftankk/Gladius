@@ -9,7 +9,6 @@ local CastBar = Gladius:NewModule("CastBar", "AceEvent-3.0")
 Gladius:SetModule(CastBar, "CastBar", true, true, {
    castBarAttachTo = "ClassIcon",
    
-   castBarAdjustHeight = true,
    castBarHeight = 12,
    castBarAdjustWidth = true,
    castBarWidth = 150,
@@ -245,11 +244,7 @@ function CastBar:Update(unit)
       width = width + Gladius:GetModule(Gladius.db.castBarAttachTo).frame[unit]:GetWidth()
 	end
 		 
-	if (not self.isBar and Gladius.db.castBarRelativePoint:find("TOP") and Gladius.db.castBarAdjustHeight) then
-      self.frame[unit]:SetHeight(Gladius.buttons[unit].height)   
-   else
-      self.frame[unit]:SetHeight(Gladius.db.castBarHeight)  
-   end  
+	self.frame[unit]:SetHeight(Gladius.db.castBarHeight)   
    self.frame[unit]:SetWidth(width)
 	
 	local offsetX
@@ -490,13 +485,6 @@ function CastBar:GetOptions()
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      order=5,
                   },
-                  castBarAdjustHeight = {
-                     type="toggle",
-                     name=L["Cast Bar Adjust Height"],
-                     desc=L["Adjust cast bar height to the frame height"],
-                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-                     order=10,
-                  },
                   sep = {                     
                      type = "description",
                      name="",
@@ -516,7 +504,7 @@ function CastBar:GetOptions()
                      name=L["Cast Bar Height"],
                      desc=L["Height of the cast bar"],
                      min=10, max=200, step=1,
-                     disabled=function() return Gladius.dbi.profile.castBarAdjustHeight or not Gladius.dbi.profile.modules[self.name] end,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      order=20,
                   },                  
                },
