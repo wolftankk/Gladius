@@ -29,7 +29,7 @@ Gladius:SetModule(Tags, "Tags", false, false, {
          size = 11,
          color = { r = 1, g = 1, b = 1, a = 1 },
          
-         text = "[health:short] / [maxhealth:short] ([health:percentage])",
+         text = "[health:percentage]",
       },
       ["PowerBar Left Text"] = {
          attachTo = "PowerBar",
@@ -40,7 +40,7 @@ Gladius:SetModule(Tags, "Tags", false, false, {
          size = 11,
          color = { r = 1, g = 1, b = 1, a = 1 },
          
-         text = "[race] [class] [spec]",
+         text = "[spec:short] [class:short]",
       },
       ["PowerBar Right Text"] = {
          attachTo = "PowerBar",
@@ -51,7 +51,7 @@ Gladius:SetModule(Tags, "Tags", false, false, {
          size = 11,
          color = { r = 1, g = 1, b = 1, a = 1 },
          
-         text = "[power:short] / [maxpower:short] ([power:percentage])",
+         text = "[power:short]/[maxpower:short]",
       },
        ["TargetBar Left Text"] = {
          attachTo = "TargetBar",
@@ -799,11 +799,17 @@ function Tags:GetTags()
       ["class"] = [[function(unit)
          return not Gladius.test and UnitClass(unit) or LOCALIZED_CLASS_NAMES_MALE[Gladius.testing[unit].unitClass]
       end]],
+      ["class:short"] = [[function(unit)
+         return not Gladius.test and Gladius.L[UnitClass(unit) .. ":short"] or Gladius.L[LOCALIZED_CLASS_NAMES_MALE[Gladius.testing[unit].unitClass] .. ":short"]
+      end]],
       ["race"] = [[function(unit)
          return not Gladius.test and UnitRace(unit) or Gladius.testing[unit].unitRace
       end]],
       ["spec"] = [[function(unit)
          return Gladius.test and Gladius.testing[unit].unitSpec or Gladius.buttons[unit].spec
+      end]],
+      ["spec:short"] = [[function(unit)
+         return Gladius.test and Gladius.L[Gladius.testing[unit].unitSpec .. ":short"] or Gladius.L[Gladius.buttons[unit].spec .. ":short"]
       end]],
            
       ["health"] = [[function(unit)
@@ -874,9 +880,11 @@ function Tags:GetTagsEvents()
    return {
       ["name"] = "UNIT_NAME_UPDATE",
       ["name:status"] = "UNIT_NAME_UPDATE UNIT_HEALTH",
-      ["class"] = "UNIT_NAME_UPDATE", 
+      ["class"] = "UNIT_NAME_UPDATE",
+      ["class:short"] = "UNIT_NAME_UPDATE", 
       ["race"] = "UNIT_NAME_UPDATE", 
       ["spec"] = "UNIT_NAME_UPDATE GLADIUS_SPEC_UPDATE", 
+      ["spec:short"] = "UNIT_NAME_UPDATE GLADIUS_SPEC_UPDATE", 
            
       ["health"] = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_NAME_UPDATE",
       ["maxhealth"] = "UNIT_HEALTH UNIT_MAXHEALTH UNIT_NAME_UPDATE",
