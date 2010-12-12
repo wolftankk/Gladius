@@ -41,7 +41,7 @@ Gladius:SetModule(Auras, "Auras", false, true, {
    
    aurasImportantAuras = true,
    aurasFrameAuras = nil,
-})
+}, {"Bottom Single Row"})
 
 function Auras:OnEnable()   
    self:RegisterEvent("UNIT_AURA")
@@ -64,6 +64,28 @@ function Auras:OnDisable()
    
    for unit in pairs(self.buffFrame) do
       self.buffFrame[unit]:Hide()
+   end
+end
+
+function Auras:SetTemplate(template)
+   if (template == 1) then
+      Gladius.db.aurasBuffsGrow = "DOWNRIGHT"
+      Gladius.db.aurasBuffsAttachTo = "CastBar"
+      Gladius.db.aurasBuffsRelativePoint = "BOTTOMLEFT"
+      Gladius.db.aurasBuffsAnchor = "TOPLEFT"
+      Gladius.db.aurasBuffsSpacingX = 1
+      Gladius.db.aurasBuffsHeight = 17
+      Gladius.db.aurasBuffsMax = Gladius.db.modules.Trinket and 8 or 6
+      Gladius.db.aurasBuffsOffsetY = -1
+
+      Gladius.db.aurasDebuffsGrow = "DOWNLEFT"
+      Gladius.db.aurasDebuffsAttachTo = "Trinket"
+      Gladius.db.aurasDebuffsRelativePoint = "BOTTOMRIGHT"
+      Gladius.db.aurasDebuffsAnchor = "TOPRIGHT"
+      Gladius.db.aurasDebuffsSpacingX = 1
+      Gladius.db.aurasDebuffsHeight = 17
+      Gladius.db.aurasDebuffsMax = Gladius.db.modules.Trinket and 8 or 6
+      Gladius.db.aurasDebuffsOffsetY = -1
    end
 end
 
