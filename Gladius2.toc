@@ -30,3 +30,4 @@ modules\targetbar.lua
 modules\tags.lua
 modules\announcements.lua
 modules\drtracker.lua
+modules\timer.lua
