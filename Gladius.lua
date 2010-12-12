@@ -342,6 +342,30 @@ function Gladius:UpdateUnit(unit, module)
    -- show the secure frame
    self.buttons[unit].secure:Show()
    self.buttons[unit].secure:SetAlpha(0)
+   
+   -- update background
+   if (unit == "arena1") then
+      local left, right = self.buttons[unit]:GetHitRectInsets()
+      
+      self.background:SetBackdropColor(self.db.backgroundColor.r, self.db.backgroundColor.g, self.db.backgroundColor.b, self.db.backgroundColor.a)
+      
+      self.background:SetWidth(self.buttons[unit]:GetWidth() + self.db.backgroundPadding * 2 + abs(right) + abs(left))
+      --self.background:SetHeight(self.buttons[unit]:GetHeight() + self.db.backgroundPadding * 2)
+
+      self.background:ClearAllPoints()      
+      if (self.db.growUp) then
+         self.background:SetPoint("BOTTOMLEFT", self.buttons["arena1"], "BOTTOMLEFT", -self.db.backgroundPadding + left, -self.db.backgroundPadding)
+      else
+         self.background:SetPoint("TOPLEFT", self.buttons["arena1"], "TOPLEFT", -self.db.backgroundPadding + left, self.db.backgroundPadding)
+      end
+      
+      if (self.db.groupButtons) then
+         self.background:Show()
+         self.background:SetAlpha(0)
+      else         
+         self.background:Hide()
+      end
+   end
 end
 
 function Gladius:ShowUnit(unit, testing, module)
@@ -371,6 +395,24 @@ function Gladius:ShowUnit(unit, testing, module)
          end
       end
    end
+   
+   -- background
+   if (unit == "arena1") then
+      if (self.db.groupButtons) then
+         self.background:SetAlpha(1)
+      end
+   end
+   
+   local maxHeight = 0
+   for u, button in pairs(self.buttons) do
+      local unitId = tonumber(string.match(u, "^arena(.+)"))  
+
+      if (button:GetAlpha() > 0) then
+         maxHeight = math.max(maxHeight, unitId)
+      end
+   end
+   
+   self.background:SetHeight(self.buttons[unit]:GetHeight() * maxHeight + self.db.bottomMargin * (maxHeight - 1) + self.db.backgroundPadding * 2)
 end
 
 function Gladius:TestUnit(unit, module)
@@ -447,11 +489,22 @@ function Gladius:CreateButton(unit)
       end
    end)
    
+   -- secure
    local secure = CreateFrame("Button", "GladiusButton" .. unit, button, "SecureActionButtonTemplate")
 	secure:RegisterForClicks("AnyUp")
 	   
    button.secure = secure
    self.buttons[unit] = button
+   
+   -- group background
+   if (unit == "arena1") then
+      local background = CreateFrame("Frame", "GladiusButtonBackground", UIParent)
+      background:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,})
+      background:SetBackdropColor(self.db.backgroundColor.r, self.db.backgroundColor.g, self.db.backgroundColor.b, self.db.backgroundColor.a)
+      
+      background:SetFrameStrata("BACKGROUND")
+      self.background = background      
+   end   
 end
 
 function Gladius:UNIT_AURA(event, unit)
