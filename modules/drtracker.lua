@@ -16,7 +16,7 @@ Gladius:SetModule(DRTracker, "DRTracker", false, true, {
    drTrackerMargin = 5,
    drTrackerSize = 52,
    drTrackerOffsetX = 0,
-   drTrackerOffsetY = 0,
+   drTrackerOffsetY = -5,
    drTrackerFrameLevel = 2,
    drTrackerGloss = true,
    drTrackerGlossColor = { r = 1, g = 1, b = 1, a = 0.4 },
@@ -108,7 +108,7 @@ function DRTracker:DRFaded(unit, spellID)
       tracked.diminished = 1.0
    end
 	
-	tracked.timeLeft = DRData:GetResetTime() * tracked.diminished
+	tracked.timeLeft = DRData:GetResetTime()
 	tracked.reset = tracked.timeLeft + GetTime()
 	
 	tracked.text:SetText(tracked.diminished >= 0.25 and L[tracked.diminished * 100 .. " %"] or L["immune"])
@@ -259,9 +259,11 @@ function DRTracker:Test(unit)
    if (not self.frame[unit].tracker[DRData:GetSpellCategory(64058)] or self.frame[unit].tracker[DRData:GetSpellCategory(64058)].active == false) then
       self:DRFaded(unit, 64058)
       self:DRFaded(unit, 118)
+      self:DRFaded(unit, 118)
    end
    
    if (not self.frame[unit].tracker[DRData:GetSpellCategory(33786)] or self.frame[unit].tracker[DRData:GetSpellCategory(33786)].active == false) then
+      self:DRFaded(unit, 33786)
       self:DRFaded(unit, 33786)
       self:DRFaded(unit, 33786)
    end
@@ -367,8 +369,8 @@ function DRTracker:GetOptions()
                args = {
                   drFontColor = {
                      type="color",
-                     name=L["Cast Text Color"],
-                     desc=L["Text color of the cast text"],
+                     name=L["DR Text Color"],
+                     desc=L["Text color of the DR text"],
                      hasAlpha=true,
                      get=function(info) return Gladius:GetColorOption(info) end,
                      set=function(info, r, g, b, a) return Gladius:SetColorOption(info, r, g, b, a) end,
@@ -377,8 +379,8 @@ function DRTracker:GetOptions()
                   },
                   drFontSize = {
                      type="range",
-                     name=L["Cast Text Size"],
-                     desc=L["Text size of the cast text"],
+                     name=L["DR Text Size"],
+                     desc=L["Text size of the DR text"],
                      min=1, max=20, step=1,
                      disabled=function() return not Gladius.dbi.profile.castText or not Gladius.dbi.profile.modules[self.name] end,
                      order=15,

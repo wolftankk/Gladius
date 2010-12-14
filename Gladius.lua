@@ -248,6 +248,11 @@ function Gladius:HideFrame()
    for unit, _ in pairs(self.buttons) do
       self:ResetUnit(unit)
    end
+   
+   -- hide background
+   if (self.background) then
+      self.background:Hide()
+   end
 end
 
 function Gladius:UpdateUnit(unit, module)
