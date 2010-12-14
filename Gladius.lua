@@ -515,6 +515,7 @@ end
 function Gladius:UNIT_AURA(event, unit)
    if (not unit:find("arena") or unit:find("pet")) then return end
 
+   local index = 1
    while (true) do
       local name = UnitAura(unit, index, "HELPFUL")
       if (not name) then break end
@@ -523,6 +524,8 @@ function Gladius:UNIT_AURA(event, unit)
          self.buttons[unit].spec = self.specSpells[name]
          self:SendMessage("GLADIUS_SPEC_UPDATE", unit)
       end
+      
+      index = index + 1
    end
 end
 
