@@ -84,7 +84,7 @@ function Gladius:OnInitialize()
 	
 	-- libsharedmedia
 	self.LSM = LibStub("LibSharedMedia-3.0")
-	self.LSM:Register("statusbar", "Minimalist", "Interface\\Addons\\Gladius2\\images\\Minimalist")
+	self.LSM:Register("statusbar", "Minimalist", "Interface\\Addons\\Gladius\\images\\Minimalist")
 		
 	-- test environment
 	self.test = false
