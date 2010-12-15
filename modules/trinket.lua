@@ -19,7 +19,7 @@ Gladius:SetModule(Trinket, "Trinket", false, true, {
    trinketFrameLevel = 2,
    trinketGloss = true,
    trinketGlossColor = { r = 1, g = 1, b = 1, a = 0.4 },
-})
+}, { "Trinket icon", "Grid style icon on health bar" })
 
 function Trinket:OnEnable()   
    self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
@@ -45,6 +45,41 @@ end
 
 function Trinket:GetFrame(unit)
    return self.frame[unit]
+end
+
+function Trinket:SetTemplate(template)
+   if (template == 1) then
+      -- reset width
+      if (Gladius.db.targetBarAttachTo == "HealthBar" and not Gladius.db.healthBarAdjustWidth) then
+         Gladius.db.healthBarAdjustWidth = true
+      end
+   
+      -- reset to default
+      for k, v in pairs(self.defaults) do
+         Gladius.db[k] = v
+      end
+   else
+      if (Gladius.db.modules["HealthBar"]) then
+         if (Gladius.db.healthBarAdjustWidth) then
+            Gladius.db.healthBarAdjustWidth = false
+            Gladius.db.healthBarWidth = Gladius.db.barWidth - Gladius.db.healthBarHeight
+         else
+            Gladius.db.healthBarWidth = Gladius.db.healthBarWidth - Gladius.db.healthBarHeight
+         end
+         
+         Gladius.db.trinketGridStyleIcon = true
+           
+         Gladius.db.trinketAdjustHeight = false   
+         Gladius.db.trinketHeight = Gladius.db.healthBarHeight
+         
+         Gladius.db.trinketAttachTo = "HealthBar"
+         Gladius.db.trinketAnchor = "TOPLEFT"
+         Gladius.db.trinketRelativePoint = "TOPRIGHT"
+         
+         Gladius.db.trinketOffsetX = 0
+         Gladius.db.trinketOffsetY = 0         
+      end
+   end
 end
 
 function Trinket:UNIT_SPELLCAST_SUCCEEDED(event, unit, spell, rank)
@@ -178,7 +213,7 @@ function Trinket:Update(unit)
       end
 
       Gladius.buttons[unit]:SetHitRectInsets(left, right, top, bottom) 
-      Gladius.buttons[unit].secure:SetHitRectInsets(left, right, top, bottom) 
+      Gladius.buttons[unit].secure:SetHitRectInsets(left, right, top, bottom)
    end
    
    -- style action button   
@@ -378,6 +413,7 @@ function Trinket:GetOptions()
                      values=function() return Gladius:GetModules(self.name) end,
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      width="double",
+                     arg="general",
                      order=5,
                   },
                   sep = {                     

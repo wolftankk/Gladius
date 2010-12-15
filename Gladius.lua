@@ -274,6 +274,10 @@ function Gladius:UpdateUnit(unit, module)
    self.buttons[unit].frameHeight = 1
    self.buttons[unit].height = 1
    
+   -- reset hit rect
+   self.buttons[unit]:SetHitRectInsets(0, 0, 0, 0) 
+   self.buttons[unit].secure:SetHitRectInsets(0, 0, 0, 0)
+   
    -- update modules (bars first, because we need the height)
    for _, m in pairs(self.modules) do
       if (m:IsEnabled()) then

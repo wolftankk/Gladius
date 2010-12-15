@@ -120,13 +120,15 @@ local function getOption(info)
 end
 
 local function setOption(info, value)
-   local key = info.arg or info[#info]
+   local key = info[#info]
    Gladius.dbi.profile[key] = value
    
-   if (info[1] == "general") then
+   info = info.arg and info.arg or info[1]  
+   
+   if (info == "general") then
       Gladius:UpdateFrame()
    else
-      Gladius:UpdateFrame(info[1])
+      Gladius:UpdateFrame(info)
    end
 end
 
