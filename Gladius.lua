@@ -177,7 +177,7 @@ function Gladius:JoinedArena()
 	self.testCount = 0
 	
 	-- create and update buttons on first launch
-	for i=1, MAX_ARENA_ENEMIES do  
+	for i=1, 5 do  
       self:UpdateUnit("arena" .. i)
       self.buttons["arena" .. i]:RegisterForDrag("LeftButton")
 	end
@@ -266,6 +266,9 @@ function Gladius:UpdateUnit(unit, module)
    
    local height = 0
    local frameHeight = 0
+   
+   -- spec
+   self.buttons[unit].spec = ""
    
    -- default height values
    self.buttons[unit].frameHeight = 1

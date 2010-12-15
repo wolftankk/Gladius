@@ -59,7 +59,7 @@ end
 function Announcements:UNIT_HEALTH(event, unit)
    if (not unit:find("arena") or unit:find("pet") or not Gladius.db.announcements.health) then return end
    
-   local healthPercent = math.floor((UnitHealth(unit) / UnitHealthMax(Unit)) * 100)
+   local healthPercent = math.floor((UnitHealth(unit) / UnitHealthMax(unit)) * 100)
    if (healthPercent < Gladius.db.announcements.healthThreshold) then
       self:Send(string.format(L["RESURRECTING: %s (%s)"], UnitName(unit), UnitClass(unit)), 2, unit)
    end
