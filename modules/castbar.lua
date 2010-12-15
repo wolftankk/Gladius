@@ -237,7 +237,7 @@ function CastBar:Update(unit)
 	
 	-- add width of the widget if attached to an widget
 	if (Gladius.db.castBarAttachTo ~= "Frame" and not Gladius:GetModule(Gladius.db.castBarAttachTo).isBar and Gladius.db.castBarAdjustWidth) then
-      if (not Gladius:GetModule(Gladius.db.castBarAttachTo).frame[unit]) then
+      if (not Gladius:GetModule(Gladius.db.castBarAttachTo).frame or not Gladius:GetModule(Gladius.db.castBarAttachTo).frame[unit]) then
          Gladius:GetModule(Gladius.db.castBarAttachTo):Update(unit)
       end
       

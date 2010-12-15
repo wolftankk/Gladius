@@ -128,7 +128,9 @@ function Tags:OnDisable()
    self:UnregisterAllEvents()
    
    for unit in pairs(self.frame) do
-      self.frame[unit]:SetAlpha(0)
+      for text in pairs(self.frame[unit]) do
+         self.frame[unit][text]:SetAlpha(0)
+      end
    end
 end
 
