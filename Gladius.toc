@@ -21,7 +21,7 @@ speclist.lua
 modules\healthbar.lua
 modules\powerbar.lua
 modules\castbar.lua
-modules\auras.lua
+--modules\auras.lua
 modules\classicon.lua
 modules\trinket.lua
 modules\highlight.lua
