@@ -19,7 +19,7 @@ Gladius:SetModule(Trinket, "Trinket", false, true, {
    trinketFrameLevel = 2,
    trinketGloss = true,
    trinketGlossColor = { r = 1, g = 1, b = 1, a = 0.4 },
-}, { "Trinket icon", "Grid style icon on health bar" })
+}, { "Trinket icon", "Grid style health bar", "Grid style power bar" })
 
 function Trinket:OnEnable()   
    self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
@@ -58,7 +58,7 @@ function Trinket:SetTemplate(template)
       for k, v in pairs(self.defaults) do
          Gladius.db[k] = v
       end
-   else
+   elseif (template ==2) then
       if (Gladius.db.modules["HealthBar"]) then
          if (Gladius.db.healthBarAdjustWidth) then
             Gladius.db.healthBarAdjustWidth = false
@@ -79,6 +79,27 @@ function Trinket:SetTemplate(template)
          Gladius.db.trinketOffsetX = 0
          Gladius.db.trinketOffsetY = 0         
       end
+   else
+      if (Gladius.db.modules["PowerBar"]) then
+         if (Gladius.db.powerBarAdjustWidth) then
+            Gladius.db.powerBarAdjustWidth = false
+            Gladius.db.powerBarWidth = Gladius.db.powerBarWidth - Gladius.db.powerBarHeight
+         else
+            Gladius.db.powerBarWidth = Gladius.db.powerBarWidth - Gladius.db.powerBarHeight
+         end
+         
+         Gladius.db.trinketGridStyleIcon = true
+           
+         Gladius.db.trinketAdjustHeight = false   
+         Gladius.db.trinketHeight = Gladius.db.powerBarHeight
+         
+         Gladius.db.trinketAttachTo = "PowerBar"
+         Gladius.db.trinketAnchor = "TOPLEFT"
+         Gladius.db.trinketRelativePoint = "TOPRIGHT"
+         
+         Gladius.db.trinketOffsetX = 0
+         Gladius.db.trinketOffsetY = 0         
+      end      
    end
 end
 
