@@ -17,6 +17,7 @@ Gladius:SetModule(Trinket, "Trinket", false, true, {
    trinketOffsetX = 0,
    trinketOffsetY = 0,
    trinketFrameLevel = 2,
+   trinketIconCrop = true,
    trinketGloss = true,
    trinketGlossColor = { r = 1, g = 1, b = 1, a = 0.4 },
 }, { "Trinket icon", "Grid style health bar", "Grid style power bar" })
@@ -249,6 +250,12 @@ function Trinket:Update(unit)
 	self.frame[unit].texture:SetPoint("TOPLEFT", self.frame[unit], "TOPLEFT")
 	self.frame[unit].texture:SetPoint("BOTTOMRIGHT", self.frame[unit], "BOTTOMRIGHT")
 	
+	if (not Gladius.db.trinketIconCrop and not Gladius.db.trinketGridStyleIcon) then
+      self.frame[unit].texture:SetTexCoord(0, 1, 0, 1)
+   else
+      self.frame[unit].texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+   end
+	
 	self.frame[unit].normalTexture:SetVertexColor(Gladius.db.trinketGlossColor.r, Gladius.db.trinketGlossColor.g, 
       Gladius.db.trinketGlossColor.b, Gladius.db.trinketGloss and Gladius.db.trinketGlossColor.a or 0)
    
@@ -281,7 +288,11 @@ function Trinket:Show(unit)
       end
       
       self.frame[unit].texture:SetTexture(trinketIcon)
-      self.frame[unit].texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+      
+      if (Gladius.db.trinketIconCrop) then
+         self.frame[unit].texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+      end
+      
       self.frame[unit].texture:SetVertexColor(1, 1, 1, 1)
    end
 end
@@ -295,7 +306,10 @@ function Trinket:Reset(unit)
    end
    
    self.frame[unit].texture:SetTexture(trinketIcon)
-   self.frame[unit].texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+   
+   if (Gladius.db.trinketIconCrop) then
+      self.frame[unit].texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+   end
    
    self.frame[unit]:SetScript("OnUpdate", nil)
    
@@ -351,7 +365,7 @@ function Trinket:GetOptions()
                      disabled=function() return not Gladius.dbi.profile.trinketGridStyleIcon or not Gladius.dbi.profile.modules[self.name] end,
                      order=10,
                   }, 
-                  sep = {                     
+                  sep1 = {                     
                      type = "description",
                      name="",
                      width="full",
@@ -383,6 +397,19 @@ function Trinket:GetOptions()
                      hidden=function() return not Gladius.db.advancedOptions end,
                      order=23,
                   },
+                  trinketIconCrop = {
+                     type="toggle",
+                     name=L["Icon Border Crop"],
+                     desc=L["Toggle if the borders of the trinket icon should be cropped"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=24,
+                  },
+                  sep3 = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=25,
+                  },
                   trinketFrameLevel = {
                      type="range",
                      name=L["Trinket Frame Level"],
@@ -391,7 +418,7 @@ function Trinket:GetOptions()
                      hidden=function() return not Gladius.db.advancedOptions end,
                      min=1, max=5, step=1,
                      width="double",
-                     order=25,
+                     order=50,
                   },
                },
             },

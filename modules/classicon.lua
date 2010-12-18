@@ -18,6 +18,7 @@ Gladius:SetModule(ClassIcon, "ClassIcon", false, true, {
    classIconGloss = true,
    classIconGlossColor = { r = 1, g = 1, b = 1, a = 0.4 },
    classIconImportantAuras = true,
+   classIconCrop = true,
 })
 
 function ClassIcon:OnEnable()   
@@ -104,7 +105,12 @@ function ClassIcon:UpdateAura(unit)
       self.frame[unit].aura = aura
    
       self.frame[unit].texture:SetTexture(self.frame[unit].icon)
-      self.frame[unit].texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)      
+      
+      if (Gladius.db.classIconCrop) then
+         self.frame[unit].texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+      else
+         self.frame[unit].texture:SetTexCoord(0, 1, 0, 1)
+      end
       
       self.frame[unit].cooldown:SetCooldown(GetTime(), self.frame[unit].timeleft)
    elseif (not aura and self.frame[unit].active) then
@@ -134,12 +140,15 @@ function ClassIcon:SetClassIcon(unit)
    self.frame[unit].texture:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
    
    local left, right, top, bottom = unpack(CLASS_BUTTONS[class])
-   -- zoom class icon
-   left = left + (right - left) * 0.07
-   right = right - (right - left) * 0.07
    
-   top = top + (bottom - top) * 0.07
-   bottom = bottom - (bottom - top) * 0.07
+   -- Crop class icon borders
+   if (Gladius.db.classIconCrop) then
+      left = left + (right - left) * 0.07
+      right = right - (right - left) * 0.07
+      
+      top = top + (bottom - top) * 0.07
+      bottom = bottom - (bottom - top) * 0.07
+   end
    
    self.frame[unit].texture:SetTexCoord(left, right, top, bottom)
 end
@@ -242,6 +251,20 @@ function ClassIcon:Update(unit)
 	
 	self.frame[unit].normalTexture:SetVertexColor(Gladius.db.classIconGlossColor.r, Gladius.db.classIconGlossColor.g, 
       Gladius.db.classIconGlossColor.b, Gladius.db.classIconGloss and Gladius.db.classIconGlossColor.a or 0)
+      
+   
+   local left, right, top, bottom = unpack(CLASS_BUTTONS[Gladius.test and Gladius.testing[unit].unitClass or UnitClass(unit)])
+   
+   -- Crop class icon borders
+   if (Gladius.db.classIconCrop) then
+      left = left + (right - left) * 0.07
+      right = right - (right - left) * 0.07
+      
+      top = top + (bottom - top) * 0.07
+      bottom = bottom - (bottom - top) * 0.07
+   end
+   
+   self.frame[unit].texture:SetTexCoord(left, right, top, bottom)
    
    -- hide
    self.frame[unit]:SetAlpha(0)
@@ -296,6 +319,14 @@ function ClassIcon:GetOptions()
                      desc=L["Show important auras instead of the class icon"],
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      order=5,
+                  },
+                  classIconCrop = {
+                     type="toggle",
+                     name=L["Class Icon Crop Borders"],
+                     desc=L["Toggle if the class icon borders should be cropped or not."],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return not Gladius.db.advancedOptions end,
+                     order=6,
                   },
                   sep = {                     
                      type = "description",
