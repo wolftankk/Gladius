@@ -371,6 +371,8 @@ function Gladius:UpdateUnit(unit, module)
          self.background:SetPoint("TOPLEFT", self.buttons["arena1"], "TOPLEFT", -self.db.backgroundPadding + left, self.db.backgroundPadding)
       end
       
+      self.background:SetScale(self.db.frameScale)
+      
       if (self.db.groupButtons) then
          self.background:Show()
          self.background:SetAlpha(0)
@@ -474,8 +476,14 @@ end
 
 function Gladius:CreateButton(unit)
    local button = CreateFrame("Frame", "GladiusButtonFrame" .. unit, UIParent)
+   
+   -- Commenting this out as it messes up the look of the bar backgrounds.
+   -- Should leave the background color to the actual background frame 
+   -- and the bar backgrounds imo - Proditor
+   --[[
    button:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,})
 	button:SetBackdropColor(0, 0, 0, 0.4)
+	--]]
 	 
    button:SetClampedToScreen(true)
    button:EnableMouse(true)

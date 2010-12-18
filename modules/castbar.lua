@@ -21,7 +21,7 @@ Gladius:SetModule(CastBar, "CastBar", true, true, {
    
    castBarInverse = false,
    castBarColor = { r = 1, g = 1, b = 0, a = 1 },
-   castBarBackgroundColor = { r = 0, g = 0, b = 0, a = 0.4 },
+   castBarBackgroundColor = { r = 1, g = 1, b = 1, a = 0.3 },
    castBarTexture = "Minimalist",
    
    castIcon = true,
@@ -174,7 +174,8 @@ function CastBar:CreateBar(unit)
    self.frame[unit].highlight = self.frame[unit]:CreateTexture("Gladius" .. self.name .. "Highlight" .. unit, "OVERLAY")
    self.frame[unit].castText = self.frame[unit]:CreateFontString("Gladius" .. self.name .. "CastText" .. unit, "OVERLAY")
    self.frame[unit].timeText = self.frame[unit]:CreateFontString("Gladius" .. self.name .. "TimeText" .. unit, "OVERLAY")
-   self.frame[unit].icon = self.frame[unit]:CreateTexture("Gladius" .. self.name .. "IconFrame" .. unit, "ARTWORK") 
+   self.frame[unit].icon = self.frame[unit]:CreateTexture("Gladius" .. self.name .. "IconFrame" .. unit, "ARTWORK")
+   self.frame[unit].icon.bg = self.frame[unit]:CreateTexture("Gladius" .. self.name .. "IconFrameBackground" .. unit, "BACKGROUND") 
 end
 
 local function CastUpdate(self, elapsed)
@@ -305,6 +306,13 @@ function CastBar:Update(unit)
 	
 	self.frame[unit].icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
 	
+	self.frame[unit].icon.bg:ClearAllPoints()
+	self.frame[unit].icon.bg:SetAllPoints(self.frame[unit].icon)	
+	self.frame[unit].icon.bg:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, Gladius.db.castBarTexture))
+	self.frame[unit].icon.bg:SetVertexColor(Gladius.db.castBarBackgroundColor.r, Gladius.db.castBarBackgroundColor.g,
+      Gladius.db.castBarBackgroundColor.b, Gladius.db.castBarBackgroundColor.a)
+	
+	
 	if (not Gladius.db.castIcon) then
       self.frame[unit].icon:SetAlpha(0)
    else
@@ -313,13 +321,16 @@ function CastBar:Update(unit)
 	
 	-- update cast bar background
    self.frame[unit].background:ClearAllPoints()
-	self.frame[unit].background:SetAllPoints(self:GetFrame(unit))	
+	self.frame[unit].background:SetAllPoints(self.frame[unit])	
 	
+	-- Maybe it looks better if the background covers the whole castbar
+	--[[
 	if (Gladius.db.castIcon) then
       self.frame[unit].background:SetWidth(self.frame[unit]:GetWidth() + self.frame[unit].icon:GetWidth())
 	else      
       self.frame[unit].background:SetWidth(self.frame[unit]:GetWidth())
    end	
+   --]]
    
    self.frame[unit].background:SetHeight(self.frame[unit]:GetHeight())
 	
@@ -366,7 +377,8 @@ function CastBar:Reset(unit)
 	self.frame[unit]:SetAlpha(0)
 end
 
-function CastBar:Test(unit)   
+function CastBar:Test(unit)
+   if 1==1 then return end
    self.frame[unit].isCasting = true
    self.frame[unit].value = Gladius.db.castBarInverse and 0 or 1
    self.frame[unit].maxValue = 1

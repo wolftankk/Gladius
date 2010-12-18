@@ -16,7 +16,7 @@ Gladius:SetModule(PowerBar, "PowerBar", true, true, {
    powerBarInverse = false,
    powerBarColor = { r = 1, g = 1, b = 1, a = 1 },
    powerBarDefaultColor = true,
-   powerBarBackgroundColor = { r = 1, g = 1, b = 1, a = 0 },
+   powerBarBackgroundColor = { r = 1, g = 1, b = 1, a = 0.3 },
    powerBarTexture = "Minimalist",   
    
    powerBarOffsetX = 0,
