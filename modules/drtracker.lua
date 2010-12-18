@@ -19,7 +19,9 @@ Gladius:SetModule(DRTracker, "DRTracker", false, true, {
    drTrackerOffsetY = -5,
    drTrackerFrameLevel = 2,
    drTrackerGloss = true,
-   drTrackerGlossColor = { r = 1, g = 1, b = 1, a = 0.4 },
+   drTrackerGlossColor = { r = 1, g = 1, b = 1, a = 0.4 },   
+   drTrackerCooldown = false,
+   drTrackerCooldownReverse = false,
    
    drFontSize = 18,
    drFontColor = { r = 0, g = 1, b = 0, a = 1 },
@@ -62,7 +64,8 @@ function DRTracker:DRFaded(unit, spellID)
 	local drTexts = {
       [1] = { "\194\189", 0, 1, 0 },
       [0.5] = { "\194\188", 1, 0.65,0 },
-      [0.25] = { "0", 1, 0, 0 }
+      [0.25] = { "%", 1, 0, 0 },
+      [0] = { "%", 1, 0, 0 },
    }
 
 	if (not tracked) then
@@ -77,8 +80,8 @@ function DRTracker:DRFaded(unit, spellID)
       tracked.texture = _G[tracked:GetName().."Icon"]
       tracked.normalTexture = _G[tracked:GetName().."NormalTexture"]
       tracked.cooldown = _G[tracked:GetName().."Cooldown"]
-      tracked.cooldown:SetReverse(false)
-      
+      tracked.cooldown:SetReverse(Gladius.db.drTrackerCooldownReverse)
+
       tracked.text = tracked:CreateFontString(nil, "OVERLAY")
 		tracked.text:SetDrawLayer("OVERLAY")
 		tracked.text:SetJustifyH("RIGHT")
@@ -117,13 +120,18 @@ function DRTracker:DRFaded(unit, spellID)
 	tracked.timeLeft = DRData:GetResetTime()
 	tracked.reset = tracked.timeLeft + GetTime()
 	
-	print(tracked.diminished)
 	local text, r, g, b = unpack(drTexts[tracked.diminished])
 	tracked.text:SetText(text)
 	tracked.text:SetTextColor(r,g,b)
 	
 	tracked.texture:SetTexture(GetSpellTexture(spellID))
 	tracked.cooldown:SetCooldown(GetTime(), tracked.timeLeft)
+	
+	if (Gladius.db.drTrackerCooldown) then
+      tracked.cooldown:SetAlpha(1)
+   else
+      tracked.cooldown:SetAlpha(0)
+   end
 	
 	tracked:SetScript("OnUpdate", function(f, elapsed)
       f.timeLeft = f.timeLeft - elapsed
@@ -242,7 +250,7 @@ function DRTracker:Update(unit)
       
       self:SortIcons(unit)
    end
-      
+   
    -- hide
    self.frame[unit]:SetAlpha(0)
 end
@@ -304,7 +312,29 @@ function DRTracker:GetOptions()
                      type = "description",
                      name="",
                      width="full",
-                     order=13,
+                     order=7,
+                  },
+                  drTrackerCooldown = {
+                     type="toggle",
+                     name=L["DRTracker Cooldown Spiral"],
+                     desc=L["Display the cooldown spiral for important auras"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return not Gladius.db.advancedOptions end,
+                     order=10,
+                  },
+                  drTrackerCooldownReverse = {
+                     type="toggle",
+                     name=L["DRTracker Cooldown Reverse"],
+                     desc=L["Invert the dark/bright part of the cooldown spiral"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return not Gladius.db.advancedOptions end,
+                     order=15,
+                  },
+                  sep2 = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=17,
                   },
                   drTrackerGloss = {
                      type="toggle",
@@ -312,7 +342,7 @@ function DRTracker:GetOptions()
                      desc=L["Toggle gloss on the drTracker icon"],
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      hidden=function() return not Gladius.db.advancedOptions end,
-                     order=15,
+                     order=25,
                   },
                   drTrackerGlossColor = {
                      type="color",
@@ -323,14 +353,14 @@ function DRTracker:GetOptions()
                      hasAlpha=true,
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      hidden=function() return not Gladius.db.advancedOptions end,
-                     order=20,
+                     order=30,
                   },
-                  sep2 = {                     
+                  sep3 = {                     
                      type = "description",
                      name="",
                      width="full",
                      hidden=function() return not Gladius.db.advancedOptions end,
-                     order=23,
+                     order=33,
                   },
                   drTrackerFrameLevel = {
                      type="range",
@@ -340,7 +370,7 @@ function DRTracker:GetOptions()
                      hidden=function() return not Gladius.db.advancedOptions end,
                      min=1, max=5, step=1,
                      width="double",
-                     order=25,
+                     order=35,
                   },
                },
             },

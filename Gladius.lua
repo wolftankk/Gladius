@@ -79,6 +79,19 @@ function Gladius:OnInitialize()
 	self.dbi.RegisterCallback(self, "OnProfileReset", "OnProfileChanged")
 	self.db = self.dbi.profile
 	
+	-- option reset (increase number)
+	self.version = 1
+	
+	if (Gladius.db.version == nil or Gladius.db.version < self.version) then
+      print("Gladius:", "Resetting options...")
+	
+      for k,v in pairs(self.defaults) do
+         self.dbi.profile[k] = v
+      end
+	end
+	
+	Gladius.db.version = self.version
+	
 	-- localization
 	L = self.L
 	
@@ -177,7 +190,9 @@ function Gladius:JoinedArena()
 	self.testCount = 0
 	
 	-- create and update buttons on first launch
-	for i=1, 5 do  
+	local groupSize = max(GetNumPartyMembers()+1, GetNumRaidMembers())
+	
+	for i=1, groupSize do  
       self:UpdateUnit("arena" .. i)
       self.buttons["arena" .. i]:RegisterForDrag("LeftButton")
 	end
@@ -221,7 +236,7 @@ function Gladius:ARENA_OPPONENT_UPDATE(event, unit, type)
       self:UpdateAlpha(unit, self.db.stealthAlpha)
    -- enemy left arena
    elseif (type == "cleared") then
-      self:ResetUnit(unit)
+      --self:ResetUnit(unit)
    end
 end
 
@@ -311,10 +326,6 @@ function Gladius:UpdateUnit(unit, module)
    for _, m in pairs(self.modules) do
       if (m:IsEnabled() and not m.isBarOption) then
          self:Call(m, "Update", unit)
-         
-         if (m.GetIndicatorHeight) then
-            --indicatorHeight = indicatorHeight + m:GetIndicatorHeight()
-         end
       end
 	end
    
@@ -358,7 +369,7 @@ function Gladius:UpdateUnit(unit, module)
    -- update background
    if (unit == "arena1") then
       local left, right = self.buttons[unit]:GetHitRectInsets()
-      
+    
       self.background:SetBackdropColor(self.db.backgroundColor.r, self.db.backgroundColor.g, self.db.backgroundColor.b, self.db.backgroundColor.a)
       
       self.background:SetWidth(self.buttons[unit]:GetWidth() + self.db.backgroundPadding * 2 + abs(right) + abs(left))
@@ -512,7 +523,7 @@ function Gladius:CreateButton(unit)
    -- secure
    local secure = CreateFrame("Button", "GladiusButton" .. unit, button, "SecureActionButtonTemplate")
 	secure:RegisterForClicks("AnyUp")
-	   
+	
    button.secure = secure
    self.buttons[unit] = button
    
@@ -529,6 +540,8 @@ end
 
 function Gladius:UNIT_AURA(event, unit)
    if (not unit:find("arena") or unit:find("pet")) then return end
+
+   self:ShowUnit(unit)
 
    local index = 1
    while (true) do
@@ -547,8 +560,9 @@ end
 function Gladius:UNIT_SPELLCAST_START(event, unit)
    if (not unit:find("arena") or unit:find("pet")) then return end
    
-   local spell = UnitCastingInfo(unit)
+   self:ShowUnit(unit)
    
+   local spell = UnitCastingInfo(unit)   
    if (self.specBuffs[spell]) then
       self.buttons[unit].spec = self.specBuffs[spell]
       self:SendMessage("GLADIUS_SPEC_UPDATE", unit)

@@ -233,6 +233,14 @@ end
 function Highlight:Show(unit)
    -- show
    self.frame[unit]:SetAlpha(1)
+   
+   local left, right, top, bottom = Gladius.buttons[unit]:GetHitRectInsets()
+     
+   self.frame[unit]:ClearAllPoints()
+   self.frame[unit]:SetPoint("TOPLEFT", Gladius.buttons[unit], "TOPLEFT", left - 3, top + 3)
+   
+   self.frame[unit]:SetWidth(Gladius.buttons[unit]:GetWidth() + abs(left) + abs(right) + 3)
+   self.frame[unit]:SetHeight(Gladius.buttons[unit]:GetHeight() + abs(bottom) + abs(top) + 3)
 end
 
 function Highlight:Reset(unit) 

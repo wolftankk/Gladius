@@ -17,9 +17,11 @@ Gladius:SetModule(Trinket, "Trinket", false, true, {
    trinketOffsetX = 0,
    trinketOffsetY = 0,
    trinketFrameLevel = 2,
-   trinketIconCrop = true,
+   trinketIconCrop = false,
    trinketGloss = true,
    trinketGlossColor = { r = 1, g = 1, b = 1, a = 0.4 },
+   trinketCooldown = false,
+   trinketCooldownReverse = false,
 }, { "Trinket icon", "Grid style health bar", "Grid style power bar" })
 
 function Trinket:OnEnable()   
@@ -131,6 +133,12 @@ function Trinket:UpdateTrinket(unit, duration)
       end)
    else
       self.frame[unit].cooldown:SetCooldown(GetTime(), duration)
+      
+      if (Gladius.db.trinketCooldown) then
+         self.frame[unit].cooldown:SetAlpha(1)
+      else
+         self.frame[unit].cooldown:SetAlpha(0)
+      end  
    end
    
    if (Gladius.db.announcements.trinket) then
@@ -258,6 +266,9 @@ function Trinket:Update(unit)
 	
 	self.frame[unit].normalTexture:SetVertexColor(Gladius.db.trinketGlossColor.r, Gladius.db.trinketGlossColor.g, 
       Gladius.db.trinketGlossColor.b, Gladius.db.trinketGloss and Gladius.db.trinketGlossColor.a or 0)
+      
+   -- cooldown
+   self.frame[unit].cooldown:SetReverse(Gladius.db.trinketCooldownReverse)
    
    -- hide
    self.frame[unit]:SetAlpha(0)
@@ -371,13 +382,35 @@ function Trinket:GetOptions()
                      width="full",
                      order=13,
                   },
+                  trinketCooldown = {
+                     type="toggle",
+                     name=L["Trinket Cooldown Spiral"],
+                     desc=L["Display the cooldown spiral for important auras"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return not Gladius.db.advancedOptions end,
+                     order=15,
+                  },
+                  trinketCooldownReverse = {
+                     type="toggle",
+                     name=L["Trinket Cooldown Reverse"],
+                     desc=L["Invert the dark/bright part of the cooldown spiral"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return not Gladius.db.advancedOptions end,
+                     order=20,
+                  },
+                  sep2 = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=23,
+                  },
                   trinketGloss = {
                      type="toggle",
                      name=L["Trinket Gloss"],
                      desc=L["Toggle gloss on the trinket icon"],
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      hidden=function() return not Gladius.db.advancedOptions end,
-                     order=15,
+                     order=25,
                   },
                   trinketGlossColor = {
                      type="color",
@@ -388,27 +421,27 @@ function Trinket:GetOptions()
                      hasAlpha=true,
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      hidden=function() return not Gladius.db.advancedOptions end,
-                     order=20,
+                     order=30,
                   },
-                  sep2 = {                     
+                  sep3 = {                     
                      type = "description",
                      name="",
                      width="full",
                      hidden=function() return not Gladius.db.advancedOptions end,
-                     order=23,
+                     order=33,
                   },
                   trinketIconCrop = {
                      type="toggle",
                      name=L["Icon Border Crop"],
                      desc=L["Toggle if the borders of the trinket icon should be cropped"],
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-                     order=24,
+                     order=35,
                   },
                   sep3 = {                     
                      type = "description",
                      name="",
                      width="full",
-                     order=25,
+                     order=37,
                   },
                   trinketFrameLevel = {
                      type="range",
@@ -418,7 +451,7 @@ function Trinket:GetOptions()
                      hidden=function() return not Gladius.db.advancedOptions end,
                      min=1, max=5, step=1,
                      width="double",
-                     order=50,
+                     order=40,
                   },
                },
             },

@@ -18,7 +18,9 @@ Gladius:SetModule(ClassIcon, "ClassIcon", false, true, {
    classIconGloss = true,
    classIconGlossColor = { r = 1, g = 1, b = 1, a = 0.4 },
    classIconImportantAuras = true,
-   classIconCrop = true,
+   classIconCrop = false,
+   classIconCooldown = false,
+   classIconCooldownReverse = false,
 })
 
 function ClassIcon:OnEnable()   
@@ -70,7 +72,7 @@ function ClassIcon:UpdateAura(unit)
       local name, _, icon, _, _, _, duration, _, _ = UnitAura(unit, index, "HARMFUL")
       if (not name) then break end  
       
-      if (Gladius.db.aurasFrameAuras[name] and Gladius.db.aurasFrameAuras[name] >= self.frame[unit].priority) then
+      if (Gladius.db.aurasFrameAuras[name] and self.frame[unit].priority and Gladius.db.aurasFrameAuras[name] >= self.frame[unit].priority) then
          aura = name         
          
          self.frame[unit].icon = icon
@@ -88,7 +90,7 @@ function ClassIcon:UpdateAura(unit)
       local name, _, icon, _, _, _, duration, _, _ = UnitAura(unit, index, "HELPFUL")
       if (not name) then break end  
       
-      if (Gladius.db.aurasFrameAuras[name] and Gladius.db.aurasFrameAuras[name] >= self.frame[unit].priority) then
+      if (Gladius.db.aurasFrameAuras[name] and self.frame[unit].priority and Gladius.db.aurasFrameAuras[name] >= self.frame[unit].priority) then
          aura = name
          
          self.frame[unit].icon = icon
@@ -113,6 +115,12 @@ function ClassIcon:UpdateAura(unit)
       end
       
       self.frame[unit].cooldown:SetCooldown(GetTime(), self.frame[unit].timeleft)
+      
+      if (Gladius.db.classIconCooldown) then
+         self.frame[unit].cooldown:SetAlpha(1)
+      else
+         self.frame[unit].cooldown:SetAlpha(0)
+      end
    elseif (not aura and self.frame[unit].active) then
       -- reset
       self.frame[unit].active = false
@@ -164,7 +172,6 @@ function ClassIcon:CreateFrame(unit)
    self.frame[unit].texture = _G[self.frame[unit]:GetName().."Icon"]
    self.frame[unit].normalTexture = _G[self.frame[unit]:GetName().."NormalTexture"]
    self.frame[unit].cooldown = _G[self.frame[unit]:GetName().."Cooldown"]
-   self.frame[unit].cooldown:SetReverse(false)
 end
 
 function ClassIcon:Update(unit)
@@ -251,21 +258,12 @@ function ClassIcon:Update(unit)
 	
 	self.frame[unit].normalTexture:SetVertexColor(Gladius.db.classIconGlossColor.r, Gladius.db.classIconGlossColor.g, 
       Gladius.db.classIconGlossColor.b, Gladius.db.classIconGloss and Gladius.db.classIconGlossColor.a or 0)
-      
-   
-   local left, right, top, bottom = unpack(CLASS_BUTTONS[Gladius.test and Gladius.testing[unit].unitClass or UnitClass(unit)])
-   
-   -- Crop class icon borders
-   if (Gladius.db.classIconCrop) then
-      left = left + (right - left) * 0.07
-      right = right - (right - left) * 0.07
-      
-      top = top + (bottom - top) * 0.07
-      bottom = bottom - (bottom - top) * 0.07
-   end
-   
+            
    self.frame[unit].texture:SetTexCoord(left, right, top, bottom)
    
+   -- cooldown
+   self.frame[unit].cooldown:SetReverse(Gladius.db.classIconCooldownReverse)
+         
    -- hide
    self.frame[unit]:SetAlpha(0)
 end
@@ -295,8 +293,58 @@ function ClassIcon:Reset(unit)
 	self.frame[unit]:SetAlpha(0)
 end
 
-function ClassIcon:Test(unit)     
-   -- test
+function ClassIcon:Test(unit)   
+   Gladius.db.aurasFrameAuras = Gladius.db.aurasFrameAuras or self:GetAuraList()
+  
+   if (unit == "arena1") then
+      aura = "Ice Block"
+   
+      self.frame[unit].icon = select(3, GetSpellInfo(45438))
+      self.frame[unit].timeleft = 10
+      self.frame[unit].priority = Gladius.db.aurasFrameAuras[name]
+      self.frame[unit].active = true
+      self.frame[unit].aura = aura
+   
+      self.frame[unit].texture:SetTexture(self.frame[unit].icon)
+      
+      if (Gladius.db.classIconCrop) then
+         self.frame[unit].texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+      else
+         self.frame[unit].texture:SetTexCoord(0, 1, 0, 1)
+      end
+      
+      self.frame[unit].cooldown:SetCooldown(GetTime(), self.frame[unit].timeleft)
+      
+      if (Gladius.db.classIconCooldown) then
+         self.frame[unit].cooldown:SetAlpha(1)
+      else
+         self.frame[unit].cooldown:SetAlpha(0)
+      end
+   elseif (unit == "arena2") then
+      aura = "Pain Suppression"
+   
+      self.frame[unit].icon = select(3, GetSpellInfo(33206))
+      self.frame[unit].timeleft = 8
+      self.frame[unit].priority = Gladius.db.aurasFrameAuras[name]
+      self.frame[unit].active = true
+      self.frame[unit].aura = aura
+   
+      self.frame[unit].texture:SetTexture(self.frame[unit].icon)
+      
+      if (Gladius.db.classIconCrop) then
+         self.frame[unit].texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+      else
+         self.frame[unit].texture:SetTexCoord(0, 1, 0, 1)
+      end
+      
+      self.frame[unit].cooldown:SetCooldown(GetTime(), self.frame[unit].timeleft)
+      
+      if (Gladius.db.classIconCooldown) then
+         self.frame[unit].cooldown:SetAlpha(1)
+      else
+         self.frame[unit].cooldown:SetAlpha(0)
+      end
+   end
 end
 
 function ClassIcon:GetOptions()
@@ -333,14 +381,36 @@ function ClassIcon:GetOptions()
                      name="",
                      width="full",
                      order=7,
+                  },                  
+                  classIconCooldown = {
+                     type="toggle",
+                     name=L["Class Icon Cooldown Spiral"],
+                     desc=L["Display the cooldown spiral for important auras"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return not Gladius.db.advancedOptions end,
+                     order=10,
                   },
+                  classIconCooldownReverse = {
+                     type="toggle",
+                     name=L["Class Icon Cooldown Reverse"],
+                     desc=L["Invert the dark/bright part of the cooldown spiral"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return not Gladius.db.advancedOptions end,
+                     order=15,
+                  },
+                  sep2 = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=17,
+                  },                 
                   classIconGloss = {
                      type="toggle",
                      name=L["Class Icon Gloss"],
                      desc=L["Toggle gloss on the class icon"],
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      hidden=function() return not Gladius.db.advancedOptions end,
-                     order=10,
+                     order=20,
                   },
                   classIconGlossColor = {
                      type="color",
@@ -351,13 +421,13 @@ function ClassIcon:GetOptions()
                      hasAlpha=true,
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      hidden=function() return not Gladius.db.advancedOptions end,
-                     order=15,
+                     order=25,
                   },
-                  sep2 = {                     
+                  sep3 = {                     
                      type = "description",
                      name="",
                      width="full",
-                     order=17,
+                     order=27,
                   },
                   classIconFrameLevel = {
                      type="range",
@@ -367,7 +437,7 @@ function ClassIcon:GetOptions()
                      hidden=function() return not Gladius.db.advancedOptions end,
                      min=1, max=5, step=1,
                      width="double",
-                     order=20,
+                     order=30,
                   },
                },
             },

@@ -81,13 +81,15 @@ Gladius:SetModule(Tags, "Tags", false, false, {
 function Tags:OnEnable()   
    LSM = Gladius.LSM   
    
+   self.version = 1
+      
    -- frame
    if (not self.frame) then
       self.frame = {}
    end
    
    -- tags
-   if (not Gladius.db.tags) then
+   if (not Gladius.db.tags or Gladius.db.tagsVersion == nil or self.version > Gladius.db.tagsVersion) then
       Gladius.db.tags = self:GetTags()
       Gladius.db.tagEvents = self:GetTagsEvents()
    end
@@ -122,6 +124,8 @@ function Tags:OnEnable()
          self:RegisterEvent(event, "OnEvent")
       end
    end
+   
+   Gladius.db.tagsVersion = self.version
 end
 
 function Tags:OnDisable()
@@ -811,7 +815,12 @@ function Tags:GetTags()
          return Gladius.test and Gladius.testing[unit].unitSpec or Gladius.buttons[unit].spec
       end]],
       ["spec:short"] = [[function(unit)
-         return Gladius.test and Gladius.L[Gladius.testing[unit].unitSpec .. ":short"] or Gladius.L[Gladius.buttons[unit].spec .. ":short"]
+         local spec = Gladius.test and Gladius.testing[unit].unitSpec or Gladius.buttons[unit].spec
+         if (spec == nil or spec == "") then 
+            return "" 
+         end
+         
+         return Gladius.L[spec .. ":short"]
       end]],
            
       ["health"] = [[function(unit)

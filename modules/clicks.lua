@@ -66,7 +66,7 @@ function Clicks:Update(unit)
    self:GetSecureFrames(unit)
    
    -- Apply attributes to the frames
-   for frame,_ in pairs(self.secureFrames[unit]) do
+   for frame, _ in pairs(self.secureFrames[unit]) do
       self:ApplyAttributes(unit, frame)
    end
 end
@@ -74,6 +74,7 @@ end
 -- Applies attributes to a specific frame
 function Clicks:ApplyAttributes(unit, frame)
    frame:SetAttribute("unit", unit)
+   
    for _, attr in pairs(Gladius.dbi.profile.clickAttributes) do
       frame:SetAttribute(attr.modifier .. "type" .. attr.button, attr.action)
       if (attr.action == "macro" and attr.macro ~= "") then
@@ -144,7 +145,7 @@ function Clicks:GetOptions()
                            -- add to db
                            Gladius.db.clickAttributes[attr] = {
                               button = addAttrButton, 
-                              modifier = addAttrButton, 
+                              modifier = addAttrMod, 
                               action = "target", 
                               macro = ""
                            }
