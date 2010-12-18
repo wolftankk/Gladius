@@ -21,7 +21,7 @@ Gladius:SetModule(DRTracker, "DRTracker", false, true, {
    drTrackerGloss = true,
    drTrackerGlossColor = { r = 1, g = 1, b = 1, a = 0.4 },
    
-   drFontSize = 12,
+   drFontSize = 18,
    drFontColor = { r = 0, g = 1, b = 0, a = 1 },
    
    drCategories = {},
@@ -58,6 +58,12 @@ function DRTracker:DRFaded(unit, spellID)
 	if (Gladius.db.drCategories[drCat] == false) then return end
 
 	local tracked = self.frame[unit].tracker[drCat]
+	
+	local drTexts = {
+      [1] = { "\194\189", 0, 1, 0 },
+      [0.5] = { "\194\188", 1, 0.65,0 },
+      [0.25] = { "0", 1, 0, 0 }
+   }
 
 	if (not tracked) then
 		tracked = CreateFrame("CheckButton", "Gladius" .. self.name .. "FrameCat" .. drCat .. unit, self.frame[unit], "ActionButtonTemplate")
@@ -76,8 +82,8 @@ function DRTracker:DRFaded(unit, spellID)
       tracked.text = tracked:CreateFontString(nil, "OVERLAY")
 		tracked.text:SetDrawLayer("OVERLAY")
 		tracked.text:SetJustifyH("RIGHT")
-		tracked.text:SetPoint("BOTTOMRIGHT", tracked)
-		tracked.text:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.globalFont), Gladius.db.drFontSize)
+		tracked.text:SetPoint("CENTER", tracked)
+		tracked.text:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.globalFont), Gladius.db.drFontSize, "OUTLINE")
 		tracked.text:SetTextColor(Gladius.db.drFontColor.r, Gladius.db.drFontColor.g, Gladius.db.drFontColor.b, Gladius.db.drFontColor.a)
       
       -- style action button
@@ -111,7 +117,10 @@ function DRTracker:DRFaded(unit, spellID)
 	tracked.timeLeft = DRData:GetResetTime()
 	tracked.reset = tracked.timeLeft + GetTime()
 	
-	tracked.text:SetText(tracked.diminished >= 0.25 and L[tracked.diminished * 100 .. " %"] or L["immune"])
+	print(tracked.diminished)
+	local text, r, g, b = unpack(drTexts[tracked.diminished])
+	tracked.text:SetText(text)
+	tracked.text:SetTextColor(r,g,b)
 	
 	tracked.texture:SetTexture(GetSpellTexture(spellID))
 	tracked.cooldown:SetCooldown(GetTime(), tracked.timeLeft)
