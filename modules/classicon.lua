@@ -12,7 +12,7 @@ Gladius:SetModule(ClassIcon, "ClassIcon", false, true, {
    classIconRelativePoint = "TOPLEFT",
    classIconAdjustSize = false,
    classIconSize = 40,
-   classIconOffsetX = 0,
+   classIconOffsetX = -1,
    classIconOffsetY = 0,
    classIconFrameLevel = 2,
    classIconGloss = true,
