@@ -378,26 +378,27 @@ function CastBar:Reset(unit)
 end
 
 function CastBar:Test(unit)
-   if 1==1 then return end
-   self.frame[unit].isCasting = true
-   self.frame[unit].value = Gladius.db.castBarInverse and 0 or 1
-   self.frame[unit].maxValue = 1
-   self.frame[unit]:SetMinMaxValues(0, self.frame[unit].maxValue)
-   self.frame[unit]:SetValue(self.frame[unit].value)
-   
-   if (Gladius.db.castTimeText) then
-      self.frame[unit].timeText:SetFormattedText("%.1f", self.frame[unit].maxValue - self.frame[unit].value)
-   else
-      self.frame[unit].timeText:SetText("")
-   end
-   
-   local texture = select(3, GetSpellInfo(1))
-   self.frame[unit].icon:SetTexture(texture)
-   
-   if (Gladius.db.castText) then
-      self.frame[unit].castText:SetText(L["Example Spell Name"])
-   else
-      self.frame[unit].castText:SetText("")
+   if (unit == "arena1") then
+      self.frame[unit].isCasting = true
+      self.frame[unit].value = Gladius.db.castBarInverse and 0 or 1
+      self.frame[unit].maxValue = 1
+      self.frame[unit]:SetMinMaxValues(0, self.frame[unit].maxValue)
+      self.frame[unit]:SetValue(self.frame[unit].value)
+      
+      if (Gladius.db.castTimeText) then
+         self.frame[unit].timeText:SetFormattedText("%.1f", self.frame[unit].maxValue - self.frame[unit].value)
+      else
+         self.frame[unit].timeText:SetText("")
+      end
+      
+      local texture = select(3, GetSpellInfo(1))
+      self.frame[unit].icon:SetTexture(texture)
+      
+      if (Gladius.db.castText) then
+         self.frame[unit].castText:SetText(L["Example Spell Name"])
+      else
+         self.frame[unit].castText:SetText("")
+      end
    end
 end
 
