@@ -359,6 +359,11 @@ function TargetBar:Show(unit)
       self.frame[unit]:SetStatusBarColor(color.r, color.g, color.b, color.a)
    else			
       local color = self:GetBarColor(class)
+      if (color == nil) then 
+         -- fallback, when targeting a pet or totem 
+         color = Gladius.db.targetBarColor
+      end
+      
       self.frame[unit]:SetStatusBarColor(color.r, color.g, color.b, color.a or 1)
    end
    
