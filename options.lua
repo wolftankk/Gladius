@@ -19,7 +19,7 @@ Gladius.defaults = {
       useGlobalFontSize = true,
       globalFontSize = 11,
       globalFont = "Friz Quadrata TT",
-      barWidth = 200,
+      barWidth = 160,
       frameScale = 1,      
    },
 }
