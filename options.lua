@@ -61,7 +61,7 @@ end
 
 SLASH_GLADIUS1 = "/gladius"
 SlashCmdList["GLADIUS"] = function(msg)
-   if (msg:find("test")) then
+   if (msg:find("test") and not Gladius.test) then       
       local test = tonumber(msg:match("^test (.+)"))
       if (not test or test > 5 or test < 2 or test == 4) then
          test = 5
@@ -95,7 +95,7 @@ SlashCmdList["GLADIUS"] = function(msg)
       end
       
       AceDialog:Open("Gladius")
-   elseif (msg == "hide") then
+   elseif (msg == "hide" or (msg:find("test") and Gladius.test)) then
       -- reset test environment
       Gladius.testCount = 0
       Gladius.test = false
