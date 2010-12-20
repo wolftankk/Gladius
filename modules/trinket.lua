@@ -142,7 +142,7 @@ function Trinket:UpdateTrinket(unit, duration)
    end
    
    if (Gladius.db.announcements.trinket) then
-      Gladius:Call(Gladius.modules.Announcements, "Send", string.format(L["TRINKET USED: %s (%s)"], UnitName("unit") or "test", UnitClass("unit") or "test"), 2, unit)   
+      Gladius:Call(Gladius.modules.Announcements, "Send", string.format(L["TRINKET USED: %s (%s)"], UnitName(unit) or "test", UnitClass(unit) or "test"), 2, unit)   
       
       if (not self.frame[unit].timer) then
          self.frame[unit].timer = CreateFrame("Frame")
