@@ -50,9 +50,7 @@ function Gladius:SetTemplate(template)
       print("Gladius:", "Template not available!")   
    elseif (template == 2) then
       -- reset to default
-      for k, v in pairs(self.defaults) do
-         self.db[k] = v
-      end
+      Gladius.dbi:ResetProfile()  
    else
       -- enable all features
       print("Gladius:", "Template not available!")      

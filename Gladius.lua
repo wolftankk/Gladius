@@ -83,11 +83,8 @@ function Gladius:OnInitialize()
 	self.version = 1
 	
 	if (Gladius.db.version == nil or Gladius.db.version < self.version) then
-      print("Gladius:", "Resetting options...")
-	
-      for k,v in pairs(self.defaults) do
-         self.dbi.profile[k] = v
-      end
+      print("Gladius:", "Resetting options...")	
+      Gladius.dbi:ResetProfile()  
 	end
 	
 	Gladius.db.version = self.version

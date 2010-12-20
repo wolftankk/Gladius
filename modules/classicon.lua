@@ -469,8 +469,7 @@ function ClassIcon:GetOptions()
                type="group",
                name=L["Position"],
                desc=L["Position settings"],  
-               inline=true,
-               hidden=function() return not Gladius.db.advancedOptions end,                
+               inline=true,                            
                order=3,
                args = {
                   classIconAttachTo = {
@@ -479,8 +478,29 @@ function ClassIcon:GetOptions()
                      desc=L["Attach class icon to given frame"],
                      values=function() return Gladius:GetModules(self.name) end,
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-                     width="double",
+                     hidden=function() return not Gladius.db.advancedOptions end,                       
                      order=5,
+                  },
+                  classIconPosition = {
+                     type="select",
+                     name=L["Class Icon Position"],
+                     desc=L["Position of the class icon"],
+                     values={ ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"] },
+                     get=function() return Gladius.db.classIconAnchor:find("RIGHT") and "LEFT" or "RIGHT" end,
+                     set=function(info, value)
+                        if (value == "LEFT") then
+                           Gladius.db.classIconAnchor = "TOPRIGHT"
+                           Gladius.db.classIconRelativePoint = "TOPLEFT"
+                        else
+                           Gladius.db.classIconAnchor = "TOPLEFT"
+                           Gladius.db.classIconRelativePoint = "TOPRIGHT"
+                        end
+                        
+                        Gladius:UpdateFrame(info[1])
+                     end,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return Gladius.db.advancedOptions end,
+                     order=6,
                   },
                   sep = {                     
                      type = "description",
@@ -494,6 +514,7 @@ function ClassIcon:GetOptions()
                      desc=L["Anchor of the class icon"],
                      values=function() return Gladius:GetPositions() end,
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return not Gladius.db.advancedOptions end,   
                      order=10,
                   },
                   classIconRelativePoint = {
@@ -502,6 +523,7 @@ function ClassIcon:GetOptions()
                      desc=L["Relative point of the class icon"],
                      values=function() return Gladius:GetPositions() end,
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return not Gladius.db.advancedOptions end,   
                      order=15,
                   },
                   sep2 = {                     

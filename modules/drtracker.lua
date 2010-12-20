@@ -430,8 +430,7 @@ function DRTracker:GetOptions()
                type="group",
                name=L["Position"],
                desc=L["Position settings"],  
-               inline=true,                
-               hidden=function() return not Gladius.db.advancedOptions end,
+               inline=true,          
                order=4,
                args = {
                   drTrackerAttachTo = {
@@ -440,8 +439,28 @@ function DRTracker:GetOptions()
                      desc=L["Attach drTracker to the given frame"],
                      values=function() return Gladius:GetModules(self.name) end,
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-                     width="double",
                      order=5,
+                  },
+                  drTrackerPosition = {
+                     type="select",
+                     name=L["DRTracker Position"],
+                     desc=L["Position of the class icon"],
+                     values={ ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"] },
+                     get=function() return Gladius.db.drTrackerAnchor:find("RIGHT") and "LEFT" or "RIGHT" end,
+                     set=function(info, value)
+                        if (value == "LEFT") then
+                           Gladius.db.drTrackerAnchor = "TOPRIGHT"
+                           Gladius.db.drTrackerRelativePoint = "TOPLEFT"
+                        else
+                           Gladius.db.drTrackerAnchor = "TOPLEFT"
+                           Gladius.db.drTrackerRelativePoint = "TOPRIGHT"
+                        end
+                        
+                        Gladius:UpdateFrame(info[1])
+                     end,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return Gladius.db.advancedOptions end,
+                     order=6,
                   },
                   sep = {                     
                      type = "description",
@@ -455,6 +474,7 @@ function DRTracker:GetOptions()
                      desc=L["Anchor of the drTracker"],
                      values=function() return Gladius:GetPositions() end,
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return not Gladius.db.advancedOptions end,
                      order=10,
                   },
                   drTrackerRelativePoint = {
@@ -463,6 +483,7 @@ function DRTracker:GetOptions()
                      desc=L["Relative point of the drTracker"],
                      values=function() return Gladius:GetPositions() end,
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return not Gladius.db.advancedOptions end,
                      order=15,               
                   },
                   sep2 = {                     

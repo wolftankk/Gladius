@@ -508,7 +508,6 @@ function Trinket:GetOptions()
                name=L["Position"],
                desc=L["Position settings"],  
                inline=true,                
-               hidden=function() return not Gladius.db.advancedOptions end,
                order=3,
                args = {
                   trinketAttachTo = {
@@ -517,9 +516,29 @@ function Trinket:GetOptions()
                      desc=L["Attach trinket to the given frame"],
                      values=function() return Gladius:GetModules(self.name) end,
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
-                     width="double",
                      arg="general",
                      order=5,
+                  },
+                  trinketPosition = {
+                     type="select",
+                     name=L["Trinket Position"],
+                     desc=L["Position of the trinket"],
+                     values={ ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"] },
+                     get=function() return Gladius.db.trinketAnchor:find("RIGHT") and "LEFT" or "RIGHT" end,
+                     set=function(info, value)
+                        if (value == "LEFT") then
+                           Gladius.db.trinketAnchor = "TOPRIGHT"
+                           Gladius.db.trinketRelativePoint = "TOPLEFT"
+                        else
+                           Gladius.db.trinketAnchor = "TOPLEFT"
+                           Gladius.db.trinketRelativePoint = "TOPRIGHT"
+                        end
+                        
+                        Gladius:UpdateFrame(info[1])
+                     end,
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return Gladius.db.advancedOptions end,
+                     order=6,
                   },
                   sep = {                     
                      type = "description",
@@ -533,6 +552,7 @@ function Trinket:GetOptions()
                      desc=L["Anchor of the trinket"],
                      values=function() return Gladius:GetPositions() end,
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return not Gladius.db.advancedOptions end,
                      order=10,
                   },
                   trinketRelativePoint = {
@@ -541,6 +561,7 @@ function Trinket:GetOptions()
                      desc=L["Relative point of the trinket"],
                      values=function() return Gladius:GetPositions() end,
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return not Gladius.db.advancedOptions end,
                      order=15,               
                   },
                   sep2 = {                     
