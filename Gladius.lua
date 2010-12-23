@@ -646,7 +646,7 @@ function Gladius:UNIT_AURA(event, unit)
       local name = UnitAura(unit, index, "HELPFUL")
       if (not name) then break end
       
-      if (self.specSpells[name]) then
+      if (self.specSpells[name] and self.buttons[unit].spec == "") then
          self.buttons[unit].spec = self.specSpells[name]
          self:SendMessage("GLADIUS_SPEC_UPDATE", unit)
       end
@@ -661,7 +661,7 @@ function Gladius:UNIT_SPELLCAST_START(event, unit)
    self:ShowUnit(unit)
    
    local spell = UnitCastingInfo(unit)   
-   if (self.specBuffs[spell]) then
+   if (self.specBuffs[spell] and self.buttons[unit].spec == "") then
       self.buttons[unit].spec = self.specBuffs[spell]
       self:SendMessage("GLADIUS_SPEC_UPDATE", unit)
    end

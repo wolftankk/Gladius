@@ -26,6 +26,8 @@ Gladius:SetModule(ClassIcon, "ClassIcon", false, true, {
 function ClassIcon:OnEnable()   
    self:RegisterEvent("UNIT_AURA")
    
+   self.version = 1
+   
    LSM = Gladius.LSM   
    
    if (not self.frame) then
@@ -34,7 +36,11 @@ function ClassIcon:OnEnable()
    
    -- set auras (FIX ME, PLX!!!!!!!)
    -- seriously, this is kinda shit..
-   Gladius.db.aurasFrameAuras = Gladius.db.aurasFrameAuras or self:GetAuraList()
+   if (not Gladius.db.aurasFrameAuras or Gladius.db.auraVersion == nil or self.version > Gladius.db.auraVersion) then
+      Gladius.db.aurasFrameAuras = self:GetAuraList()
+   end
+   
+   Gladius.db.auraVersion = self.version
 end
 
 function ClassIcon:OnDisable()
@@ -584,6 +590,7 @@ function ClassIcon:GetAuraList()
 		[GetSpellInfo(122)]		= 3,	-- Frost Nova
 		[GetSpellInfo(16979)] 	= 3, 	-- Feral Charge
 		[GetSpellInfo(13809)] 	= 1, 	-- Frost Trap
+		[GetSpellInfo(82676)]  = 3, -- Ring of Frost
 		
 		-- Stuns and incapacitates
 		[GetSpellInfo(5211)] 	= 3, 	-- Bash
@@ -600,6 +607,7 @@ function ClassIcon:GetAuraList()
 		[GetSpellInfo(46968)] 	= 3, 	-- Shockwave
 		[GetSpellInfo(49203)] 	= 3,	-- Hungering Cold
 		[GetSpellInfo(47481)]	= 3,	-- Gnaw (dk pet stun)
+		[GetSpellInfo(90337)]  = 3, -- Bad Manner (monkey blind)
 		
 		-- Silences
 		[GetSpellInfo(18469)] 	= 1,	-- Improved Counterspell
@@ -607,10 +615,14 @@ function ClassIcon:GetAuraList()
 		[GetSpellInfo(34490)] 	= 1, 	-- Silencing Shot	
 		[GetSpellInfo(18425)]	= 1,	-- Improved Kick
 		[GetSpellInfo(47476)]	= 1,	-- Strangulate
-		
+		[GetSpellInfo(85285)]   = 1,  -- Rebuke
+		[GetSpellInfo(85388)]   = 1,  -- Throwdown
+		[GetSpellInfo(80964)]   = 1,  -- Skull Bash
+				
 		-- Disarms
-		[GetSpellInfo(676)] 	= 1, 	-- Disarm
-		[GetSpellInfo(51722)] 	= 1,	-- Dismantle				
+		[GetSpellInfo(676)] 	   = 1, 	-- Disarm
+		[GetSpellInfo(51722)] 	= 1,	-- Dismantle
+						
 		-- Buffs
 		[GetSpellInfo(1022)] 	= 1,	-- Blessing of Protection
 		[GetSpellInfo(1044)] 	= 1, 	-- Blessing of Freedom
@@ -627,6 +639,7 @@ function ClassIcon:GetAuraList()
 		[GetSpellInfo(48707)]	= 1,	-- Anti-Magic Shell
 		[GetSpellInfo(31224)]	= 1,	-- Cloak of Shadows
 		[GetSpellInfo(19263)]	= 1,	-- Deterrence
+		[GetSpellInfo(76577)]  = 1, -- Smoke Bomb
 		
 		-- Immunities
 		[GetSpellInfo(34692)] 	= 2, 	-- The Beast Within

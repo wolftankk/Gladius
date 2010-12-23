@@ -13,7 +13,7 @@ Gladius:SetModule(Announcements, "Announcements", false, false, {
       resurrect = true,
       spec = true,
       healthThreshold = 25,
-      dest = "rw",
+      dest = "party",
    }
 })
 
@@ -28,6 +28,9 @@ function Announcements:OnEnable()
    
    -- Table holding messages to throttle
    self.throttled = {}
+   
+   -- enemy detected
+   self.enemy = {}
 end
 
 function Announcements:OnDisable()
@@ -42,13 +45,17 @@ end
 -- Reset throttled messages
 function Announcements:Reset(unit)
    self.throttled = wipe(self.throttled)
+   self.enemy = {}
 end
 
 -- New enemy announcement, could be broken.
 function Announcements:Show(unit)
    if (not Gladius.db.announcements.enemies or not UnitName(unit)) then return end
    
-   self:Send(string.format(L["%s - %s"], UnitName(unit), UnitClass(unit)), 2, unit)
+   if (not self.enemy[unit]) then
+      self:Send(string.format(L["%s - %s"], UnitName(unit), UnitClass(unit)), 2, unit)
+      self.enemy[unit] = true
+   end
 end
 
 function Announcements:GLADIUS_SPEC_UPDATE(unit, event)
