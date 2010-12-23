@@ -61,7 +61,7 @@ function Announcements:UNIT_HEALTH(event, unit)
    
    local healthPercent = math.floor((UnitHealth(unit) / UnitHealthMax(unit)) * 100)
    if (healthPercent < Gladius.db.announcements.healthThreshold) then
-      self:Send(string.format(L["RESURRECTING: %s (%s)"], UnitName(unit), UnitClass(unit)), 2, unit)
+      self:Send(string.format(L["LOW HEALTH: %s (%s)"], UnitName(unit), UnitClass(unit)), 2, unit)
    end
 end
 
