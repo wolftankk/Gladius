@@ -10,7 +10,11 @@ function Gladius:Call(handler, func, ...)
 end
 
 function Gladius:Debug(...)
-   print("Gladius:", ...)
+   print("|cff33ff99Gladius|r:", ...)
+end
+
+function Gladius:Print(...)
+   print("|cff33ff99Gladius|r:", ...)
 end
 
 function Gladius:SetModule(module, key, bar, attachTo, defaults, templates)
@@ -80,7 +84,7 @@ function Gladius:OnInitialize()
 	self.db = self.dbi.profile
 	
 	-- option reset (increase number)
-	self.version = 1
+	self.version = 2
 	
 	if (Gladius.db.version == nil or Gladius.db.version < self.version) then
       print("Gladius:", "Resetting options...")	
@@ -132,6 +136,21 @@ function Gladius:OnEnable()
          module:Disable()
       end
    end
+   
+   -- display help message
+   if (not self.db.locked and not self.db.x["arena1"] and not self.db.y["arena1"]) then
+		-- this is such a evil haxx!
+		SlashCmdList["GLADIUS"]("test 5")
+		
+		self:Print(L["Welcome to Gladius!"])
+		self:Print(L["First run has been detected, displaying test frame."])
+		self:Print(L["Valid slash commands are:"])
+		self:Print(L["/gladius ui"])
+		self:Print(L["/gladius test 2-5"])
+		self:Print(L["/gladius hide"])
+		self:Print(L["/gladius reset"])
+		self:Print(L["If this is not your first run please lock or move the frame to prevent this from happening."])
+	end
 	
 	-- see if we are already in arena
    if IsLoggedIn() then
@@ -239,6 +258,9 @@ end
 
 function Gladius:UpdateFrame()  
    self.db = self.dbi.profile
+   
+   -- TODO: check why we need this
+   self.buttons = self.buttons or {}
  
    for unit, _ in pairs(self.buttons) do
       local unitId = tonumber(string.match(unit, "^arena(.+)"))      
@@ -329,7 +351,7 @@ function Gladius:UpdateUnit(unit, module)
    -- set point
    self.buttons[unit]:ClearAllPoints()
    if (unit == "arena1" or not self.db.groupButtons) then
-      if (not self.db.x[unit] and not self.db.y[unit]) then
+      if ((not self.db.x and not self.db.y) or (not self.db.x[unit] and not self.db.y[unit])) then
          self.buttons[unit]:SetPoint("CENTER")
       else
          local scale = self.buttons[unit]:GetEffectiveScale()
@@ -366,11 +388,10 @@ function Gladius:UpdateUnit(unit, module)
    -- update background
    if (unit == "arena1") then
       local left, right = self.buttons[unit]:GetHitRectInsets()
-    
-      self.background:SetBackdropColor(self.db.backgroundColor.r, self.db.backgroundColor.g, self.db.backgroundColor.b, self.db.backgroundColor.a)
-      
+
+      -- background   
+      self.background:SetBackdropColor(self.db.backgroundColor.r, self.db.backgroundColor.g, self.db.backgroundColor.b, self.db.backgroundColor.a)      
       self.background:SetWidth(self.buttons[unit]:GetWidth() + self.db.backgroundPadding * 2 + abs(right) + abs(left))
-      --self.background:SetHeight(self.buttons[unit]:GetHeight() + self.db.backgroundPadding * 2)
 
       self.background:ClearAllPoints()      
       if (self.db.growUp) then
@@ -386,6 +407,46 @@ function Gladius:UpdateUnit(unit, module)
          self.background:SetAlpha(0)
       else         
          self.background:Hide()
+      end
+      
+      -- anchor
+      self.anchor:ClearAllPoints() 
+      
+      if (self.db.backgroundColor.a > 0) then
+         self.anchor:SetWidth(self.buttons[unit]:GetWidth() + self.db.backgroundPadding * 2 + abs(right) + abs(left))
+         
+         if (self.db.growUp) then
+            self.anchor:SetPoint("TOPLEFT", self.background, "BOTTOMLEFT")
+         else
+            self.anchor:SetPoint("BOTTOMLEFT", self.background, "TOPLEFT")
+         end
+      else
+         self.anchor:SetWidth(self.buttons[unit]:GetWidth() + abs(right) + abs(left))
+         
+         if (self.db.growUp) then
+            self.anchor:SetPoint("TOPLEFT", self.buttons["arena1"], "BOTTOMLEFT", left, 0)
+         else
+            self.anchor:SetPoint("BOTTOMLEFT", self.buttons["arena1"], "TOPLEFT", left, 0)
+         end
+      end
+      self.anchor:SetHeight(20)
+
+      self.anchor:SetScale(self.db.frameScale)
+      
+      self.anchor.text:SetPoint("CENTER", self.anchor, "CENTER")
+      self.anchor.text:SetFont(self.LSM:Fetch(self.LSM.MediaType.FONT, Gladius.db.globalFont), (Gladius.db.useGlobalFontSize and Gladius.db.globalFontSize or 11))
+      self.anchor.text:SetTextColor(1, 1, 1, 1)
+      
+      self.anchor.text:SetShadowOffset(1, -1)
+      self.anchor.text:SetShadowColor(0, 0, 0, 1)   
+      
+      self.anchor.text:SetText("Gladius Anchor - click to move")   
+      
+      if (self.db.groupButtons and not self.db.locked) then
+         self.anchor:Show()
+         self.anchor:SetAlpha(0)
+      else         
+         self.anchor:Hide()
       end
    end
 end
@@ -422,6 +483,11 @@ function Gladius:ShowUnit(unit, testing, module)
    if (unit == "arena1") then
       if (self.db.groupButtons) then
          self.background:SetAlpha(1)
+         
+         if (not self.db.locked) then
+            self.anchor:SetAlpha(1)
+            self.anchor:SetFrameStrata("HIGH")
+         end
       end
    end
    
@@ -526,6 +592,36 @@ function Gladius:CreateButton(unit)
    
    -- group background
    if (unit == "arena1") then
+      -- anchor
+      local anchor = CreateFrame("Frame", "GladiusButtonAnchor", UIParent)
+      anchor:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,})
+      anchor:SetBackdropColor(0, 0, 0, 1)
+      
+      anchor:SetClampedToScreen(true)
+      anchor:EnableMouse(true)
+      anchor:SetMovable(true)
+      anchor:RegisterForDrag("LeftButton")
+      
+      anchor:SetScript("OnDragStart", function(f) 
+         if (not self.db.locked) then 
+            local f = self.buttons["arena1"]
+            f:StartMoving() 
+         end 
+      end)
+       
+      anchor:SetScript("OnDragStop", function(f)
+         local f = self.buttons["arena1"] 
+            
+         f:StopMovingOrSizing()
+         local scale = f:GetEffectiveScale()
+         self.db.x[unit] = f:GetLeft() * scale
+         self.db.y[unit] = f:GetTop() * scale
+      end)
+      
+      anchor.text = anchor:CreateFontString("GladiusButtonAnchorText", "OVERLAY")
+      self.anchor = anchor
+   
+      -- background
       local background = CreateFrame("Frame", "GladiusButtonBackground", UIParent)
       background:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,})
       background:SetBackdropColor(self.db.backgroundColor.r, self.db.backgroundColor.g, self.db.backgroundColor.b, self.db.backgroundColor.a)

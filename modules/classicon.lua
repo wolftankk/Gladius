@@ -64,7 +64,7 @@ function ClassIcon:UpdateAura(unit)
    if (not self.frame[unit] or not Gladius.db.classIconImportantAuras) then return end   
    if (not Gladius.db.aurasFrameAuras) then return end
    
-   local aura   
+   local aura, auraDuration
    local index = 1
    
    -- debuffs
@@ -73,7 +73,8 @@ function ClassIcon:UpdateAura(unit)
       if (not name) then break end  
       
       if (Gladius.db.aurasFrameAuras[name] and self.frame[unit].priority and Gladius.db.aurasFrameAuras[name] >= self.frame[unit].priority) then
-         aura = name         
+         aura = name  
+         auraDuration = duration       
          
          self.frame[unit].icon = icon
          self.frame[unit].timeleft = duration - GetTime()
@@ -92,6 +93,7 @@ function ClassIcon:UpdateAura(unit)
       
       if (Gladius.db.aurasFrameAuras[name] and self.frame[unit].priority and Gladius.db.aurasFrameAuras[name] >= self.frame[unit].priority) then
          aura = name
+         auraDuration = duration
          
          self.frame[unit].icon = icon
          self.frame[unit].timeleft = duration - GetTime()
@@ -101,10 +103,15 @@ function ClassIcon:UpdateAura(unit)
       index = index + 1     
    end
    
-   if (aura and aura ~= self.frame[unit].aura) then
+   if (aura) then
+      if (aura == self.frame[unit].aura and auraDuration <= self.frame[unit].duration) then
+         return
+      end
+   
       -- display aura
       self.frame[unit].active = true
       self.frame[unit].aura = aura
+      self.frame[unit].duration = auraDuration
    
       self.frame[unit].texture:SetTexture(self.frame[unit].icon)
       
@@ -114,13 +121,7 @@ function ClassIcon:UpdateAura(unit)
          self.frame[unit].texture:SetTexCoord(0, 1, 0, 1)
       end
       
-      self.frame[unit].cooldown:SetCooldown(GetTime(), self.frame[unit].timeleft)
-      
-      if (Gladius.db.classIconCooldown) then
-         self.frame[unit].cooldown:SetAlpha(1)
-      else
-         self.frame[unit].cooldown:SetAlpha(0)
-      end
+      Gladius:Call(Gladius.modules.Timer, "SetTimer", self.frame[unit], self.frame[unit].timeleft)
    elseif (not aura and self.frame[unit].active) then
       -- reset
       self.frame[unit].active = false
@@ -129,7 +130,7 @@ function ClassIcon:UpdateAura(unit)
       self.frame[unit].priority = 0
       self.frame[unit].timeleft = 0     
       
-      self.frame[unit].cooldown:SetCooldown(GetTime(), 0)
+      Gladius:Call(Gladius.modules.Timer, "HideTimer", self.frame[unit])
       self:SetClassIcon(unit)
    end
 end
@@ -175,6 +176,9 @@ function ClassIcon:CreateFrame(unit)
 end
 
 function ClassIcon:Update(unit)
+   -- TODO: check why we need this >_<
+   self.frame = self.frame or {}
+
    -- create frame
    if (not self.frame[unit]) then 
       self:CreateFrame(unit)
@@ -240,8 +244,8 @@ function ClassIcon:Update(unit)
          bottom = -(self.frame[unit]:GetHeight() - Gladius.buttons[unit]:GetHeight()) + Gladius.db.classIconOffsetY
       end
 
-      Gladius.buttons[unit]:SetHitRectInsets(left, right, top, bottom) 
-      Gladius.buttons[unit].secure:SetHitRectInsets(left, right, top, bottom) 
+      Gladius.buttons[unit]:SetHitRectInsets(left, right, 0, 0) 
+      Gladius.buttons[unit].secure:SetHitRectInsets(left, right, 0, 0) 
    end
    
    -- style action button   
@@ -262,7 +266,14 @@ function ClassIcon:Update(unit)
    self.frame[unit].texture:SetTexCoord(left, right, top, bottom)
    
    -- cooldown
+   if (Gladius.db.classIconCooldown) then
+      self.frame[unit].cooldown:Show()
+   else
+      self.frame[unit].cooldown:Hide()
+   end
+   
    self.frame[unit].cooldown:SetReverse(Gladius.db.classIconCooldownReverse)
+   Gladius:Call(Gladius.modules.Timer, "RegisterTimer", self.frame[unit])
          
    -- hide
    self.frame[unit]:SetAlpha(0)
@@ -282,6 +293,7 @@ function ClassIcon:Reset(unit)
    -- reset frame
    self.frame[unit].active = false
    self.frame[unit].aura = nil
+   self.frame[unit].duration = 0
    self.frame[unit].priority = 0
    
    self.frame[unit]:SetScript("OnUpdate", nil)
@@ -313,13 +325,7 @@ function ClassIcon:Test(unit)
          self.frame[unit].texture:SetTexCoord(0, 1, 0, 1)
       end
       
-      self.frame[unit].cooldown:SetCooldown(GetTime(), self.frame[unit].timeleft)
-      
-      if (Gladius.db.classIconCooldown) then
-         self.frame[unit].cooldown:SetAlpha(1)
-      else
-         self.frame[unit].cooldown:SetAlpha(0)
-      end
+      Gladius:Call(Gladius.modules.Timer, "SetTimer", self.frame[unit], self.frame[unit].timeleft)
    elseif (unit == "arena2") then
       aura = "Pain Suppression"
    
@@ -337,13 +343,7 @@ function ClassIcon:Test(unit)
          self.frame[unit].texture:SetTexCoord(0, 1, 0, 1)
       end
       
-      self.frame[unit].cooldown:SetCooldown(GetTime(), self.frame[unit].timeleft)
-      
-      if (Gladius.db.classIconCooldown) then
-         self.frame[unit].cooldown:SetAlpha(1)
-      else
-         self.frame[unit].cooldown:SetAlpha(0)
-      end
+      Gladius:Call(Gladius.modules.Timer, "SetTimer", self.frame[unit], self.frame[unit].timeleft)
    end
 end
 

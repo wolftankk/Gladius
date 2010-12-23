@@ -244,6 +244,8 @@ function Highlight:Show(unit)
 end
 
 function Highlight:Reset(unit) 
+   if (not self.frame[unit]) then return end
+   
    -- set priority
    self.frame[unit].priority = -1
    

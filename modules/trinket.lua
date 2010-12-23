@@ -243,8 +243,8 @@ function Trinket:Update(unit)
          bottom = -(self.frame[unit]:GetHeight() - Gladius.buttons[unit]:GetHeight()) + Gladius.db.trinketOffsetY
       end
 
-      Gladius.buttons[unit]:SetHitRectInsets(left, right, top, bottom) 
-      Gladius.buttons[unit].secure:SetHitRectInsets(left, right, top, bottom)
+      Gladius.buttons[unit]:SetHitRectInsets(left, right, 0, 0) 
+      Gladius.buttons[unit].secure:SetHitRectInsets(left, right, 0, 0)
    end
    
    -- style action button   

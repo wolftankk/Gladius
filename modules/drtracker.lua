@@ -43,7 +43,9 @@ function DRTracker:OnDisable()
    self:UnregisterAllEvents()
    
    for unit in pairs(self.frame) do
-      self.frame[unit]:SetAlpha(0)
+      for _, t in pairs(self.frame[unit].tracker) do
+         t:SetAlpha(0)
+      end
    end
 end
 
