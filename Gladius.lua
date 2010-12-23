@@ -287,6 +287,11 @@ function Gladius:HideFrame()
    if (self.background) then
       self.background:Hide()
    end
+   
+   -- hide anchor
+   if (self.anchor) then
+      self.anchor:Hide()
+   end
 end
 
 function Gladius:UpdateUnit(unit, module)
