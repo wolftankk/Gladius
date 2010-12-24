@@ -123,41 +123,45 @@ function Trinket:UNIT_SPELLCAST_SUCCEEDED(event, unit, spell, rank)
 end
 
 function Trinket:UpdateTrinket(unit, duration)
+   -- grid style icon
    if (Gladius.db.trinketGridStyleIcon) then
       self.frame[unit].texture:SetVertexColor(Gladius.db.trinketGridStyleIconUsedColor.r, Gladius.db.trinketGridStyleIconUsedColor.g, Gladius.db.trinketGridStyleIconUsedColor.b, Gladius.db.trinketGridStyleIconUsedColor.a)
-      
+   end
+   
+   -- announcement
+   if (Gladius.db.announcements.trinket) then
+      Gladius:Call(Gladius.modules.Announcements, "Send", string.format(L["TRINKET USED: %s (%s)"], UnitName(unit) or "test", UnitClass(unit) or "test"), 2, unit)   
+   end
+   
+   if (Gladius.db.announcements.trinket or Gladius.db.trinketGridStyleIcon) then
       self.frame[unit].timeleft = duration
       self.frame[unit]:SetScript("OnUpdate", function(f, elapsed)
          self.frame[unit].timeleft = self.frame[unit].timeleft - elapsed
+         
          if (self.frame[unit].timeleft <= 0) then
-            self.frame[unit].texture:SetVertexColor(Gladius.db.trinketGridStyleIconColor.r, Gladius.db.trinketGridStyleIconColor.g, Gladius.db.trinketGridStyleIconColor.b, Gladius.db.trinketGridStyleIconColor.a)
+            -- trinket
+            if (Gladius.db.trinketGridStyleIcon) then
+               self.frame[unit].texture:SetVertexColor(Gladius.db.trinketGridStyleIconColor.r, Gladius.db.trinketGridStyleIconColor.g, Gladius.db.trinketGridStyleIconColor.b, Gladius.db.trinketGridStyleIconColor.a)
+            end
+            
+            -- announcement
+            if (Gladius.db.announcements.trinket) then
+               Gladius:Call(Gladius.modules.Announcements, "Send", string.format(L["TRINKET READY: %s (%s)"], UnitName(unit) or "", UnitClass(unit) or ""), 2, unit)
+            end
+            
+            self.frame[unit]:SetScript("OnUpdate", nil)
          end
       end)
    end
-
+   
+   -- cooldown
    self.frame[unit].cooldown:SetCooldown(GetTime(), duration)
    
    if (Gladius.db.trinketCooldown) then
       self.frame[unit].cooldown:SetAlpha(1)
    else
       self.frame[unit].cooldown:SetAlpha(0)
-   end  
-   
-   if (Gladius.db.announcements.trinket) then
-      Gladius:Call(Gladius.modules.Announcements, "Send", string.format(L["TRINKET USED: %s (%s)"], UnitName(unit) or "test", UnitClass(unit) or "test"), 2, unit)   
-      
-      if (not self.frame[unit].timer) then
-         self.frame[unit].timer = CreateFrame("Frame")
-      end
-      
-      self.frame[unit].timer.endTime = GetTime() + duration
-      self.frame[unit].timer:SetScript("OnUpdate", function(self)
-         if (self.endTime < GetTime()) then
-            Gladius:Call(Gladius.modules.Announcements, "Send", string.format(L["TRINKET READY: %s (%s)"], UnitName(unit) or "test", UnitClass(unit) or "test"), 2, unit)
-            self:SetScript("OnUpdate", nil)
-         end
-      end)
-   end
+   end     
 end
 
 function Trinket:CreateFrame(unit)

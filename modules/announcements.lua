@@ -22,6 +22,7 @@ function Announcements:OnEnable()
    self:RegisterEvent("UNIT_HEALTH")
    self:RegisterEvent("UNIT_AURA")
    self:RegisterEvent("UNIT_SPELLCAST_START")
+   self:RegisterEvent("UNIT_NAME_UPDATE")
    
    -- register custom events
    self:RegisterMessage("GLADIUS_SPEC_UPDATE")
@@ -50,10 +51,20 @@ end
 
 -- New enemy announcement, could be broken.
 function Announcements:Show(unit)
+   self:UNIT_NAME_UPDATE(nil, unit)
+end
+
+function Announcements:UNIT_NAME_UPDATE(event, unit)
+   if (not unit:find("arena") or unit:find("pet")) then return end
    if (not Gladius.db.announcements.enemies or not UnitName(unit)) then return end
    
+   local name = UnitName(unit)
+   if (name == UNKNOWN or name == nil) then
+      return
+   end
+   
    if (not self.enemy[unit]) then
-      self:Send(string.format(L["%s - %s"], UnitName(unit), UnitClass(unit)), 2, unit)
+      self:Send(string.format(L["%s - %s"], name, UnitClass(unit) or ""), 2, unit)
       self.enemy[unit] = true
    end
 end

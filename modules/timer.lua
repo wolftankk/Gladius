@@ -60,7 +60,11 @@ function Timer:SetFormattedNumber(frame, number)
          frame:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.globalFont), Gladius.db.timerSoonFontSize)
          frame:SetTextColor(Gladius.db.timerSoonFontColor.r, Gladius.db.timerSoonFontColor.g, Gladius.db.timerSoonFontColor.b, Gladius.db.timerSoonFontColor.a)
       
-         frame:SetText(string.format("%.1f", number))
+         if (number == 0) then
+            frame:SetText("\236")
+         else         
+            frame:SetText(string.format("%.1f", number))
+         end
       end
    end  
 end
@@ -77,24 +81,35 @@ function Timer:SetTimer(frame, duration)
    self.frames[frameName].duration = duration
    self.frames[frameName].text:SetAlpha(1)
    
-   self.frames[frameName]:SetScript("OnUpdate", function(f, elapsed)
-      f.duration = f.duration - elapsed
-      
-      if (f.duration <= 0) then
-         f.text:SetAlpha(0)
-         f:SetScript("OnUpdate", nil)
-      else
-         self:SetFormattedNumber(f.text, f.duration)
-      end
-   end)
+   if (_G[frameName .. "Cooldown"]:IsShown()) then
+      _G[frameName .. "Cooldown"]:SetCooldown(GetTime(), duration)
+      _G[frameName .. "Cooldown"]:SetAlpha(1)
+   end
+   
+   if (duration > 0) then
+      self.frames[frameName]:SetScript("OnUpdate", function(f, elapsed)
+         f.duration = f.duration - elapsed
+         
+         if (f.duration <= 0) then
+            f.text:SetAlpha(0)
+            f:SetScript("OnUpdate", nil)
+         else
+            self:SetFormattedNumber(f.text, f.duration)
+         end
+      end)
+   end
 end
 
 function Timer:HideTimer(frame)
    local frameName = frame:GetName()
    
+   if (_G[frameName .. "Cooldown"]:IsShown()) then
+      _G[frameName .. "Cooldown"]:SetAlpha(0)
+   end
+   
    if (self.frames[frameName]) then
-      self.frames[frameName].text:SetAlpha(0)
       self.frames[frameName]:SetScript("OnUpdate", nil)
+      self.frames[frameName].text:SetAlpha(0)      
    end
 end
 
