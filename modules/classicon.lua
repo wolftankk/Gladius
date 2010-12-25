@@ -69,6 +69,9 @@ end
 function ClassIcon:UpdateAura(unit)  
    if (not self.frame[unit] or not Gladius.db.classIconImportantAuras) then return end   
    if (not Gladius.db.aurasFrameAuras) then return end
+      
+   -- default priority
+   self.frame[unit].priority = self.frame[unit].priority or 0
    
    local aura, auraDuration
    local index = 1
@@ -78,7 +81,7 @@ function ClassIcon:UpdateAura(unit)
       local name, _, icon, _, _, _, duration, _, _ = UnitAura(unit, index, "HARMFUL")
       if (not name) then break end  
       
-      if (Gladius.db.aurasFrameAuras[name] and self.frame[unit].priority and Gladius.db.aurasFrameAuras[name] >= self.frame[unit].priority) then
+      if (Gladius.db.aurasFrameAuras[name] and Gladius.db.aurasFrameAuras[name] >= self.frame[unit].priority) then
          aura = name  
          auraDuration = duration       
          
@@ -97,7 +100,7 @@ function ClassIcon:UpdateAura(unit)
       local name, _, icon, _, _, _, duration, _, _ = UnitAura(unit, index, "HELPFUL")
       if (not name) then break end  
       
-      if (Gladius.db.aurasFrameAuras[name] and self.frame[unit].priority and Gladius.db.aurasFrameAuras[name] >= self.frame[unit].priority) then
+      if (Gladius.db.aurasFrameAuras[name] and Gladius.db.aurasFrameAuras[name] >= self.frame[unit].priority) then
          aura = name
          auraDuration = duration
          
@@ -109,11 +112,7 @@ function ClassIcon:UpdateAura(unit)
       index = index + 1     
    end
    
-   if (aura) then
-      if (aura == self.frame[unit].aura and auraDuration <= self.frame[unit].duration) then
-         return
-      end
-   
+   if (aura and aura ~= self.frame[unit].aura) then   
       -- display aura
       self.frame[unit].active = true
       self.frame[unit].aura = aura
@@ -137,6 +136,8 @@ function ClassIcon:UpdateAura(unit)
       self.frame[unit].timeleft = 0     
       
       Gladius:Call(Gladius.modules.Timer, "HideTimer", self.frame[unit])
+      self:SetClassIcon(unit)
+   elseif (not aura) then
       self:SetClassIcon(unit)
    end
 end
@@ -219,7 +220,7 @@ function ClassIcon:Update(unit)
       self.frame[unit]:SetWidth(Gladius.db.classIconSize)        
       self.frame[unit]:SetHeight(Gladius.db.classIconSize)  
    end  
-   
+
    self.frame[unit].texture:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
    
    -- set frame mouse-interactable area
@@ -292,7 +293,7 @@ function ClassIcon:Show(unit)
    self.frame[unit]:SetAlpha(1)
    
    -- set class icon
-   self:SetClassIcon(unit)
+   self:UpdateAura(unit)
 end
 
 function ClassIcon:Reset(unit)
