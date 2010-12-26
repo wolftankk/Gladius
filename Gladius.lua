@@ -81,7 +81,15 @@ function Gladius:OnInitialize()
 	self.dbi.RegisterCallback(self, "OnProfileChanged", "OnProfileChanged")
 	self.dbi.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
 	self.dbi.RegisterCallback(self, "OnProfileReset", "OnProfileChanged")
-	self.db = self.dbi.profile
+	self.db = setmetatable(self.dbi.profile, {
+      __newindex = function(t, index, value)
+         if (type(value) == "table") then
+            rawset(self.defaults.profile, index, value)
+         end
+         
+         rawset(t, index, value)
+      end
+	})
 	
 	-- option reset (increase number)
 	self.version = 2
@@ -120,6 +128,20 @@ function Gladius:OnInitialize()
 	
 	-- buttons
    self.buttons = {}
+   
+   -- clique
+   if (IsAddOnLoaded("Clique")) then
+      -- this is a more evil haxx than the welcome message haxx!
+		SlashCmdList["GLADIUS"]("test 5")
+		SlashCmdList["GLADIUS"]("hide")
+		
+		ClickCastFrames = ClickCastFrames or {}
+		ClickCastFrames[GladiusButtonFrame1] = true
+		ClickCastFrames[GladiusButtonFrame2] = true
+		ClickCastFrames[GladiusButtonFrame3] = true
+		ClickCastFrames[GladiusButtonFrame4] = true
+		ClickCastFrames[GladiusButtonFrame5] = true
+	end
 end
 
 function Gladius:OnEnable()
@@ -191,7 +213,6 @@ function Gladius:JoinedArena()
    -- special arena event
    self:RegisterEvent("UNIT_NAME_UPDATE")
 	self:RegisterEvent("ARENA_OPPONENT_UPDATE")	
-	self:RegisterEvent("UNIT_DIED")
 	
 	self:RegisterEvent("UNIT_HEALTH")	
 	self:RegisterEvent("UNIT_MAXHEALTH", "UNIT_HEALTH")
@@ -237,16 +258,6 @@ function Gladius:UNIT_NAME_UPDATE(event, unit)
    if (not self.buttons[unit] or self.buttons[unit]:GetAlpha() <= 0) then
       self:ShowUnit(unit)
    end
-end
-
-function Gladius:UNIT_DIED(event, unit)
-   if (not unit:find("arena") or unit:find("pet")) then return end
-   
-   if (not self.buttons[unit] or self.buttons[unit]:GetAlpha() <= 0) then
-      self:ShowUnit(unit)
-   end
-   
-   self.buttons[unit]:SetAlpha(0.1)
 end
 
 function Gladius:ARENA_OPPONENT_UPDATE(event, unit, type)

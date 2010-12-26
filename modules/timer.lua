@@ -46,18 +46,18 @@ function Timer:SetFormattedNumber(frame, number)
    if (minutes > 0) then
       local seconds = number - minutes * 60
       
-      frame:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.globalFont), Gladius.db.timerMinutesFontSize)
+      frame:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.globalFont), Gladius.db.timerMinutesFontSize, "OUTLINE")
       frame:SetTextColor(Gladius.db.timerMinutesFontColor.r, Gladius.db.timerMinutesFontColor.g, Gladius.db.timerMinutesFontColor.b, Gladius.db.timerMinutesFontColor.a)
       
-      frame:SetText(string.format("%s %.0f", minutes, seconds))
+      frame:SetText(string.format("%sm %.0f", minutes, seconds))
    else
       if (number > 5) then
-         frame:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.globalFont), Gladius.db.timerSecondsFontSize)
+         frame:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.globalFont), Gladius.db.timerSecondsFontSize, "OUTLINE")
          frame:SetTextColor(Gladius.db.timerSecondsFontColor.r, Gladius.db.timerSecondsFontColor.g, Gladius.db.timerSecondsFontColor.b, Gladius.db.timerSecondsFontColor.a)
       
          frame:SetText(string.format("%.0f", number))
       else
-         frame:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.globalFont), Gladius.db.timerSoonFontSize)
+         frame:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.globalFont), Gladius.db.timerSoonFontSize, "OUTLINE")
          frame:SetTextColor(Gladius.db.timerSoonFontColor.r, Gladius.db.timerSoonFontColor.g, Gladius.db.timerSoonFontColor.b, Gladius.db.timerSoonFontColor.a)
       
          if (number == 0) then
@@ -118,16 +118,19 @@ function Timer:RegisterTimer(frame)
    _G[frameName .. "Cooldown"].noCooldownCount = true
 
    if (not self.frames[frameName]) then
-      self.frames[frameName] = CreateFrame("Frame", "Gladius" .. self.name .. frameName)
+      self.frames[frameName] = CreateFrame("Frame", "Gladius" .. self.name .. frameName, frame)
       self.frames[frameName].name = frameName
-      self.frames[frameName].text = frame:CreateFontString("Gladius" .. self.name .. frameName .. "Text", "OVERLAY")
+      self.frames[frameName].text = self.frames[frameName]:CreateFontString("Gladius" .. self.name .. frameName .. "Text", "OVERLAY")
    end
       
    -- update frame   
+   self.frames[frameName]:SetAllPoints(frame)
+   
+   self.frames[frameName]:SetFrameStrata("HIGH")
+   self.frames[frameName]:SetFrameLevel(100)
+   
    self.frames[frameName].text:ClearAllPoints()
-   self.frames[frameName].text:SetPoint("CENTER", frame)
-      
-   self.frames[frameName].text:SetParent(frame)
+   self.frames[frameName].text:SetPoint("CENTER", self.frames[frameName])
 
    self.frames[frameName].text:SetShadowOffset(1, -1)
    self.frames[frameName].text:SetShadowColor(0, 0, 0, 1)

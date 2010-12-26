@@ -82,12 +82,21 @@ function DRTracker:DRFaded(unit, spellID)
       tracked.texture = _G[tracked:GetName().."Icon"]
       tracked.normalTexture = _G[tracked:GetName().."NormalTexture"]
       tracked.cooldown = _G[tracked:GetName().."Cooldown"]
+      
+      -- cooldown
+      if (Gladius.db.drTrackerCooldown) then
+         tracked.cooldown:Show()
+      else
+         tracked.cooldown:Hide()
+      end
+      
       tracked.cooldown:SetReverse(Gladius.db.drTrackerCooldownReverse)
+      Gladius:Call(Gladius.modules.Timer, "RegisterTimer", tracked)
 
       tracked.text = tracked:CreateFontString(nil, "OVERLAY")
 		tracked.text:SetDrawLayer("OVERLAY")
 		tracked.text:SetJustifyH("RIGHT")
-		tracked.text:SetPoint("CENTER", tracked)
+		tracked.text:SetPoint("BOTTOMRIGHT", tracked, -2, 0)
 		tracked.text:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.globalFont), Gladius.db.drFontSize, "OUTLINE")
 		tracked.text:SetTextColor(Gladius.db.drFontColor.r, Gladius.db.drFontColor.g, Gladius.db.drFontColor.b, Gladius.db.drFontColor.a)
       
@@ -127,21 +136,15 @@ function DRTracker:DRFaded(unit, spellID)
 	tracked.text:SetTextColor(r,g,b)
 	
 	tracked.texture:SetTexture(GetSpellTexture(spellID))
-	tracked.cooldown:SetCooldown(GetTime(), tracked.timeLeft)
-	
-	if (Gladius.db.drTrackerCooldown) then
-      tracked.cooldown:SetAlpha(1)
-   else
-      tracked.cooldown:SetAlpha(0)
-   end
-	
+	Gladius:Call(Gladius.modules.Timer, "SetTimer", tracked, tracked.timeLeft)
+
 	tracked:SetScript("OnUpdate", function(f, elapsed)
       f.timeLeft = f.timeLeft - elapsed
       if (f.timeLeft <= 0) then
          if (Gladius.test) then return end
          
          f.active = false
-         f:SetAlpha(0)
+         Gladius:Call(Gladius.modules.Timer, "HideTimer", f)
 
          -- position icons
          self:SortIcons(unit)

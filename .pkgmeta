@@ -1,6 +1,8 @@
 externals:
     libs/AceAddon-3.0:
         url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceAddon-3.0
+    libs/AceSerializer-3.0:
+        url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceSerializer-3.0
     libs/AceConsole-3.0:
         url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceConsole-3.0
     libs/AceConfig-3.0:

@@ -64,7 +64,7 @@ function Announcements:UNIT_NAME_UPDATE(event, unit)
    end
    
    if (not self.enemy[unit]) then
-      self:Send(string.format(L["%s - %s"], name, UnitClass(unit) or ""), 2, unit)
+      self:Send(string.format("%s - %s", name, UnitClass(unit) or ""), 2, unit)
       self.enemy[unit] = true
    end
 end

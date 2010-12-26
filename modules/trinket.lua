@@ -155,13 +155,7 @@ function Trinket:UpdateTrinket(unit, duration)
    end
    
    -- cooldown
-   self.frame[unit].cooldown:SetCooldown(GetTime(), duration)
-   
-   if (Gladius.db.trinketCooldown) then
-      self.frame[unit].cooldown:SetAlpha(1)
-   else
-      self.frame[unit].cooldown:SetAlpha(0)
-   end     
+   Gladius:Call(Gladius.modules.Timer, "SetTimer", self.frame[unit], duration)   
 end
 
 function Trinket:CreateFrame(unit)
@@ -273,7 +267,14 @@ function Trinket:Update(unit)
       Gladius.db.trinketGlossColor.b, Gladius.db.trinketGloss and Gladius.db.trinketGlossColor.a or 0)
       
    -- cooldown
+   if (Gladius.db.trinketCooldown) then
+      self.frame[unit].cooldown:Show()
+   else
+      self.frame[unit].cooldown:Hide()
+   end
+   
    self.frame[unit].cooldown:SetReverse(Gladius.db.trinketCooldownReverse)
+   Gladius:Call(Gladius.modules.Timer, "RegisterTimer", self.frame[unit])
    
    -- hide
    self.frame[unit]:SetAlpha(0)
