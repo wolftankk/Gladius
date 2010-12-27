@@ -116,12 +116,12 @@ function Auras:UNIT_AURA(event, unit)
    
    -- buff frame
    for i=1, 40 do
-      local name, rank, icon, count, dispelType, duration, expires, caster, isStealable = UnitBuff(unit, i)      
+      local name, rank, icon, count, dispelType, duration, expires, caster, isStealable = UnitAura(unit, i, "HELPFUL")      
       if (not self.buffFrame[unit][i]) then break end
       
       if (name) then       
          self.buffFrame[unit][i].texture:SetTexture(icon)
-         CooldownFrame_SetTimer(self.buffFrame[unit][i].cooldown, GetTime(), duration and duration - GetTime() or 0, 1)    
+         Gladius:Call(Gladius.modules.Timer, "SetTimer", self.buffFrame[unit][i], duration)  
          
          self.buffFrame[unit][i]:SetAlpha(1)
       else
@@ -131,13 +131,13 @@ function Auras:UNIT_AURA(event, unit)
    
    -- debuff frame
    for i=1, 40 do
-      local name, rank, icon, count, dispelType, duration, expires, caster, isStealable = UnitDebuff(unit, i)
+      local name, rank, icon, count, dispelType, duration, expires, caster, isStealable = UnitAura(unit, i, "HARMFUL")
       
       if (not self.debuffFrame[unit][i]) then break end
       
       if (name) then       
          self.debuffFrame[unit][i].texture:SetTexture(icon)
-         CooldownFrame_SetTimer(self.debuffFrame[unit][i].cooldown, GetTime(), duration and duration - GetTime() or 0, 1)    
+         Gladius:Call(Gladius.modules.Timer, "SetTimer", self.debuffFrame[unit][i], duration)  
          
          self.debuffFrame[unit][i]:SetAlpha(1)
       else
@@ -159,7 +159,7 @@ function Auras:CreateFrame(unit)
    -- create buff frame
    if (not self.buffFrame[unit] and Gladius.db.aurasBuffs) then
       self.buffFrame[unit] = CreateFrame("Frame", "Gladius" .. self.name .. "BuffFrame" .. unit, button)
-      self.buffFrame[unit]:EnableMouse(false)
+      
       
       for i=1, 40 do
          self.buffFrame[unit][i] = CreateFrame("CheckButton", "Gladius" .. self.name .. "BuffFrameIcon" .. i .. unit, button, "ActionButtonTemplate")
@@ -173,12 +173,14 @@ function Auras:CreateFrame(unit)
             f:SetScript("OnUpdate", nil)
             GameTooltip:Hide()
          end)
-         self.buffFrame[unit][i]:RegisterForClicks("RightButtonUp")
+         self.buffFrame[unit][i]:EnableMouse(false)
          self.buffFrame[unit][i]:SetNormalTexture("Interface\\AddOns\\Gladius2\\images\\gloss")
          self.buffFrame[unit][i].texture = _G[self.buffFrame[unit][i]:GetName().."Icon"]
          self.buffFrame[unit][i].normalTexture = _G[self.buffFrame[unit][i]:GetName().."NormalTexture"]
          self.buffFrame[unit][i].cooldown = _G[self.buffFrame[unit][i]:GetName().."Cooldown"]
          self.buffFrame[unit][i].cooldown:SetReverse(false)
+         
+         Gladius:Call(Gladius.modules.Timer, "RegisterTimer", self.buffFrame[unit][i])
       end
    end
    
@@ -199,12 +201,14 @@ function Auras:CreateFrame(unit)
             f:SetScript("OnUpdate", nil)
             GameTooltip:Hide()
          end)
-         self.debuffFrame[unit][i]:RegisterForClicks("RightButtonUp")
+         self.debuffFrame[unit][i]:EnableMouse(false)
          self.debuffFrame[unit][i]:SetNormalTexture("Interface\\AddOns\\Gladius2\\images\\gloss")
          self.debuffFrame[unit][i].texture = _G[self.debuffFrame[unit][i]:GetName().."Icon"]
          self.debuffFrame[unit][i].normalTexture = _G[self.debuffFrame[unit][i]:GetName().."NormalTexture"]
          self.debuffFrame[unit][i].cooldown = _G[self.debuffFrame[unit][i]:GetName().."Cooldown"]
          self.debuffFrame[unit][i].cooldown:SetReverse(false)
+         
+         Gladius:Call(Gladius.modules.Timer, "RegisterTimer", self.debuffFrame[unit][i])
       end
    end
    

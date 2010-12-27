@@ -3,6 +3,11 @@
 local L
 
 function Gladius:Call(handler, func, ...)
+   -- module disabled, return   
+   if (handler.IsEnabled and not handler:IsEnabled()) then
+      return
+   end
+
    -- save module function call
    if (type(handler[func]) == "function") then
       handler[func](handler, ...)
@@ -255,7 +260,7 @@ end
 function Gladius:UNIT_NAME_UPDATE(event, unit)
    if (not unit:find("arena") or unit:find("pet")) then return end
    
-   if (not self.buttons[unit] or self.buttons[unit]:GetAlpha() <= 0) then
+   if (not self.buttons[unit] or self.buttons[unit]:GetAlpha() < 1) then
       self:ShowUnit(unit)
    end
 end
@@ -263,7 +268,7 @@ end
 function Gladius:ARENA_OPPONENT_UPDATE(event, unit, type)
    -- enemy seen
    if (type == "seen" or type == "destroyed") then
-      if (not self.buttons[unit] or self.buttons[unit]:GetAlpha() <= 0) then
+      if (not self.buttons[unit] or self.buttons[unit]:GetAlpha() < 1) then
          self:ShowUnit(unit)
       end
    -- enemy stealth
@@ -286,7 +291,7 @@ function Gladius:UpdateFrame()
       if (self.testCount >= unitId) then      
          -- update frame will only be called in the test environment
          self:UpdateUnit(unit)
-         if (not self.buttons[unit] or self.buttons[unit]:GetAlpha() <= 0) then
+         if (not self.buttons[unit] or self.buttons[unit]:GetAlpha() < 1) then
             self:ShowUnit(unit, true)
          end
          
@@ -662,7 +667,7 @@ end
 function Gladius:UNIT_AURA(event, unit)
    if (not unit:find("arena") or unit:find("pet")) then return end
 
-   if (not self.buttons[unit] or self.buttons[unit]:GetAlpha() <= 0) then
+   if (not self.buttons[unit] or self.buttons[unit]:GetAlpha() < 1) then
       self:ShowUnit(unit)
    end
 
@@ -671,7 +676,7 @@ function Gladius:UNIT_AURA(event, unit)
       local  name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable = UnitAura(unit, index, "HELPFUL")
       if (not name) then break end
       
-      if (self.specSpells[name] and self.buttons[unitCaster].spec == "") then
+      if (self.specSpells[name] and self.buttons[unitCaster] and self.buttons[unitCaster].spec == "") then
          self.buttons[unitCaster].spec = self.specSpells[name]
          self:SendMessage("GLADIUS_SPEC_UPDATE", unitCaster)
       end
@@ -683,7 +688,7 @@ end
 function Gladius:UNIT_SPELLCAST_START(event, unit)
    if (not unit:find("arena") or unit:find("pet")) then return end
    
-   if (not self.buttons[unit] or self.buttons[unit]:GetAlpha() <= 0) then
+   if (not self.buttons[unit] or self.buttons[unit]:GetAlpha() < 1) then
       self:ShowUnit(unit)
    end
    
@@ -698,7 +703,7 @@ function Gladius:UNIT_HEALTH(event, unit)
    if (not unit:find("arena") or unit:find("pet")) then return end
 
    -- update unit
-   if (not self.buttons[unit] or self.buttons[unit]:GetAlpha() <= 0) then
+   if (not self.buttons[unit] or self.buttons[unit]:GetAlpha() < 1) then
       self:ShowUnit(unit)  
    end
    

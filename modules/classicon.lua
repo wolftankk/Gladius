@@ -73,20 +73,20 @@ function ClassIcon:UpdateAura(unit)
    -- default priority
    self.frame[unit].priority = self.frame[unit].priority or 0
    
-   local aura, auraDuration
+   local aura, auraExpires
    local index = 1
    
    -- debuffs
    while (true) do
-      local name, _, icon, _, _, _, duration, _, _ = UnitAura(unit, index, "HARMFUL")
+      local name, _, icon, _, _, duration, expires, _, _ = UnitAura(unit, index, "HARMFUL")
       if (not name) then break end  
       
       if (Gladius.db.aurasFrameAuras[name] and Gladius.db.aurasFrameAuras[name] >= self.frame[unit].priority) then
          aura = name  
-         auraDuration = duration       
+         auraExpires = expires       
          
          self.frame[unit].icon = icon
-         self.frame[unit].timeleft = duration - GetTime()
+         self.frame[unit].timeleft = duration
          self.frame[unit].priority = Gladius.db.aurasFrameAuras[name]
       end
       
@@ -97,26 +97,30 @@ function ClassIcon:UpdateAura(unit)
    index = 1
    
    while (true) do
-      local name, _, icon, _, _, _, duration, _, _ = UnitAura(unit, index, "HELPFUL")
+      local name, _, icon, _, _, duration, expires, _, _ = UnitAura(unit, index, "HELPFUL")
       if (not name) then break end  
       
       if (Gladius.db.aurasFrameAuras[name] and Gladius.db.aurasFrameAuras[name] >= self.frame[unit].priority) then
          aura = name
-         auraDuration = duration
+         auraExpires = expires
          
          self.frame[unit].icon = icon
-         self.frame[unit].timeleft = duration - GetTime()
+         self.frame[unit].timeleft = duration
          self.frame[unit].priority = Gladius.db.aurasFrameAuras[name]
       end
       
       index = index + 1     
    end
    
-   if (aura and aura ~= self.frame[unit].aura) then   
+   if (aura) then   
+      if (aura == self.frame[unit].aura and auraExpires <= self.frame[unit].expires) then
+         return
+      end
+   
       -- display aura
       self.frame[unit].active = true
       self.frame[unit].aura = aura
-      self.frame[unit].duration = auraDuration
+      self.frame[unit].expires = auraExpires
    
       self.frame[unit].texture:SetTexture(self.frame[unit].icon)
       
@@ -133,7 +137,8 @@ function ClassIcon:UpdateAura(unit)
       self.frame[unit].aura = nil
       self.frame[unit].icon = nil
       self.frame[unit].priority = 0
-      self.frame[unit].timeleft = 0     
+      self.frame[unit].timeleft = 0
+      self.frame[unit].expires = 0    
       
       Gladius:Call(Gladius.modules.Timer, "HideTimer", self.frame[unit])
       self:SetClassIcon(unit)
@@ -300,7 +305,7 @@ function ClassIcon:Reset(unit)
    -- reset frame
    self.frame[unit].active = false
    self.frame[unit].aura = nil
-   self.frame[unit].duration = 0
+   self.frame[unit].expires = 0
    self.frame[unit].priority = 0
    
    self.frame[unit]:SetScript("OnUpdate", nil)

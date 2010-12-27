@@ -18,11 +18,12 @@ Gladius:SetModule(TargetBar, "TargetBar", true, true, {
    targetBarInverse = false,
    targetBarColor = { r = 1, g = 1, b = 1, a = 1 },
    targetBarClassColor = true,
-   targetBarBackgroundColor = { r = 1, g = 1, b = 1, a = 0 },
+   targetBarBackgroundColor = { r = 1, g = 1, b = 1, a = 0.3 },
    targetBarTexture = "Minimalist", 
    
    targetBarIconPosition = "LEFT",
    targetBarIcon = true,
+   targetBarIconCrop = false,
    
    targetBarOffsetX = 10,
    targetBarOffsetY = 0,  
@@ -116,18 +117,31 @@ function TargetBar:SetClassIcon(unit)
    else
       class = Gladius.testing[unit].unitClass
    end
+   
+   if (not CLASS_BUTTONS[class]) then
+      self.frame[unit].icon:SetTexture("Interface\\CharacterFrame\\TempPortrait")
+      
+      if (Gladius.db.targetBarIconCrop) then
+         self.frame[unit].texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+      else
+         self.frame[unit].texture:SetTexCoord(0, 1, 0, 1)
+      end
+   else
+      self.frame[unit].icon:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
 
-   self.frame[unit].icon:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
-   
-   local left, right, top, bottom = unpack(CLASS_BUTTONS[class])
-   -- zoom class icon
-   left = left + (right - left) * 0.07
-   right = right - (right - left) * 0.07
-   
-   top = top + (bottom - top) * 0.07
-   bottom = bottom - (bottom - top) * 0.07
-   
-   self.frame[unit].icon:SetTexCoord(left, right, top, bottom)
+      local left, right, top, bottom = unpack(CLASS_BUTTONS[class])
+      
+      if (Gladius.db.targetBarIconCrop) then
+         -- zoom class icon
+         left = left + (right - left) * 0.07
+         right = right - (right - left) * 0.07
+
+         top = top + (bottom - top) * 0.07
+         bottom = bottom - (bottom - top) * 0.07
+      end
+
+      self.frame[unit].icon:SetTexCoord(left, right, top, bottom)
+   end
 end
 
 function TargetBar:UNIT_HEALTH(event, unit)
@@ -242,7 +256,7 @@ function TargetBar:Update(unit)
       
       self.frame[unit].icon:SetWidth(self.frame[unit].frame:GetHeight())
       self.frame[unit].icon:SetHeight(self.frame[unit].frame:GetHeight())      
-      self.frame[unit].icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+      self.frame[unit].icon:SetTexCoord(0, 1, 0, 1)
       
       self.frame[unit].icon:Show()
    else
@@ -491,7 +505,21 @@ function TargetBar:GetOptions()
                      values={ ["LEFT"] = L["LEFT"], ["RIGHT"] = L["RIGHT"] },
                      disabled=function() return not Gladius.dbi.profile.targetBarIcon or not Gladius.dbi.profile.modules[self.name] end,
                      order=35,
-                  }, 
+                  },
+                  sep6 = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=37,
+                  },
+                  targetBarIconCrop = {
+                     type="toggle",
+                     name=L["Target Bar Icon Crop Borders"],
+                     desc=L["Toggle if the target bar icon borders should be cropped or not."],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     hidden=function() return not Gladius.db.advancedOptions end,
+                     order=40,
+                  },
                },
             },
             size = {
