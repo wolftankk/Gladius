@@ -166,7 +166,7 @@ function Clicks:GetOptions()
    }
    
    -- attributes
-   order = 1
+   local order = 1
    for attr,_ in pairs(Gladius.dbi.profile.clickAttributes) do 
       options.attributeList.args[attr] = self:GetAttributeOptionTable(attr, order)      
       order = order + 1

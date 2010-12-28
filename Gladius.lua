@@ -483,7 +483,7 @@ function Gladius:UpdateUnit(unit, module)
 end
 
 function Gladius:ShowUnit(unit, testing, module)
-   if (unit:find("pet")) then return end
+   if (not unit:find("arena") or unit:find("pet")) then return end
    if (not self.buttons[unit]) then return end
    
    -- disable test mode, when there are real arena opponents (happens when entering arena and using /gladius test)
@@ -535,7 +535,7 @@ function Gladius:ShowUnit(unit, testing, module)
 end
 
 function Gladius:TestUnit(unit, module)
-   if (unit:find("pet")) then return end
+   if (not unit:find("arena") or unit:find("pet")) then return end
    
    -- test modules
    for _, m in pairs(self.modules) do
@@ -552,8 +552,10 @@ function Gladius:TestUnit(unit, module)
 end
 
 function Gladius:ResetUnit(unit, module)
-   if (unit:find("pet")) then return end
+   if (not unit:find("arena") or unit:find("pet")) then return end
    if (not self.buttons[unit]) then return end
+   
+   print(unit)
    
    -- reset modules
    for _, m in pairs(self.modules) do

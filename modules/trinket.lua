@@ -290,7 +290,9 @@ function Trinket:Show(unit)
       self.frame[unit].texture:SetTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, "Minimalist"))
       self.frame[unit].texture:SetVertexColor(Gladius.db.trinketGridStyleIconColor.r, Gladius.db.trinketGridStyleIconColor.g, Gladius.db.trinketGridStyleIconColor.b, Gladius.db.trinketGridStyleIconColor.a)
    else
-      if (not testing) then
+      local trinketIcon
+   
+      if (not testing) then    
          if (UnitFactionGroup(unit) == "Horde" and Gladius.db.trinketFaction) then
             trinketIcon = UnitLevel(unit) == 80 and "Interface\\Icons\\INV_Jewelry_Necklace_38" or "Interface\\Icons\\INV_Jewelry_TrinketPVP_02"
          else
@@ -316,6 +318,8 @@ end
 
 function Trinket:Reset(unit)
    -- reset frame
+   local trinketIcon
+   
    if (UnitFactionGroup("player") == "Horde" and Gladius.db.trinketFaction) then
       trinketIcon = "Interface\\Icons\\INV_Jewelry_Necklace_38"
    else

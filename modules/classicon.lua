@@ -320,6 +320,8 @@ end
 function ClassIcon:Test(unit)   
    Gladius.db.aurasFrameAuras = Gladius.db.aurasFrameAuras or self:GetAuraList()
   
+   local aura
+  
    if (unit == "arena1") then
       aura = "Ice Block"
    

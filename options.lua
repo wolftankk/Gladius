@@ -24,7 +24,7 @@ Gladius.defaults = {
    },
 }
 
-function pairsByKeys(t, f)
+local function pairsByKeys(t, f)
    local a = {}
    for n in pairs(t) do table.insert(a, n) end
    table.sort(a, f)

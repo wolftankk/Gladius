@@ -212,7 +212,7 @@ function Tags:UpdateText(unit, text)
             end
             
             -- escape return string
-            funcText = self.func[tag]()
+            local funcText = self.func[tag]()
             if (funcText) then            
                escapedText = string.gsub(funcText(unitParameter) or "", "%%", "%%%%")
             else
