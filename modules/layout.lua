@@ -80,14 +80,12 @@ function Layout:GetOptions()
                      desc=L["Import your layout code."],
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      func=function()
-                        local layout, err = loadstring(string.format([[return %s]], self.Deserialize(self.layout)))
-                        
-                        if (err) then
-                           Gladius:Print(string.format(L["Error while importing layout: %s"], err))
+                        local err, layout = self:Deserialize(self.layout)
+
+                        if (not err) then
+                           Gladius:Print(string.format(L["Error while importing layout: %s"], layout))
                            return
                         end
-                        
-                        layout = layout()
                         
                         local currentLayout = Gladius.dbi:GetCurrentProfile()
                         Gladius.dbi:SetProfile("Import Backup")
@@ -95,6 +93,7 @@ function Layout:GetOptions()
                         Gladius.dbi:SetProfile(currentLayout)
                         Gladius.dbi:ResetProfile()
                         
+                        Gladius.dbi.profile.modules["*"] = true
                         for key, data in pairs(layout) do
                            if (type(data) == "table") then
                               Gladius.dbi.profile[key] = CopyTable(data)
