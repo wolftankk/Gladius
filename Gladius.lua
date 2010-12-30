@@ -96,15 +96,15 @@ function Gladius:OnInitialize()
       end
 	})
 	
-	-- option reset (increase number)
+	--[[ option reset (increase number)
 	self.version = 2
 	
-	if (Gladius.db.version == nil or Gladius.db.version < self.version) then
+	if (self.db.version == nil or self.db.version < self.version) then
       print("Gladius:", "Resetting options...")	
-      Gladius.dbi:ResetProfile()  
+      self.dbi:ResetProfile()  
 	end
 	
-	Gladius.db.version = self.version
+	self.db.version = self.version]]
 	
 	-- localization
 	L = self.L
@@ -158,8 +158,14 @@ function Gladius:OnEnable()
 	for moduleName, module in pairs(self.modules) do
       if (self.db.modules[moduleName]) then
          module:Enable()
+         
+         -- evil haxx
+         self:Call(module, "OnEnable")
       else
          module:Disable()
+         
+         -- evil haxx
+         self:Call(module, "OnDisable")
       end
    end
    
@@ -190,6 +196,9 @@ function Gladius:OnDisable()
    
    for _, module in pairs(self.modules) do
       module:Disable()
+      
+      -- evil haxx
+      self:Call(module, "OnDisable")
    end
 end
 
@@ -231,7 +240,7 @@ function Gladius:JoinedArena()
 	self.testCount = 0
 	
 	-- create and update buttons on first launch
-	local groupSize = max(GetNumPartyMembers()+1, GetNumRaidMembers())
+	local groupSize = max(GetRealNumPartyMembers()+1, GetRealNumRaidMembers())
 	
 	for i=1, groupSize do  
       self:UpdateUnit("arena" .. i)

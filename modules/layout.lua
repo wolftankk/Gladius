@@ -80,6 +80,8 @@ function Layout:GetOptions()
                      desc=L["Import your layout code."],
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      func=function()
+                        if (self.layout == nil or self.layout == "") then return end
+                     
                         local err, layout = self:Deserialize(self.layout)
 
                         if (not err) then

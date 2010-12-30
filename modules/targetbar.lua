@@ -122,9 +122,9 @@ function TargetBar:SetClassIcon(unit)
       self.frame[unit].icon:SetTexture("Interface\\CharacterFrame\\TempPortrait")
       
       if (Gladius.db.targetBarIconCrop) then
-         self.frame[unit].texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+         self.frame[unit].icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
       else
-         self.frame[unit].texture:SetTexCoord(0, 1, 0, 1)
+         self.frame[unit].icon:SetTexCoord(0, 1, 0, 1)
       end
    else
       self.frame[unit].icon:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
