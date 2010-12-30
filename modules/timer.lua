@@ -15,6 +15,8 @@ Gladius:SetModule(Timer, "Timer", false, false, {
    
    timerMinutesFontSize = 14,   
    timerMinutesFontColor = { r = 0, g = 1, b = 0, a = 1 },
+   
+   timerOmniCC = false,
 })
 
 function Timer:OnEnable()   
@@ -115,12 +117,19 @@ end
 
 function Timer:RegisterTimer(frame)    
    local frameName = frame:GetName()
-   _G[frameName .. "Cooldown"].noCooldownCount = true
-
+   
    if (not self.frames[frameName]) then
       self.frames[frameName] = CreateFrame("Frame", "Gladius" .. self.name .. frameName, frame)
       self.frames[frameName].name = frameName
       self.frames[frameName].text = self.frames[frameName]:CreateFontString("Gladius" .. self.name .. frameName .. "Text", "OVERLAY")
+   end
+   
+   if (not Gladius.db.timerOmniCC) then
+      _G[frameName .. "Cooldown"].noCooldownCount = true
+      self.frames[frameName].text:Show()
+   else
+      _G[frameName .. "Cooldown"].noCooldownCount = false
+      self.frames[frameName].text:Hide()
    end
       
    -- update frame   
@@ -153,6 +162,19 @@ function Timer:GetOptions()
                inline=true,                
                order=1,
                args = {
+                  timerOmniCC = {
+                     type="toggle",
+                     name=L["Timer Use OmniCC"],
+                     desc=L["The timer module will use OmniCC for text display"],
+                     disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
+                     order=2,
+                  },
+                  sep = {                     
+                     type = "description",
+                     name="",
+                     width="full",
+                     order=4,
+                  },
                   timerSoonFontColor = {
                      type="color",
                      name=L["Timer Soon Color"],
@@ -171,7 +193,7 @@ function Timer:GetOptions()
                      min=1, max=20, step=1,
                      order=10,
                   },
-                  sep = {                     
+                  sep1 = {                     
                      type = "description",
                      name="",
                      width="full",
