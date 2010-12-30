@@ -564,8 +564,6 @@ function Gladius:ResetUnit(unit, module)
    if (not unit:find("arena") or unit:find("pet")) then return end
    if (not self.buttons[unit]) then return end
    
-   print(unit)
-   
    -- reset modules
    for _, m in pairs(self.modules) do
       if (m:IsEnabled()) then
