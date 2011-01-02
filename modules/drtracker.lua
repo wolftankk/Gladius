@@ -29,6 +29,12 @@ Gladius:SetModule(DRTracker, "DRTracker", false, true, {
    drCategories = {},
 })
 
+function DRTracker:OnInitialize()
+   -- init frames
+   self.frame = {}
+end
+
+
 function DRTracker:OnEnable()   
    self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
    

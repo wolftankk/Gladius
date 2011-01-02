@@ -252,6 +252,8 @@ function Gladius:JoinedArena()
 end
 
 function Gladius:LeftArena()
+   self:HideFrame()
+
    -- reset units
    for unit, _ in pairs(self.buttons) do
       Gladius.buttons[unit]:RegisterForDrag()
@@ -300,6 +302,7 @@ function Gladius:UpdateFrame()
       if (self.testCount >= unitId) then      
          -- update frame will only be called in the test environment
          self:UpdateUnit(unit)
+         
          if (not self.buttons[unit] or self.buttons[unit]:GetAlpha() < 1) then
             self:ShowUnit(unit, true)
          end

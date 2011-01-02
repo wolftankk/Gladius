@@ -59,10 +59,21 @@ end
 
 SLASH_GLADIUS1 = "/gladius"
 SlashCmdList["GLADIUS"] = function(msg)
-   if (msg:find("test") and not Gladius.test) then       
-      local test = tonumber(msg:match("^test (.+)"))
-      if (not test or test > 5 or test < 2 or test == 4) then
-         test = 5
+   if (msg:find("test") and not Gladius.test) then  
+      local test
+   
+      if (msg == "test2") then
+         test = 2
+      elseif (msg == "test3") then
+         test = 3
+      elseif (msg == "test5") then
+         test = 2
+      else
+         test = tonumber(msg:match("^test (.+)"))
+         
+         if (not test or test > 5 or test < 2 or test == 4) then
+            test = 5
+         end
       end
       
       Gladius.testCount = test
@@ -184,8 +195,14 @@ function Gladius:SetupModule(key, module, order)
          
          if (v) then
             self:EnableModule(module)
+            
+            -- evil haxx
+            self:Call(self.modules[module], "OnEnable")
          else
             self:DisableModule(module)
+            
+            -- evil haxx
+            self:Call(self.modules[module], "OnDisable")
          end 
          
          self:UpdateFrame()

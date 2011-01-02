@@ -32,6 +32,11 @@ Gladius:SetModule(TargetBar, "TargetBar", true, true, {
    targetBarRelativePoint = "TOPRIGHT",
 }, { "Target bar with class icon", "Class icon on health bar" })
 
+function TargetBar:OnInitialize()
+   -- init frames
+   self.frame = {}
+end
+
 function TargetBar:OnEnable()   
    self:RegisterEvent("UNIT_HEALTH")
    self:RegisterEvent("UNIT_MAXHEALTH", "UNIT_HEALTH")

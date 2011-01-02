@@ -85,6 +85,13 @@ function Clicks:ApplyAttributes(unit, frame)
    end   
 end
 
+function Clicks:Test(unit)
+   -- set arena1 to player
+   for frame, _ in pairs(self.secureFrames[unit]) do
+      frame:SetAttribute("unit", "player")
+   end
+end
+
 local function getOption(info)
    local key = info[#info - 2]
    return Gladius.dbi.profile.clickAttributes[key][info[#info]]
