@@ -51,7 +51,7 @@ function Gladius:NewModule(key, bar, attachTo, defaults, templates)
    -- event handling
    module:SetScript("OnEvent", function(self, event, ...)
       if (type(self[event]) == "function") then
-         self[event](self, ...)
+         self[event](self, event, ...)
       end
    end)
    
