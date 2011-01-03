@@ -1,15 +1,19 @@
-﻿Gladius = CreateFrame("Frame")
+﻿Gladius = {}
+Gladius.eventHandler = CreateFrame("Frame")
+Gladius.eventHandler.events = {}
 
-Gladius:RegisterEvent("PLAYER_LOGIN")
-Gladius:RegisterEvent("ADDON_LOADED")
-Gladius:SetScript("OnEvent", function(self, event, ...)
+Gladius.eventHandler:RegisterEvent("PLAYER_LOGIN")
+Gladius.eventHandler:RegisterEvent("ADDON_LOADED")
+Gladius.eventHandler:SetScript("OnEvent", function(self, event, ...)
 	if (event == "PLAYER_LOGIN") then
-		self:OnInitialize()
-		self:OnEnable()
-		self:UnregisterEvent("PLAYER_LOGIN")
-   else
-      if (type(self[event]) == "function") then
-         self[event](self, event, ...)
+		Gladius:OnInitialize()
+		Gladius:OnEnable()
+		Gladius.eventHandler:UnregisterEvent("PLAYER_LOGIN")
+   else   
+      local func = self.events[event]
+      
+      if (type(Gladius[func]) == "function") then         
+         Gladius[func](Gladius, event, ...)
       end
 	end
 end)
@@ -45,47 +49,86 @@ function Gladius:SendMessage(event, ...)
    end
 end
 
+function Gladius:RegisterEvent(event, func)
+   self.eventHandler.events[event] = func or event
+   self.eventHandler:RegisterEvent(event)
+end
+
+function Gladius:UnregisterEvent(event)
+   self.eventHandler.events[event] = nil
+   self.eventHandler:UnregisterEvent(event)
+end
+
+
+function Gladius:UnregisterAllEvents()
+   self.eventHandler:UnregisterAllEvents()
+end
+
 function Gladius:NewModule(key, bar, attachTo, defaults, templates)
-   local module = CreateFrame("Frame")
+   local module = {}
+   module.eventHandler = CreateFrame("Frame")
    
    -- event handling
-   module:SetScript("OnEvent", function(self, event, ...)
-      if (type(self[event]) == "function") then
-         self[event](self, event, ...)
+   module.eventHandler.events = {}
+   module.eventHandler.messages = {}
+   
+   module.eventHandler:SetScript("OnEvent", function(self, event, ...)   
+      local func = module.eventHandler.events[event]
+      
+      if (type(module[func]) == "function") then         
+         module[func](module, event, ...)
       end
    end)
    
+   module.RegisterEvent = function(self, event, func)   
+      self.eventHandler.events[event] = func or event
+      self.eventHandler:RegisterEvent(event)
+   end
+   
+   module.UnregisterEvent = function(self, event)   
+      self.eventHandler.events[event] = nil
+      self.eventHandler:UnregisterEvent(event)
+   end
+   
+   module.UnregisterAllEvents = function(self)
+      self.eventHandler:UnregisterAllEvents()
+   end
+   
    -- module status
-   module.Enable = function()
-      if (not module.enabled) then
-         module.enabled = true
+   module.Enable = function(self)
+      if (not self.enabled) then
+         self.enabled = true
          
-         if (type(module.OnDisable) == "function") then
-            module:OnEnable()
+         if (type(self.OnDisable) == "function") then
+            self:OnEnable()
          end
       end
    end
    
-   module.Disable = function()
-      if (module.enabled) then
-         module.enabled = false
+   module.Disable = function(self)
+      if (self.enabled) then
+         self.enabled = false
          
-         if (type(module.OnDisable) == "function") then
-            module:OnDisable()
+         if (type(self.OnDisable) == "function") then
+            self:OnDisable()
          end
       end
    end
    
-   module.IsEnabled = function()
-      return module.enabled
+   module.IsEnabled = function(self)
+      return self.enabled
    end
    
    -- message system
-   module.RegisterMessage = function(event, func)
-      module.messages[event] = func or module[event]
+   module.RegisterMessage = function(self, event, func)
+      self.eventHandler.messages[event] = func or self[event]
    end
    
-   module.SendMessage = Gladius.SendMessage
+   module.SendMessage = function(self, event, ...)
+      for _, module in pairs(Gladius.modules) do
+         self:Call(module, module.eventHandler.messages[event], ...)         
+      end
+   end
 
    -- register module
    module.name = key
@@ -497,6 +540,9 @@ function Gladius:UpdateUnit(unit, module)
    self.buttons[unit].secure:Show()
    self.buttons[unit].secure:SetAlpha(0)
    
+   self.buttons[unit]:SetFrameStrata("LOW")
+   self.buttons[unit].secure:SetFrameStrata("HIGH")
+   
    -- update background
    if (unit == "arena1") then
       local left, right = self.buttons[unit]:GetHitRectInsets()
@@ -577,10 +623,7 @@ function Gladius:ShowUnit(unit, testing, module)
       self.test = false 
    end
    
-   self.buttons[unit]:SetFrameStrata("LOW")
    self.buttons[unit]:SetAlpha(1)   
-   
-   self.buttons[unit].secure:SetFrameStrata("HIGH")
    self.buttons[unit].secure:SetAlpha(1)
    
    for _, m in pairs(self.modules) do

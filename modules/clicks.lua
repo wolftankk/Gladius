@@ -52,8 +52,8 @@ function Clicks:GetSecureFrames(unit)
    self:RegisterSecureFrame(unit, Gladius.buttons[unit].secure)
  
    -- Find secure frames in other modules
-   for _,m in pairs(Gladius.modules) do
-      local frame = Gladius:GetParent(unit, m:GetName())
+   for m, _ in pairs(Gladius.modules) do
+      local frame = Gladius:GetParent(unit, m)
       if (frame and frame.secure) then
          self:RegisterSecureFrame(unit, frame.secure)
       end
@@ -173,7 +173,7 @@ function Clicks:GetOptions()
    
    -- attributes
    local order = 1
-   for attr,_ in pairs(Gladius.dbi.profile.clickAttributes) do 
+   for attr, _ in pairs(Gladius.dbi.profile.clickAttributes) do 
       options.attributeList.args[attr] = self:GetAttributeOptionTable(attr, order)      
       order = order + 1
    end   
