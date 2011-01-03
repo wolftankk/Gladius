@@ -5,8 +5,7 @@ end
 local L = Gladius.L
 local LSM
 
-local HealthBar = Gladius:NewModule("HealthBar", "AceEvent-3.0")
-Gladius:SetModule(HealthBar, "HealthBar", true, true, {
+local HealthBar = Gladius:NewModule("HealthBar", true, true, {
    healthBarAttachTo = "Frame",
    
    healthBarHeight = 25,
@@ -111,7 +110,7 @@ end
 function HealthBar:CreateBar(unit)
    local button = Gladius.buttons[unit]
    if (not button) then return end       
-   
+
    -- create bar + text
    self.frame[unit] = CreateFrame("STATUSBAR", "Gladius" .. self.name .. unit, button) 
    self.frame[unit].background = self.frame[unit]:CreateTexture("Gladius" .. self.name .. unit .. "Background", "BACKGROUND") 

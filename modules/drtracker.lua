@@ -7,8 +7,7 @@ local LSM
 
 local DRData = LibStub("DRData-1.0")
 
-local DRTracker = Gladius:NewModule("DRTracker", "AceEvent-3.0")
-Gladius:SetModule(DRTracker, "DRTracker", false, true, {
+local DRTracker = Gladius:NewModule("DRTracker", false, true, {
    drTrackerAttachTo = "ClassIcon",
    drTrackerAnchor = "TOPRIGHT",
    drTrackerRelativePoint = "TOPLEFT",
@@ -48,10 +47,8 @@ end
 function DRTracker:OnDisable()
    self:UnregisterAllEvents()
    
-   for unit in pairs(self.frame) do
-      for _, t in pairs(self.frame[unit].tracker) do
-         t:SetAlpha(0)
-      end
+   for _, frame in pairs(self.frame) do
+      frame:SetAlpha(0)
    end
 end
 

@@ -5,8 +5,7 @@ end
 local L = Gladius.L
 local LSM
 
-local CastBar = Gladius:NewModule("CastBar", "AceEvent-3.0")
-Gladius:SetModule(CastBar, "CastBar", true, true, {
+local CastBar = Gladius:NewModule("CastBar", true, true, {
    castBarAttachTo = "ClassIcon",
    
    castBarHeight = 12,

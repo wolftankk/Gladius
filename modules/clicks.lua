@@ -4,8 +4,7 @@ if not Gladius then
 end
 local L = Gladius.L
 
-local Clicks = Gladius:NewModule("Clicks", "AceEvent-3.0")
-Gladius:SetModule(Clicks, "Clicks", false, false, {
+local Clicks = Gladius:NewModule("Clicks", false, false, {
    clickAttributes = {
       ["Left"] = { button = "1", modifier = "", action = "target", macro = ""},
       ["Right"] = { button = "2", modifier = "", action = "focus", macro = ""},

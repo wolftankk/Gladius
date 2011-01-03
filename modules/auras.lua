@@ -5,8 +5,7 @@ end
 local L = Gladius.L
 local LSM
 
-local Auras = Gladius:NewModule("Auras", "AceEvent-3.0")
-Gladius:SetModule(Auras, "Auras", false, true, {
+local Auras = Gladius:NewModule("Auras", false, true, {
    aurasBuffsAttachTo = "CastBar",
    aurasBuffsAnchor = "TOPLEFT",
    aurasBuffsRelativePoint = "BOTTOMLEFT",

@@ -1,10 +1,27 @@
-﻿Gladius = LibStub("AceAddon-3.0"):NewAddon("Gladius", "AceEvent-3.0")
+﻿Gladius = CreateFrame("Frame")
+
+Gladius:RegisterEvent("PLAYER_LOGIN")
+Gladius:RegisterEvent("ADDON_LOADED")
+Gladius:SetScript("OnEvent", function(self, event, ...)
+	if (event == "PLAYER_LOGIN") then
+		self:OnInitialize()
+		self:OnEnable()
+		self:UnregisterEvent("PLAYER_LOGIN")
+   else
+      if (type(self[event]) == "function") then
+         self[event](self, ...)
+      end
+	end
+end)
+
+Gladius.modules = {}
+Gladius.defaults = {}
 
 local L
 
 function Gladius:Call(handler, func, ...)
    -- module disabled, return   
-   if (handler.IsEnabled and not handler:IsEnabled()) then
+   if (not handler.IsEnabled) then
       return
    end
 
@@ -22,24 +39,70 @@ function Gladius:Print(...)
    print("|cff33ff99Gladius|r:", ...)
 end
 
-function Gladius:SetModule(module, key, bar, attachTo, defaults, templates)
-   if (not self.modules) then 
-      self.modules = {} 
+function Gladius:SendMessage(event, ...)
+   for _, module in pairs(self.modules) do
+      self:Call(module, module.messages[event], ...)         
    end
+end
+
+function Gladius:NewModule(key, bar, attachTo, defaults, templates)
+   local module = CreateFrame("Frame")
+   
+   -- event handling
+   module:SetScript("OnEvent", function(self, event, ...)
+      if (type(self[event]) == "function") then
+         self[event](self, ...)
+      end
+   end)
+   
+   -- module status
+   module.Enable = function()
+      if (not module.enabled) then
+         module.enabled = true
+         
+         if (type(module.OnDisable) == "function") then
+            module:OnEnable()
+         end
+      end
+   end
+   
+   module.Disable = function()
+      if (module.enabled) then
+         module.enabled = false
+         
+         if (type(module.OnDisable) == "function") then
+            module:OnDisable()
+         end
+      end
+   end
+   
+   module.IsEnabled = function()
+      return module.enabled
+   end
+   
+   -- message system
+   module.RegisterMessage = function(event, func)
+      module.messages[event] = func or module[event]
+   end
+   
+   module.SendMessage = Gladius.SendMessage
 
    -- register module
-   self.modules[key] = module
    module.name = key
    module.isBarOption = bar
    --module.isBar = bar
    module.defaults = defaults
    module.attachTo = attachTo
    module.templates = templates
+   module.messages = {}
+   self.modules[key] = module
    
    -- set db defaults
    for k,v in pairs(defaults) do
       self.defaults.profile[k] = v
    end
+   
+   return module
 end
 
 function Gladius:GetParent(unit, module)  
@@ -66,6 +129,18 @@ function Gladius:GetParent(unit, module)
       
       return nil
    end
+end
+
+function Gladius:EnableModule(name)
+   self:Call(self.modules[name], "Enable")
+end
+
+function Gladius:DisableModule(name)
+   self:Call(self.modules[name], "Disable")
+end
+
+function Gladius:GetModule(name)
+   return self.modules[name]
 end
 
 function Gladius:GetModules(module)
@@ -105,7 +180,7 @@ function Gladius:OnInitialize()
 	end
 	
 	self.db.version = self.version]]
-	
+		
 	-- localization
 	L = self.L
 	
@@ -141,11 +216,11 @@ function Gladius:OnInitialize()
 		SlashCmdList["GLADIUS"]("hide")
 		
 		ClickCastFrames = ClickCastFrames or {}
-		ClickCastFrames[GladiusButtonFrame1] = true
-		ClickCastFrames[GladiusButtonFrame2] = true
-		ClickCastFrames[GladiusButtonFrame3] = true
-		ClickCastFrames[GladiusButtonFrame4] = true
-		ClickCastFrames[GladiusButtonFrame5] = true
+		ClickCastFrames[GladiusButtonFramearena1] = true
+		ClickCastFrames[GladiusButtonFramearena2] = true
+		ClickCastFrames[GladiusButtonFramearena3] = true
+		ClickCastFrames[GladiusButtonFramearena4] = true
+		ClickCastFrames[GladiusButtonFramearena5] = true
 	end
 end
 
@@ -158,14 +233,8 @@ function Gladius:OnEnable()
 	for moduleName, module in pairs(self.modules) do
       if (self.db.modules[moduleName]) then
          module:Enable()
-         
-         -- evil haxx
-         self:Call(module, "OnEnable")
       else
          module:Disable()
-         
-         -- evil haxx
-         self:Call(module, "OnDisable")
       end
    end
    
@@ -354,7 +423,7 @@ function Gladius:UpdateUnit(unit, module)
    -- reset hit rect
    self.buttons[unit]:SetHitRectInsets(0, 0, 0, 0) 
    self.buttons[unit].secure:SetHitRectInsets(0, 0, 0, 0)
-   
+
    -- update modules (bars first, because we need the height)
    for _, m in pairs(self.modules) do
       if (m:IsEnabled()) then

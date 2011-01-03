@@ -5,8 +5,7 @@ end
 local L = Gladius.L
 local LSM
 
-local Layout = Gladius:NewModule("Layout", "AceEvent-3.0", "AceSerializer-3.0")
-Gladius:SetModule(Layout, "Layout", false, false, {
+local Layout = Gladius:NewModule("Layout", false, false, {
 })
 
 function Layout:OnEnable()   
@@ -82,7 +81,7 @@ function Layout:GetOptions()
                      func=function()
                         if (self.layout == nil or self.layout == "") then return end
                      
-                        local err, layout = self:Deserialize(self.layout)
+                        local err, layout = LibStub("AceSerializer-3.0"):Deserialize(self.layout)
 
                         if (not err) then
                            Gladius:Print(string.format(L["Error while importing layout: %s"], layout))
@@ -115,7 +114,7 @@ function Layout:GetOptions()
                      disabled=function() return not Gladius.dbi.profile.modules[self.name] end,
                      func=function()
                         local t = CopyTable(Gladius.dbi.profile)
-                        self.layout = self:Serialize(SerializeTable(t, Gladius.defaults.profile)   )
+                        self.layout = LibStub("AceSerializer-3.0"):Serialize(SerializeTable(t, Gladius.defaults.profile)   )
                      end,
                      order=15,
                   },

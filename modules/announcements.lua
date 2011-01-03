@@ -4,8 +4,7 @@ if not Gladius then
 end
 local L = Gladius.L
 
-local Announcements = Gladius:NewModule("Announcements", "AceEvent-3.0")
-Gladius:SetModule(Announcements, "Announcements", false, false, {
+local Announcements = Gladius:NewModule("Announcements", false, false, {
    announcements = {
       drinks = true,
       enemies = true,

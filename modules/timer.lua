@@ -5,8 +5,7 @@ end
 local L = Gladius.L
 local LSM
 
-local Timer = Gladius:NewModule("Timer", "AceEvent-3.0")
-Gladius:SetModule(Timer, "Timer", false, false, {
+local Timer = Gladius:NewModule("Timer", false, false, {
    timerSoonFontSize = 18,   
    timerSoonFontColor = { r = 1, g = 0, b = 0, a = 1 },
    

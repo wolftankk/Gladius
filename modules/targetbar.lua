@@ -5,8 +5,7 @@ end
 local L = Gladius.L
 local LSM
 
-local TargetBar = Gladius:NewModule("TargetBar", "AceEvent-3.0")
-Gladius:SetModule(TargetBar, "TargetBar", true, true, {
+local TargetBar = Gladius:NewModule("TargetBar", true, true, {
    targetBarAttachTo = "Trinket",
    
    targetBarEnableBar = true,

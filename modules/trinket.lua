@@ -5,8 +5,7 @@ end
 local L = Gladius.L
 local LSM
 
-local Trinket = Gladius:NewModule("Trinket", "AceEvent-3.0")
-Gladius:SetModule(Trinket, "Trinket", false, true, {
+local Trinket = Gladius:NewModule("Trinket", false, true, {
    trinketAttachTo = "Frame",
    trinketAnchor = "TOPLEFT",
    trinketRelativePoint = "TOPRIGHT",

@@ -5,8 +5,7 @@ end
 local L = Gladius.L
 local LSM
 
-local ClassIcon = Gladius:NewModule("ClassIcon", "AceEvent-3.0")
-Gladius:SetModule(ClassIcon, "ClassIcon", false, true, {
+local ClassIcon = Gladius:NewModule("ClassIcon", false, true, {
    classIconAttachTo = "Frame",
    classIconAnchor = "TOPRIGHT",
    classIconRelativePoint = "TOPLEFT",

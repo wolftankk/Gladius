@@ -6,8 +6,7 @@ end
 local L = Gladius.L
 local LSM
 
-local Tags = Gladius:NewModule("Tags", "AceEvent-3.0")
-Gladius:SetModule(Tags, "Tags", false, false, {
+local Tags = Gladius:NewModule("Tags", false, false, {
    tagsTexts = {
       ["HealthBar Left Text"] = {
          attachTo = "HealthBar",

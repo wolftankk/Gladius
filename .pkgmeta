@@ -1,24 +1,16 @@
 externals:
-    libs/AceAddon-3.0:
-        url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceAddon-3.0
     libs/AceSerializer-3.0:
         url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceSerializer-3.0
-    libs/AceConsole-3.0:
-        url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceConsole-3.0
     libs/AceConfig-3.0:
         url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceConfig-3.0
     libs/AceDB-3.0:
         url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceDB-3.0
     libs/AceDBOptions-3.0:
         url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceDBOptions-3.0
-    libs/AceEvent-3.0:
-        url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceEvent-3.0
     libs/AceGUI-3.0:
         url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceGUI-3.0
     libs/AceGUI-3.0-SharedMediaWidgets:
         url: svn://svn.wowace.com/wow/ace-gui-3-0-shared-media-widgets/mainline/trunk/AceGUI-3.0-SharedMediaWidgets
-    libs/AceLocale-3.0:
-        url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceLocale-3.0
     libs/CallBackHandler-1.0: 
         url: svn://svn.wowace.com/wow/ace3/mainline/trunk/CallbackHandler-1.0
     libs/LibSharedMedia-3.0:

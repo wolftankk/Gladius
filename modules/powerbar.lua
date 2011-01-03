@@ -5,8 +5,7 @@ end
 local L = Gladius.L
 local LSM
 
-local PowerBar = Gladius:NewModule("PowerBar", "AceEvent-3.0")
-Gladius:SetModule(PowerBar, "PowerBar", true, true, {
+local PowerBar = Gladius:NewModule("PowerBar", true, true, {
    powerBarAttachTo = "HealthBar",
    
    powerBarHeight = 15,

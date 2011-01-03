@@ -5,8 +5,7 @@ end
 local L = Gladius.L
 local LSM
 
-local Highlight = Gladius:NewModule("Highlight", "AceEvent-3.0")
-Gladius:SetModule(Highlight, "Highlight", false, false, {
+local Highlight = Gladius:NewModule("Highlight", false, false, {
    highlightHover = true,
    highlightHoverColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 },
    
