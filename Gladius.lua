@@ -9,7 +9,7 @@ Gladius:SetScript("OnEvent", function(self, event, ...)
 		self:UnregisterEvent("PLAYER_LOGIN")
    else
       if (type(self[event]) == "function") then
-         self[event](self, ...)
+         self[event](self, event, ...)
       end
 	end
 end)
