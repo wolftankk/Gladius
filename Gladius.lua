@@ -251,20 +251,6 @@ function Gladius:OnInitialize()
 	
 	-- buttons
    self.buttons = {}
-   
-   -- clique
-   if (IsAddOnLoaded("Clique")) then
-      -- this is a more evil haxx than the welcome message haxx!
-		SlashCmdList["GLADIUS"]("test 5")
-		SlashCmdList["GLADIUS"]("hide")
-		
-		ClickCastFrames = ClickCastFrames or {}
-		ClickCastFrames[GladiusButtonFramearena1] = true
-		ClickCastFrames[GladiusButtonFramearena2] = true
-		ClickCastFrames[GladiusButtonFramearena3] = true
-		ClickCastFrames[GladiusButtonFramearena4] = true
-		ClickCastFrames[GladiusButtonFramearena5] = true
-	end
 end
 
 function Gladius:OnEnable()
@@ -294,6 +280,22 @@ function Gladius:OnEnable()
 		self:Print(L["/gladius hide"])
 		self:Print(L["/gladius reset"])
 		self:Print(L["If this is not your first run please lock or move the frame to prevent this from happening."])
+	end
+	
+	-- clique
+   if (IsAddOnLoaded("Clique")) then
+      -- this is a more evil haxx than the welcome message haxx!
+		SlashCmdList["GLADIUS"]("test 5")
+		SlashCmdList["GLADIUS"]("hide")
+		
+		print(self.buttons.arena1)
+		
+		ClickCastFrames = ClickCastFrames or {}
+		ClickCastFrames[self.buttons.arena1.secure] = true
+		ClickCastFrames[self.buttons.arena2.secure] = true
+		ClickCastFrames[self.buttons.arena3.secure] = true
+		ClickCastFrames[self.buttons.arena4.secure] = true
+		ClickCastFrames[self.buttons.arena5.secure] = true
 	end
 	
 	-- see if we are already in arena
