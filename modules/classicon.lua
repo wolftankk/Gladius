@@ -284,7 +284,7 @@ function ClassIcon:Update(unit)
    end
    
    self.frame[unit].cooldown:SetReverse(Gladius.db.classIconCooldownReverse)
-   Gladius:Call(Gladius.modules.Timer, "RegisterTimer", self.frame[unit])
+   Gladius:Call(Gladius.modules.Timer, "RegisterTimer", self.frame[unit], Gladius.db.classIconCooldown)
          
    -- hide
    self.frame[unit]:SetAlpha(0)

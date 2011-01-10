@@ -273,7 +273,7 @@ function Trinket:Update(unit)
    end
    
    self.frame[unit].cooldown:SetReverse(Gladius.db.trinketCooldownReverse)
-   Gladius:Call(Gladius.modules.Timer, "RegisterTimer", self.frame[unit])
+   Gladius:Call(Gladius.modules.Timer, "RegisterTimer", self.frame[unit], Gladius.db.trinketCooldown)
    
    -- hide
    self.frame[unit]:SetAlpha(0)
@@ -334,7 +334,7 @@ function Trinket:Reset(unit)
    self.frame[unit]:SetScript("OnUpdate", nil)
    
    -- reset cooldown
-   self.frame[unit].cooldown:SetCooldown(GetTime(), 0)
+   Gladius:Call(Gladius.modules.Timer, "HideTimer", self.frame[unit])
    
    -- hide
 	self.frame[unit]:SetAlpha(0)
@@ -342,6 +342,9 @@ end
 
 function Trinket:Test(unit)   
    -- test
+   if (unit == "arena1") then
+      self:UpdateTrinket(unit, 120)
+   end
 end
 
 -- Add the announcement toggle

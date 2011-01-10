@@ -131,7 +131,7 @@ function Gladius:NewModule(key, bar, attachTo, defaults, templates)
    end
 
    -- register module
-   module.name = key
+   module.name = string.format("Gladius_%s", key)
    module.isBarOption = bar
    --module.isBar = bar
    module.defaults = defaults
@@ -288,8 +288,6 @@ function Gladius:OnEnable()
 		SlashCmdList["GLADIUS"]("test 5")
 		SlashCmdList["GLADIUS"]("hide")
 		
-		print(self.buttons.arena1)
-		
 		ClickCastFrames = ClickCastFrames or {}
 		ClickCastFrames[self.buttons.arena1.secure] = true
 		ClickCastFrames[self.buttons.arena2.secure] = true
@@ -437,12 +435,12 @@ function Gladius:HideFrame()
    
    -- hide background
    if (self.background) then
-      self.background:Hide()
+      self.background:SetAlpha(0)
    end
    
    -- hide anchor
    if (self.anchor) then
-      self.anchor:Hide()
+      self.anchor:SetAlpha(0)
    end
 end
 

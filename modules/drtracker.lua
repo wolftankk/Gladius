@@ -60,12 +60,58 @@ function DRTracker:GetFrame(unit)
    return self.frame[unit]
 end
 
+function DRTracker:UpdateIcon(unit, drCat)
+   local tracked = self.frame[unit].tracker[drCat]
+
+   tracked:EnableMouse(false)
+   tracked.reset = 0
+   
+   tracked:SetWidth(self.frame[unit]:GetHeight())
+   tracked:SetHeight(self.frame[unit]:GetHeight())
+   
+   tracked:SetNormalTexture("Interface\\AddOns\\Gladius2\\images\\gloss")
+   tracked.texture = _G[tracked:GetName().."Icon"]
+   tracked.normalTexture = _G[tracked:GetName().."NormalTexture"]
+   tracked.cooldown = _G[tracked:GetName().."Cooldown"]
+   
+   -- cooldown
+   if (Gladius.db.drTrackerCooldown) then
+      tracked.cooldown:Show()
+   else
+      tracked.cooldown:Hide()
+   end
+   
+   tracked.cooldown:SetReverse(Gladius.db.drTrackerCooldownReverse)
+   Gladius:Call(Gladius.modules.Timer, "RegisterTimer", tracked, Gladius.db.drTrackerCooldown)
+
+   tracked.text = tracked:CreateFontString(nil, "OVERLAY")
+   tracked.text:SetDrawLayer("OVERLAY")
+   tracked.text:SetJustifyH("RIGHT")
+   tracked.text:SetPoint("BOTTOMRIGHT", tracked, -2, 0)
+   tracked.text:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.globalFont), Gladius.db.drFontSize, "OUTLINE")
+   tracked.text:SetTextColor(Gladius.db.drFontColor.r, Gladius.db.drFontColor.g, Gladius.db.drFontColor.b, Gladius.db.drFontColor.a)
+   
+   -- style action button
+   tracked.normalTexture:SetHeight(self.frame[unit]:GetHeight() + self.frame[unit]:GetHeight() * 0.4)
+   tracked.normalTexture:SetWidth(self.frame[unit]:GetWidth() + self.frame[unit]:GetWidth() * 0.4)
+   
+   tracked.normalTexture:ClearAllPoints()
+   tracked.normalTexture:SetPoint("CENTER", 0, 0)
+   tracked:SetNormalTexture("Interface\\AddOns\\Gladius2\\images\\gloss")
+   
+   tracked.texture:ClearAllPoints()
+   tracked.texture:SetPoint("TOPLEFT", tracked, "TOPLEFT")
+   tracked.texture:SetPoint("BOTTOMRIGHT", tracked, "BOTTOMRIGHT")
+   tracked.texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+   
+   tracked.normalTexture:SetVertexColor(Gladius.db.trinketGlossColor.r, Gladius.db.trinketGlossColor.g, 
+      Gladius.db.trinketGlossColor.b, Gladius.db.trinketGloss and Gladius.db.trinketGlossColor.a or 0)
+end
+
 function DRTracker:DRFaded(unit, spellID)
 	local drCat = DRData:GetSpellCategory(spellID)
 	if (Gladius.db.drCategories[drCat] == false) then return end
 
-	local tracked = self.frame[unit].tracker[drCat]
-	
 	local drTexts = {
       [1] = { "\194\189", 0, 1, 0 },
       [0.5] = { "\194\188", 1, 0.65,0 },
@@ -73,53 +119,13 @@ function DRTracker:DRFaded(unit, spellID)
       [0] = { "%", 1, 0, 0 },
    }
 
-	if (not tracked) then
-		tracked = CreateFrame("CheckButton", "Gladius" .. self.name .. "FrameCat" .. drCat .. unit, self.frame[unit], "ActionButtonTemplate")
-		tracked:EnableMouse(false)
-		tracked.reset = 0
-		
-		tracked:SetWidth(self.frame[unit]:GetHeight())
-		tracked:SetHeight(self.frame[unit]:GetHeight())
-		
-		tracked:SetNormalTexture("Interface\\AddOns\\Gladius2\\images\\gloss")
-      tracked.texture = _G[tracked:GetName().."Icon"]
-      tracked.normalTexture = _G[tracked:GetName().."NormalTexture"]
-      tracked.cooldown = _G[tracked:GetName().."Cooldown"]
-      
-      -- cooldown
-      if (Gladius.db.drTrackerCooldown) then
-         tracked.cooldown:Show()
-      else
-         tracked.cooldown:Hide()
-      end
-      
-      tracked.cooldown:SetReverse(Gladius.db.drTrackerCooldownReverse)
-      Gladius:Call(Gladius.modules.Timer, "RegisterTimer", tracked)
-
-      tracked.text = tracked:CreateFontString(nil, "OVERLAY")
-		tracked.text:SetDrawLayer("OVERLAY")
-		tracked.text:SetJustifyH("RIGHT")
-		tracked.text:SetPoint("BOTTOMRIGHT", tracked, -2, 0)
-		tracked.text:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.globalFont), Gladius.db.drFontSize, "OUTLINE")
-		tracked.text:SetTextColor(Gladius.db.drFontColor.r, Gladius.db.drFontColor.g, Gladius.db.drFontColor.b, Gladius.db.drFontColor.a)
-      
-      -- style action button
-      tracked.normalTexture:SetHeight(self.frame[unit]:GetHeight() + self.frame[unit]:GetHeight() * 0.4)
-      tracked.normalTexture:SetWidth(self.frame[unit]:GetWidth() + self.frame[unit]:GetWidth() * 0.4)
-      
-      tracked.normalTexture:ClearAllPoints()
-      tracked.normalTexture:SetPoint("CENTER", 0, 0)
-      tracked:SetNormalTexture("Interface\\AddOns\\Gladius2\\images\\gloss")
-      
-      tracked.texture:ClearAllPoints()
-      tracked.texture:SetPoint("TOPLEFT", tracked, "TOPLEFT")
-      tracked.texture:SetPoint("BOTTOMRIGHT", tracked, "BOTTOMRIGHT")
-      tracked.texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
-      
-      tracked.normalTexture:SetVertexColor(Gladius.db.trinketGlossColor.r, Gladius.db.trinketGlossColor.g, 
-         Gladius.db.trinketGlossColor.b, Gladius.db.trinketGloss and Gladius.db.trinketGlossColor.a or 0)
+	if (not self.frame[unit].tracker[drCat]) then
+		self.frame[unit].tracker[drCat] = CreateFrame("CheckButton", "Gladius" .. self.name .. "FrameCat" .. drCat .. unit, self.frame[unit], "ActionButtonTemplate")
+		self:UpdateIcon(unit, drCat)		
 	end
 	
+	local tracked = self.frame[unit].tracker[drCat]
+
    tracked.active = true
    if (tracked and tracked.reset <= GetTime()) then
 		tracked.diminished = 1.0
@@ -154,10 +160,9 @@ function DRTracker:DRFaded(unit, spellID)
       end	
    end)
 
-   self.frame[unit].tracker[drCat] = tracked
+   tracked:SetAlpha(1)
 
 	self:SortIcons(unit)
-	tracked:SetAlpha(1)
 end
 
 function DRTracker:SortIcons(unit)
@@ -248,12 +253,14 @@ function DRTracker:Update(unit)
    if (not self.frame[unit].tracker) then
       self.frame[unit].tracker = {}
    else
-      for _, frame in pairs(self.frame[unit].tracker) do
+      for cat, frame in pairs(self.frame[unit].tracker) do
          frame:SetWidth(self.frame[unit]:GetHeight())         
          frame:SetHeight(self.frame[unit]:GetHeight()) 
          
          frame.normalTexture:SetHeight(self.frame[unit]:GetHeight() + self.frame[unit]:GetHeight() * 0.4)
          frame.normalTexture:SetWidth(self.frame[unit]:GetWidth() + self.frame[unit]:GetWidth() * 0.4)
+         
+         self:UpdateIcon(unit, cat)
       end
       
       self:SortIcons(unit)
@@ -273,6 +280,12 @@ end
 function DRTracker:Reset(unit)
    -- hide icons
    for _, frame in pairs(self.frame[unit].tracker) do
+      frame.active = false
+      frame.diminished = 1
+   
+      Gladius:Call(Gladius.modules.Timer, "HideTimer", frame)
+      frame:SetScript("OnUpdate", nil)
+   
       frame:SetAlpha(0)
    end
    

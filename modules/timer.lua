@@ -62,7 +62,7 @@ function Timer:SetFormattedNumber(frame, number)
          frame:SetTextColor(Gladius.db.timerSoonFontColor.r, Gladius.db.timerSoonFontColor.g, Gladius.db.timerSoonFontColor.b, Gladius.db.timerSoonFontColor.a)
       
          if (number == 0) then
-            frame:SetText("\236")
+            frame:SetText("%")
          else         
             frame:SetText(string.format("%.1f", number))
          end
@@ -82,10 +82,8 @@ function Timer:SetTimer(frame, duration)
    self.frames[frameName].duration = duration
    self.frames[frameName].text:SetAlpha(1)
    
-   if (_G[frameName .. "Cooldown"]:IsShown()) then
-      _G[frameName .. "Cooldown"]:SetCooldown(GetTime(), duration)
-      _G[frameName .. "Cooldown"]:SetAlpha(1)
-   end
+   _G[frameName .. "Cooldown"]:SetCooldown(GetTime(), duration)
+   _G[frameName .. "Cooldown"]:SetAlpha(self.frames[frameName].showSpiral and 1 or 0)
    
    if (duration > 0) then
       self.frames[frameName]:SetScript("OnUpdate", function(f, elapsed)
@@ -114,7 +112,7 @@ function Timer:HideTimer(frame)
    end
 end
 
-function Timer:RegisterTimer(frame)    
+function Timer:RegisterTimer(frame, showSpiral)    
    local frameName = frame:GetName()
    
    if (not self.frames[frameName]) then
@@ -122,6 +120,8 @@ function Timer:RegisterTimer(frame)
       self.frames[frameName].name = frameName
       self.frames[frameName].text = self.frames[frameName]:CreateFontString("Gladius" .. self.name .. frameName .. "Text", "OVERLAY")
    end
+   
+   self.frames[frameName].showSpiral = showSpiral or false
    
    if (not Gladius.db.timerOmniCC) then
       _G[frameName .. "Cooldown"].noCooldownCount = true

@@ -1,5 +1,7 @@
+-- this is just an example localization file
+
 do
-   if (not Gladius.L) then
+   if (GetLocale() == "deDE") then
       Gladius.L = setmetatable({
          ["Frame"] = "Frame",
          ["Welcome to Gladius!"] = "Welcome to Gladius!",

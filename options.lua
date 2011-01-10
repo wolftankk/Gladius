@@ -67,7 +67,7 @@ SlashCmdList["GLADIUS"] = function(msg)
       elseif (msg == "test3") then
          test = 3
       elseif (msg == "test5") then
-         test = 2
+         test = 5
       else
          test = tonumber(msg:match("^test (.+)"))
          

@@ -233,33 +233,33 @@ function Tags:Update(unit)
    end
    
    for text, _ in pairs(Gladius.db.tagsTexts) do
-      if (not Gladius:GetModule(Gladius.db.tagsTexts[text].attachTo) or
-          not Gladius:GetModule(Gladius.db.tagsTexts[text].attachTo).frame or 
-          not Gladius:GetModule(Gladius.db.tagsTexts[text].attachTo).frame[unit]) then return end
+      local module = Gladius:GetModule(Gladius.db.tagsTexts[text].attachTo)
    
-      -- create frame
-      if (not self.frame[unit][text]) then 
-         self:CreateFrame(unit, text)
-      end
-      
-      -- update frame   
-      self.frame[unit][text]:ClearAllPoints()
-      self.frame[unit][text]:SetPoint(Gladius.db.tagsTexts[text].position, Gladius:GetModule(Gladius.db.tagsTexts[text].attachTo).frame[unit], Gladius.db.tagsTexts[text].position, 
-         Gladius.db.tagsTexts[text].offsetX, Gladius.db.tagsTexts[text].offsetY)
+      if (module and module.IsEnabled and module.frame and module.frame[unit]) then   
+         -- create frame
+         if (not self.frame[unit][text]) then 
+            self:CreateFrame(unit, text)
+         end
          
-      self.frame[unit][text]:SetParent(Gladius:GetModule(Gladius.db.tagsTexts[text].attachTo).frame[unit])
-      
-      self.frame[unit][text]:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.globalFont), (Gladius.db.useGlobalFontSize and Gladius.db.globalFontSize or Gladius.db.tagsTexts[text].size))
-      self.frame[unit][text]:SetTextColor(Gladius.db.tagsTexts[text].color.r, Gladius.db.tagsTexts[text].color.g, Gladius.db.tagsTexts[text].color.b, Gladius.db.tagsTexts[text].color.a)
-      
-      self.frame[unit][text]:SetShadowOffset(1, -1)
-      self.frame[unit][text]:SetShadowColor(0, 0, 0, 1)
-      
-      -- update text
-      self:UpdateText(unit, text)
-      
-      -- hide
-      self.frame[unit][text]:SetAlpha(0)
+         -- update frame   
+         self.frame[unit][text]:ClearAllPoints()
+         self.frame[unit][text]:SetPoint(Gladius.db.tagsTexts[text].position, module.frame[unit], Gladius.db.tagsTexts[text].position, 
+            Gladius.db.tagsTexts[text].offsetX, Gladius.db.tagsTexts[text].offsetY)
+            
+         self.frame[unit][text]:SetParent(module.frame[unit])
+         
+         self.frame[unit][text]:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.globalFont), (Gladius.db.useGlobalFontSize and Gladius.db.globalFontSize or Gladius.db.tagsTexts[text].size))
+         self.frame[unit][text]:SetTextColor(Gladius.db.tagsTexts[text].color.r, Gladius.db.tagsTexts[text].color.g, Gladius.db.tagsTexts[text].color.b, Gladius.db.tagsTexts[text].color.a)
+         
+         self.frame[unit][text]:SetShadowOffset(1, -1)
+         self.frame[unit][text]:SetShadowColor(0, 0, 0, 1)
+         
+         -- update text
+         self:UpdateText(unit, text)
+         
+         -- hide
+         self.frame[unit][text]:SetAlpha(0)
+      end
    end
 end
 

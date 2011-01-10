@@ -44,7 +44,7 @@ end
 
 -- Reset throttled messages
 function Announcements:Reset(unit)
-   self.throttled = wipe(self.throttled)
+   self.throttled = {}
    self.enemy = {}
 end
 
@@ -78,7 +78,7 @@ function Announcements:UNIT_HEALTH(event, unit)
    
    local healthPercent = math.floor((UnitHealth(unit) / UnitHealthMax(unit)) * 100)
    if (healthPercent < Gladius.db.announcements.healthThreshold) then
-      self:Send(string.format(L["LOW HEALTH: %s (%s)"], UnitName(unit), UnitClass(unit)), 2, unit)
+      self:Send(string.format(L["LOW HEALTH: %s (%s)"], UnitName(unit), UnitClass(unit)), 10, unit)
    end
 end
 

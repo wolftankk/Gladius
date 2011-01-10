@@ -101,7 +101,6 @@ function Gladius:GetSpecList()
 		[GetSpellInfo(33876)]	= L["Feral"],			   -- Mangle (Cat)
 		[GetSpellInfo(33878)]	= L["Feral"],			   -- Mangle (Bear)
 		[GetSpellInfo(24932)]	= L["Feral"],			   -- Leader of the Pack
-		[GetSpellInfo(768)]	   = L["Feral"],			   -- Cat Form
 		[GetSpellInfo(18562)]	= L["Restoration"],		-- Swiftmend
 		[GetSpellInfo(48438)]	= L["Restoration"],		-- Wild Growth		
 		[GetSpellInfo(33891)]	= L["Restoration"],		-- Tree of Life		
