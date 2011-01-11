@@ -62,7 +62,7 @@ function Timer:SetFormattedNumber(frame, number)
          frame:SetTextColor(Gladius.db.timerSoonFontColor.r, Gladius.db.timerSoonFontColor.g, Gladius.db.timerSoonFontColor.b, Gladius.db.timerSoonFontColor.a)
       
          if (number == 0) then
-            frame:SetText("%")
+            frame:SetText("")
          else         
             frame:SetText(string.format("%.1f", number))
          end

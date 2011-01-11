@@ -131,7 +131,7 @@ function Gladius:NewModule(key, bar, attachTo, defaults, templates)
    end
 
    -- register module
-   module.name = string.format("Gladius_%s", key)
+   module.name = key
    module.isBarOption = bar
    --module.isBar = bar
    module.defaults = defaults

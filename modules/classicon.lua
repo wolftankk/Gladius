@@ -139,7 +139,6 @@ function ClassIcon:UpdateAura(unit)
       self.frame[unit].timeleft = 0
       self.frame[unit].expires = 0    
       
-      Gladius:Call(Gladius.modules.Timer, "HideTimer", self.frame[unit])
       self:SetClassIcon(unit)
    elseif (not aura) then
       self:SetClassIcon(unit)
@@ -148,6 +147,8 @@ end
 
 function ClassIcon:SetClassIcon(unit)
    if (not self.frame[unit]) then return end
+   
+   Gladius:Call(Gladius.modules.Timer, "HideTimer", self.frame[unit])
 
    -- get unit class
    local class
