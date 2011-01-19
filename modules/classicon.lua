@@ -581,6 +581,7 @@ function ClassIcon:GetAuraList()
 		[GetSpellInfo(2094)]	= 3, 	-- Blind
 		[GetSpellInfo(5782)]	= 3, 	-- Fear
 		[GetSpellInfo(6789)]	= 3,	-- Death Coil Warlock
+		[GetSpellInfo(64044)] = 3, -- Psychic Horror
 		[GetSpellInfo(6358)] 	= 3, 	-- Seduction
 		[GetSpellInfo(5484)] 	= 3, 	-- Howl of Terror
 		[GetSpellInfo(5246)] 	= 3, 	-- Intimidating Shout
