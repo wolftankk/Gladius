@@ -577,6 +577,7 @@ function ClassIcon:GetAuraList()
 		[GetSpellInfo(33786)] 	= 3, 	-- Cyclone
 		[GetSpellInfo(2637)] 	= 3,	-- Hibernate
 		[GetSpellInfo(55041)] 	= 3, 	-- Freezing Trap Effect
+		[GetSpellInfo(3355)] = 3, -- Freezing Trap (from trap launcher)
 		[GetSpellInfo(6770)]	= 3, 	-- Sap
 		[GetSpellInfo(2094)]	= 3, 	-- Blind
 		[GetSpellInfo(5782)]	= 3, 	-- Fear
