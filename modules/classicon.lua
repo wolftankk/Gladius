@@ -111,11 +111,7 @@ function ClassIcon:UpdateAura(unit)
       index = index + 1     
    end
    
-   if (aura) then   
-      if (aura == self.frame[unit].aura and auraExpires <= self.frame[unit].expires) then
-         return
-      end
-   
+   if (aura) then      
       -- display aura
       self.frame[unit].active = true
       self.frame[unit].aura = aura
@@ -129,7 +125,11 @@ function ClassIcon:UpdateAura(unit)
          self.frame[unit].texture:SetTexCoord(0, 1, 0, 1)
       end
       
-      Gladius:Call(Gladius.modules.Timer, "SetTimer", self.frame[unit], self.frame[unit].timeleft)
+      local timeLeft = auraExpires - GetTime()
+      local start = GetTime() - (self.frame[unit].timeleft - timeLeft)      
+      self.frame[unit].timeleft = timeLeft
+      
+      Gladius:Call(Gladius.modules.Timer, "SetTimer", self.frame[unit], self.frame[unit].timeleft, start)
    elseif (not aura and self.frame[unit].active) then
       -- reset
       self.frame[unit].active = false

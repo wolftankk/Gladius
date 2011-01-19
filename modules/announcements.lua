@@ -111,6 +111,10 @@ function Announcements:Send(msg, throttle, unit)
    local color = unit and RAID_CLASS_COLORS[UnitClass(unit)] or { r=0, g=1, b=0 }
    local dest = Gladius.db.announcements.dest
    
+   if (not self.throttled) then
+      self.throttled = {}
+   end
+   
    -- Throttling of messages
    if (throttle and throttle > 0) then
       if (not self.throttled[msg]) then

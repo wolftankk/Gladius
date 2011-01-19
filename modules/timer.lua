@@ -70,7 +70,8 @@ function Timer:SetFormattedNumber(frame, number)
    end  
 end
 
-function Timer:SetTimer(frame, duration)
+function Timer:SetTimer(frame, duration, start)
+   local start = start or GetTime()
    local frameName = frame:GetName()
 
    if (not self.frames[frameName]) then
@@ -82,7 +83,7 @@ function Timer:SetTimer(frame, duration)
    self.frames[frameName].duration = duration
    self.frames[frameName].text:SetAlpha(1)
    
-   _G[frameName .. "Cooldown"]:SetCooldown(GetTime(), duration)
+   _G[frameName .. "Cooldown"]:SetCooldown(start, duration)
    _G[frameName .. "Cooldown"]:SetAlpha(self.frames[frameName].showSpiral and 1 or 0)
    
    if (duration > 0) then
@@ -100,6 +101,8 @@ function Timer:SetTimer(frame, duration)
 end
 
 function Timer:HideTimer(frame)
+   if (not self.frames) then return end
+
    local frameName = frame:GetName()
    
    if (_G[frameName .. "Cooldown"]:IsShown()) then

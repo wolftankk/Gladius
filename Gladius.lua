@@ -361,6 +361,16 @@ function Gladius:JoinedArena()
 	
 	-- hide buttons
 	self:HideFrame()
+	
+	-- background
+   if (self.db.groupButtons) then
+      self.background:SetAlpha(1)
+      
+      if (not self.db.locked) then
+         self.anchor:SetAlpha(1)
+         self.anchor:SetFrameStrata("LOW")
+      end
+   end
 end
 
 function Gladius:LeftArena()
@@ -541,7 +551,7 @@ function Gladius:UpdateUnit(unit, module)
    self.buttons[unit].secure:SetAlpha(0)
    
    self.buttons[unit]:SetFrameStrata("LOW")
-   self.buttons[unit].secure:SetFrameStrata("HIGH")
+   self.buttons[unit].secure:SetFrameStrata("LOW")
    
    -- update background
    if (unit == "arena1") then
@@ -633,19 +643,7 @@ function Gladius:ShowUnit(unit, testing, module)
          end
       end
    end
-   
-   -- background
-   if (unit == "arena1") then
-      if (self.db.groupButtons) then
-         self.background:SetAlpha(1)
-         
-         if (not self.db.locked) then
-            self.anchor:SetAlpha(1)
-            self.anchor:SetFrameStrata("HIGH")
-         end
-      end
-   end
-   
+ 
    local maxHeight = 0
    for u, button in pairs(self.buttons) do
       local unitId = tonumber(string.match(u, "^arena(.+)"))  
@@ -671,8 +669,8 @@ function Gladius:TestUnit(unit, module)
 	end
 	
 	-- disable secure frame in test mode so we can move the frame
-   self.buttons[unit]:SetFrameStrata("HIGH")     
-   self.buttons[unit].secure:SetFrameStrata("LOW")
+   self.buttons[unit]:SetFrameStrata("LOW")     
+   self.buttons[unit].secure:SetFrameStrata("BACKGROUND")
 end
 
 function Gladius:ResetUnit(unit, module)
