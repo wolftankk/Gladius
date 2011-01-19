@@ -643,6 +643,16 @@ function Gladius:ShowUnit(unit, testing, module)
          end
       end
    end
+   
+   -- background
+   if (self.db.groupButtons) then
+      self.background:SetAlpha(1)
+      
+      if (not self.db.locked) then
+         self.anchor:SetAlpha(1)
+         self.anchor:SetFrameStrata("LOW")
+      end
+   end
  
    local maxHeight = 0
    for u, button in pairs(self.buttons) do
