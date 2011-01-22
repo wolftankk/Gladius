@@ -649,7 +649,8 @@ function ClassIcon:GetAuraList()
 		[GetSpellInfo(48707)]	= 1,	-- Anti-Magic Shell
 		[GetSpellInfo(31224)]	= 1,	-- Cloak of Shadows
 		[GetSpellInfo(19263)]	= 1,	-- Deterrence
-		[GetSpellInfo(76577)]  = 1, -- Smoke Bomb
+		[GetSpellInfo(76577)]   = 1, -- Smoke Bomb
+		[GetSpellInfo(74001)    = 1, -- Combat Readiness
 		
 		-- Immunities
 		[GetSpellInfo(34692)] 	= 2, 	-- The Beast Within
