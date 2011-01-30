@@ -125,7 +125,7 @@ function ClassIcon:UpdateAura(unit)
          self.frame[unit].texture:SetTexCoord(0, 1, 0, 1)
       end
       
-      local timeLeft = auraExpires - GetTime()
+      local timeLeft = auraExpires > 0 and auraExpires - GetTime() or 0
       local start = GetTime() - (self.frame[unit].timeleft - timeLeft)      
       self.frame[unit].timeleft = timeLeft
       
@@ -358,6 +358,24 @@ function ClassIcon:Test(unit)
       end
       
       Gladius:Call(Gladius.modules.Timer, "SetTimer", self.frame[unit], self.frame[unit].timeleft)
+   elseif (unit == "arena3") then
+      aura = "Smoke Bomb"
+      
+      self.frame[unit].timeleft = 0   
+      self.frame[unit].icon = select(3, GetSpellInfo(76577))      
+      self.frame[unit].priority = Gladius.db.aurasFrameAuras[name]
+      self.frame[unit].active = true
+      self.frame[unit].aura = aura
+   
+      self.frame[unit].texture:SetTexture(self.frame[unit].icon)
+      
+      if (Gladius.db.classIconCrop) then
+         self.frame[unit].texture:SetTexCoord(0.07, 0.93, 0.07, 0.93)
+      else
+         self.frame[unit].texture:SetTexCoord(0, 1, 0, 1)
+      end
+      
+      Gladius:Call(Gladius.modules.Timer, "SetTimer", self.frame[unit], self.frame[unit].timeleft, GetTime())
    end
 end
 
