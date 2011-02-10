@@ -70,9 +70,11 @@ function ClassIcon:UpdateAura(unit)
    if (not Gladius.db.aurasFrameAuras) then return end
       
    -- default priority
-   self.frame[unit].priority = self.frame[unit].priority or 0
+   if (not self.frame[unit].priority) then
+      self.frame[unit].priority = 0
+   end
    
-   local aura, auraExpires
+   local aura
    local index = 1
    
    -- debuffs
@@ -81,11 +83,10 @@ function ClassIcon:UpdateAura(unit)
       if (not name) then break end  
       
       if (Gladius.db.aurasFrameAuras[name] and Gladius.db.aurasFrameAuras[name] >= self.frame[unit].priority) then
-         aura = name  
-         auraExpires = expires       
-         
+         aura = name
          self.frame[unit].icon = icon
          self.frame[unit].timeleft = duration
+         self.frame[unit].expires = expires
          self.frame[unit].priority = Gladius.db.aurasFrameAuras[name]
       end
       
@@ -101,10 +102,9 @@ function ClassIcon:UpdateAura(unit)
       
       if (Gladius.db.aurasFrameAuras[name] and Gladius.db.aurasFrameAuras[name] >= self.frame[unit].priority) then
          aura = name
-         auraExpires = expires
-         
          self.frame[unit].icon = icon
          self.frame[unit].timeleft = duration
+         self.frame[unit].expires = expires
          self.frame[unit].priority = Gladius.db.aurasFrameAuras[name]
       end
       
@@ -112,11 +112,7 @@ function ClassIcon:UpdateAura(unit)
    end
    
    if (aura) then      
-      -- display aura
-      self.frame[unit].active = true
-      self.frame[unit].aura = aura
-      self.frame[unit].expires = auraExpires
-   
+      -- display aura   
       self.frame[unit].texture:SetTexture(self.frame[unit].icon)
       
       if (Gladius.db.classIconCrop) then
@@ -125,19 +121,14 @@ function ClassIcon:UpdateAura(unit)
          self.frame[unit].texture:SetTexCoord(0, 1, 0, 1)
       end
       
-      local timeLeft = auraExpires > 0 and auraExpires - GetTime() or 0
+      local timeLeft = self.frame[unit].expires > 0 and self.frame[unit].expires - GetTime() or 0
       local start = GetTime() - (self.frame[unit].timeleft - timeLeft)      
       self.frame[unit].timeleft = timeLeft
       
       Gladius:Call(Gladius.modules.Timer, "SetTimer", self.frame[unit], self.frame[unit].timeleft, start)
-   elseif (not aura and self.frame[unit].active) then
+   elseif (not aura and self.frame[unit].priority > 0) then
       -- reset
-      self.frame[unit].active = false
-      self.frame[unit].aura = nil
-      self.frame[unit].icon = nil
-      self.frame[unit].priority = 0
-      self.frame[unit].timeleft = 0
-      self.frame[unit].expires = 0    
+      self.frame[unit].priority = 0 
       
       self:SetClassIcon(unit)
    elseif (not aura) then
@@ -158,8 +149,12 @@ function ClassIcon:SetClassIcon(unit)
       class = Gladius.testing[unit].unitClass
    end
 
-   self.frame[unit].texture:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
-   
+   if (class) then
+      self.frame[unit].texture:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
+   else
+      self.frame[unit].texture:SetTexture("")
+   end
+         
    local left, right, top, bottom = unpack(CLASS_BUTTONS[class])
    
    -- Crop class icon borders

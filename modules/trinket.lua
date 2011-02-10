@@ -316,6 +316,8 @@ function Trinket:Show(unit)
 end
 
 function Trinket:Reset(unit)
+   if (not self.frame[unit]) then return end
+
    -- reset frame
    local trinketIcon
    

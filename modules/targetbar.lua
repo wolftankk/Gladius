@@ -122,30 +122,24 @@ function TargetBar:SetClassIcon(unit)
       class = Gladius.testing[unit].unitClass
    end
    
-   if (not CLASS_BUTTONS[class]) then
-      self.frame[unit].icon:SetTexture("Interface\\CharacterFrame\\TempPortrait")
-      
-      if (Gladius.db.targetBarIconCrop) then
-         self.frame[unit].icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
-      else
-         self.frame[unit].icon:SetTexCoord(0, 1, 0, 1)
-      end
+   if (class) then
+      self.frame[unit].texture:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
    else
-      self.frame[unit].icon:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
-
-      local left, right, top, bottom = unpack(CLASS_BUTTONS[class])
-      
-      if (Gladius.db.targetBarIconCrop) then
-         -- zoom class icon
-         left = left + (right - left) * 0.07
-         right = right - (right - left) * 0.07
-
-         top = top + (bottom - top) * 0.07
-         bottom = bottom - (bottom - top) * 0.07
-      end
-
-      self.frame[unit].icon:SetTexCoord(left, right, top, bottom)
+      self.frame[unit].texture:SetTexture("")
    end
+      
+   local left, right, top, bottom = unpack(CLASS_BUTTONS[class])
+   
+   if (Gladius.db.targetBarIconCrop) then
+      -- zoom class icon
+      left = left + (right - left) * 0.07
+      right = right - (right - left) * 0.07
+
+      top = top + (bottom - top) * 0.07
+      bottom = bottom - (bottom - top) * 0.07
+   end
+
+   self.frame[unit].icon:SetTexCoord(left, right, top, bottom)
 end
 
 function TargetBar:UNIT_HEALTH(event, unit)

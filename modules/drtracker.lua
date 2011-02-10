@@ -128,13 +128,13 @@ function DRTracker:DRFaded(unit, spellID)
 
    tracked.active = true
    if (tracked and tracked.reset <= GetTime()) then
-		tracked.diminished = 1.0
+		tracked.diminished = 1
    else
       tracked.diminished = DRData:NextDR(tracked.diminished)
 	end
 	
 	if (Gladius.test and tracked.diminished == 0) then
-      tracked.diminished = 1.0
+      tracked.diminished = 1
    end
 	
 	tracked.timeLeft = DRData:GetResetTime()
@@ -161,7 +161,6 @@ function DRTracker:DRFaded(unit, spellID)
    end)
 
    tracked:SetAlpha(1)
-
 	self:SortIcons(unit)
 end
 
@@ -169,8 +168,9 @@ function DRTracker:SortIcons(unit)
    local lastFrame = self.frame[unit]
 
    for cat, frame in pairs(self.frame[unit].tracker) do
-      if (frame.active) then
-         frame:ClearAllPoints()
+      frame:ClearAllPoints()
+      
+      if (frame.active) then         
          frame:SetPoint(Gladius.db.drTrackerAnchor, lastFrame, lastFrame == self.frame[unit] and Gladius.db.drTrackerAnchor or Gladius.db.drTrackerRelativePoint, Gladius.db.drTrackerAnchor:find("LEFT") and Gladius.db.drTrackerMargin or -Gladius.db.drTrackerMargin, 0)
          lastFrame = frame
       end
@@ -278,6 +278,8 @@ function DRTracker:Show(unit)
 end
 
 function DRTracker:Reset(unit)
+   if (not self.frame[unit]) then return end
+
    -- hide icons
    for _, frame in pairs(self.frame[unit].tracker) do
       frame.active = false

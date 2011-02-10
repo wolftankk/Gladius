@@ -488,9 +488,9 @@ function Gladius:UpdateUnit(unit, module)
                         
             local attachTo = m:GetAttachTo()
             if (attachTo == "Frame" or m.isBar) then
-               frameHeight = frameHeight + m.frame[unit]:GetHeight()
+               frameHeight = frameHeight + (m.frame[unit] and m.frame[unit]:GetHeight() or 0)
             else
-               height = height + m.frame[unit]:GetHeight()
+               height = height + (m.frame[unit] and m.frame[unit]:GetHeight() or 0)
             end
          end
       end
@@ -548,10 +548,10 @@ function Gladius:UpdateUnit(unit, module)
    
    -- show the secure frame
    self.buttons[unit].secure:Show()
-   self.buttons[unit].secure:SetAlpha(0)
+   self.buttons[unit].secure:SetAlpha(1)
    
    self.buttons[unit]:SetFrameStrata("LOW")
-   self.buttons[unit].secure:SetFrameStrata("LOW")
+   self.buttons[unit].secure:SetFrameStrata("MEDIUM")
    
    -- update background
    if (unit == "arena1") then
@@ -634,7 +634,6 @@ function Gladius:ShowUnit(unit, testing, module)
    end
    
    self.buttons[unit]:SetAlpha(1)   
-   self.buttons[unit].secure:SetAlpha(1)
    
    for _, m in pairs(self.modules) do
       if (m:IsEnabled()) then
