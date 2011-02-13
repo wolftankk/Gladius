@@ -139,7 +139,7 @@ function TargetBar:SetClassIcon(unit)
       bottom = bottom - (bottom - top) * 0.07
    end
 
-   self.frame[unit].:SetTexCoord(left, right, top, bottom)
+   self.frame[unit].icon:SetTexCoord(left, right, top, bottom)
 end
 
 function TargetBar:UNIT_HEALTH(event, unit)

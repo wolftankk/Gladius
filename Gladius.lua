@@ -99,7 +99,7 @@ function Gladius:NewModule(key, bar, attachTo, defaults, templates)
       if (not self.enabled) then
          self.enabled = true
          
-         if (type(self.OnDisable) == "function") then
+         if (type(self.OnEnable) == "function") then
             self:OnEnable()
          end
       end
