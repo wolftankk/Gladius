@@ -123,9 +123,9 @@ function TargetBar:SetClassIcon(unit)
    end
    
    if (class) then
-      self.frame[unit].texture:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
+      self.frame[unit].icon:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
    else
-      self.frame[unit].texture:SetTexture("")
+      self.frame[unit].icon:SetTexture("")
    end
       
    local left, right, top, bottom = unpack(CLASS_BUTTONS[class])
@@ -139,7 +139,7 @@ function TargetBar:SetClassIcon(unit)
       bottom = bottom - (bottom - top) * 0.07
    end
 
-   self.frame[unit].icon:SetTexCoord(left, right, top, bottom)
+   self.frame[unit].:SetTexCoord(left, right, top, bottom)
 end
 
 function TargetBar:UNIT_HEALTH(event, unit)

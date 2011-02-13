@@ -50,7 +50,7 @@ end
 function Clicks:GetSecureFrames(unit)
    -- Add the default secure frame
    self:RegisterSecureFrame(unit, Gladius.buttons[unit].secure)
- 
+   
    -- Find secure frames in other modules
    for m, _ in pairs(Gladius.modules) do
       local frame = Gladius:GetParent(unit, m)
