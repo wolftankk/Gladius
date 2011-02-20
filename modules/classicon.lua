@@ -123,7 +123,7 @@ function ClassIcon:UpdateAura(unit)
       
       local timeLeft = self.frame[unit].expires > 0 and self.frame[unit].expires - GetTime() or 0
       local start = GetTime() - (self.frame[unit].timeleft - timeLeft)      
-      self.frame[unit].timeleft = timeLeft
+      --self.frame[unit].timeleft = timeLeft
       
       Gladius:Call(Gladius.modules.Timer, "SetTimer", self.frame[unit], self.frame[unit].timeleft, start)
    elseif (not aura and self.frame[unit].priority > 0) then
