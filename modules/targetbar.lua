@@ -124,22 +124,22 @@ function TargetBar:SetClassIcon(unit)
    
    if (class) then
       self.frame[unit].icon:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
+      
+      local left, right, top, bottom = unpack(CLASS_BUTTONS[class])
+      
+      if (Gladius.db.targetBarIconCrop) then
+         -- zoom class icon
+         left = left + (right - left) * 0.07
+         right = right - (right - left) * 0.07
+
+         top = top + (bottom - top) * 0.07
+         bottom = bottom - (bottom - top) * 0.07
+      end
+
+      self.frame[unit].icon:SetTexCoord(left, right, top, bottom)
    else
       self.frame[unit].icon:SetTexture("")
    end
-      
-   local left, right, top, bottom = unpack(CLASS_BUTTONS[class])
-   
-   if (Gladius.db.targetBarIconCrop) then
-      -- zoom class icon
-      left = left + (right - left) * 0.07
-      right = right - (right - left) * 0.07
-
-      top = top + (bottom - top) * 0.07
-      bottom = bottom - (bottom - top) * 0.07
-   end
-
-   self.frame[unit].icon:SetTexCoord(left, right, top, bottom)
 end
 
 function TargetBar:UNIT_HEALTH(event, unit)

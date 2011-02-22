@@ -151,22 +151,22 @@ function ClassIcon:SetClassIcon(unit)
 
    if (class) then
       self.frame[unit].texture:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
+      
+      local left, right, top, bottom = unpack(CLASS_BUTTONS[class])
+   
+      -- Crop class icon borders
+      if (Gladius.db.classIconCrop) then
+         left = left + (right - left) * 0.07
+         right = right - (right - left) * 0.07
+         
+         top = top + (bottom - top) * 0.07
+         bottom = bottom - (bottom - top) * 0.07
+      end
+      
+      self.frame[unit].texture:SetTexCoord(left, right, top, bottom)
    else
       self.frame[unit].texture:SetTexture("")
    end
-         
-   local left, right, top, bottom = unpack(CLASS_BUTTONS[class])
-   
-   -- Crop class icon borders
-   if (Gladius.db.classIconCrop) then
-      left = left + (right - left) * 0.07
-      right = right - (right - left) * 0.07
-      
-      top = top + (bottom - top) * 0.07
-      bottom = bottom - (bottom - top) * 0.07
-   end
-   
-   self.frame[unit].texture:SetTexCoord(left, right, top, bottom)
 end
 
 function ClassIcon:CreateFrame(unit)
