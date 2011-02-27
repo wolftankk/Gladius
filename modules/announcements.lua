@@ -4,6 +4,15 @@ if not Gladius then
 end
 local L = Gladius.L
 
+-- global functions
+local strfind = string.find
+local GetTime = GetTime
+local UnitName, UnitClass = UnitName, UnitClass
+local SendChatMessage = SendChatMessage
+local RAID_CLASS_COLORS = RAID_CLASS_COLORS
+local GetSpellInfo = GetSpellInfo
+local GetRealNumPartyMembers, GetRealNumRaidMembers, IsRaidLeader, IsRaidOfficer = GetRealNumPartyMembers, GetRealNumRaidMembers, IsRaidLeader, IsRaidOfficer
+
 local Announcements = Gladius:NewModule("Announcements", false, false, {
    announcements = {
       drinks = true,
@@ -54,7 +63,7 @@ function Announcements:Show(unit)
 end
 
 function Announcements:UNIT_NAME_UPDATE(event, unit)
-   if (not unit:find("arena") or unit:find("pet")) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet")) then return end
    if (not Gladius.db.announcements.enemies or not UnitName(unit)) then return end
    
    local name = UnitName(unit)
@@ -69,12 +78,12 @@ function Announcements:UNIT_NAME_UPDATE(event, unit)
 end
 
 function Announcements:GLADIUS_SPEC_UPDATE(unit, event)
-   if (not unit:find("arena") or unit:find("pet") or not Gladius.db.announcements.spec) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet") or not Gladius.db.announcements.spec) then return end
    self:Send(string.format(L["SPEC DETECTED: %s (%s)"], UnitName(unit), self.buttons[unit].spec), 2, unit)
 end
 
 function Announcements:UNIT_HEALTH(event, unit)
-   if (not unit:find("arena") or unit:find("pet") or not Gladius.db.announcements.health) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet") or not Gladius.db.announcements.health) then return end
    
    local healthPercent = math.floor((UnitHealth(unit) / UnitHealthMax(unit)) * 100)
    if (healthPercent < Gladius.db.announcements.healthThreshold) then
@@ -84,7 +93,7 @@ end
 
 local DRINK_SPELL = GetSpellInfo(57073)
 function Announcements:UNIT_AURA(event, unit)
-   if (not unit:find("arena") or unit:find("pet") or not Gladius.db.announcements.drink) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet") or not Gladius.db.announcements.drink) then return end
    
    if (UnitAura(unit, DRINK_SPELL)) then
       self:Send(string.format(L["DRINKING: %s (%s)"], UnitName(unit), UnitClass(unit)), 2, unit)
@@ -98,7 +107,7 @@ local RES_SPELLS = {
 	[GetSpellInfo(7328)] = true -- Redemption
 }
 function Announcements:UNIT_SPELLCAST_START(event, unit, spell, rank)
-   if (not unit:find("arena") or unit:find("pet") or not Gladius.db.announcements.resurrect) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet") or not Gladius.db.announcements.resurrect) then return end
    
    if (RES_SPELLS[spell]) then
       self:Send(string.format(L["RESURRECTING: %s (%s)"], UnitName(unit), UnitClass(unit)), 2, unit)

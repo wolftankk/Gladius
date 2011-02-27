@@ -1,4 +1,8 @@
-﻿local L = Gladius.L
+﻿-- global functions
+local pairs = pairs
+local type = type
+
+local L = Gladius.L
 
 Gladius.defaults = {
    profile = {

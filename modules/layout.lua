@@ -5,6 +5,12 @@ end
 local L = Gladius.L
 local LSM
 
+-- global functions
+local pairs = pairs
+local next = next
+local type = type
+local strformat = string.format
+
 local Layout = Gladius:NewModule("Layout", false, false, {
 })
 
@@ -84,7 +90,7 @@ function Layout:GetOptions()
                         local err, layout = LibStub("AceSerializer-3.0"):Deserialize(self.layout)
 
                         if (not err) then
-                           Gladius:Print(string.format(L["Error while importing layout: %s"], layout))
+                           Gladius:Print(strformat(L["Error while importing layout: %s"], layout))
                            return
                         end
                         

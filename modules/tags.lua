@@ -6,6 +6,17 @@ end
 local L = Gladius.L
 local LSM
 
+-- global functions
+local strfind = string.find
+local pairs = pairs
+local strgsub = string.gsub
+local strformat = string.format
+
+local UnitName, UnitIsDeadOrGhost, LOCALIZED_CLASS_NAMES_MALE
+local UnitClass, UnitRace
+local UnitHealth, UnitHealthMax
+local UnitPower, UnitPowerMax
+
 local Tags = Gladius:NewModule("Tags", false, false, {
    tagsTexts = {
       ["HealthBar Left Text"] = {
@@ -117,7 +128,7 @@ function Tags:OnEnable()
    
    -- register events
    for event in pairs(self.events) do
-      if (event:find("GLADIUS")) then
+      if (strfind(event, "GLADIUS")) then
          self:RegisterMessage(event, "OnMessage")
       else
          self:RegisterEvent(event, "OnEvent")
@@ -146,7 +157,7 @@ function Tags:GetFrame(unit)
 end
 
 function Tags:OnMessage(unit, event)
-   if (not unit:find("arena") or unit:find("pet")) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet")) then return end
    
    if (self.events[event]) then
       -- update texts
@@ -157,7 +168,7 @@ function Tags:OnMessage(unit, event)
 end
 
 function Tags:OnEvent(event, unit)
-   if (not unit:find("arena") or unit:find("pet")) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet")) then return end
    
    if (self.events[event]) then
       -- update texts
@@ -206,21 +217,21 @@ function Tags:UpdateText(unit, text)
          else
             -- create function
             if (not self.func[tag]) then
-               local func, error = loadstring("return " .. Gladius.db.tags[tag])
+               local func, error = loadstring("local strformat = string.format; return " .. Gladius.db.tags[tag])
                self.func[tag] = func
             end
             
             -- escape return string
             local funcText = self.func[tag]()
             if (funcText) then            
-               escapedText = string.gsub(funcText(unitParameter) or "", "%%", "%%%%")
+               escapedText = strgsub(funcText(unitParameter) or "", "%%", "%%%%")
             else
                escapedText = ""
             end
          end   
          
          -- replace tag
-         tagText = string.gsub(tagText, "%[" .. tag .. "%]", escapedText)
+         tagText = strgsub(tagText, "%[" .. tag .. "%]", escapedText)
       end
    end
 
@@ -459,7 +470,7 @@ function Tags:GetOptions()
                            for text, v in pairs(Gladius.options.args[self.name].args.textList.args) do
                               if (v.args.tag) then
                                  local tag = self.addTagName
-                                 local tagName = L[tag .. "Tag"] ~= tag .. "Tag" and L[tag .. "Tag"] or string.format(L["Tag: %s"], tag) 
+                                 local tagName = L[tag .. "Tag"] ~= tag .. "Tag" and L[tag .. "Tag"] or strformat(L["Tag: %s"], tag) 
                               
                                  Gladius.options.args[self.name].args.textList.args[text].args.tag.args[tag] = {
                                     type="toggle",
@@ -468,7 +479,7 @@ function Tags:GetOptions()
                                        local key = info[#info - 2]
                                        
                                        -- check if the tag is in the text
-                                       if (Gladius.dbi.profile.tagsTexts[key].text:find("%[" .. info[#info] .. "%]")) then
+                                       if (strfind(Gladius.dbi.profile.tagsTexts[key].text, "%[" .. info[#info] .. "%]")) then
                                           return true
                                        else
                                           return false
@@ -479,10 +490,10 @@ function Tags:GetOptions()
                                        
                                        -- add/remove tag to the text               
                                        if (not v) then
-                                          Gladius.dbi.profile.tagsTexts[key].text = string.gsub(Gladius.dbi.profile.tagsTexts[key].text, "%[" .. info[#info] .. "%]", "")
+                                          Gladius.dbi.profile.tagsTexts[key].text = strgsub(Gladius.dbi.profile.tagsTexts[key].text, "%[" .. info[#info] .. "%]", "")
                                           
                                           -- trim right
-                                          Gladius.dbi.profile.tagsTexts[key].text = string.gsub(Gladius.dbi.profile.tagsTexts[key].text, "^(.-)%s*$", "%1")
+                                          Gladius.dbi.profile.tagsTexts[key].text = strgsub(Gladius.dbi.profile.tagsTexts[key].text, "^(.-)%s*$", "%1")
                                        else
                                           Gladius.dbi.profile.tagsTexts[key].text = Gladius.dbi.profile.tagsTexts[key].text .. " [" .. info[#info] .. "]"
                                        end
@@ -521,7 +532,7 @@ function Tags:GetOptions()
    
    local order = 2
    for tag, _ in pairs(Gladius.dbi.profile.tags) do
-      local tagName = L[tag .. "Tag"] ~= tag .. "Tag" and L[tag .. "Tag"] or string.format(L["Tag: %s"], tag) 
+      local tagName = L[tag .. "Tag"] ~= tag .. "Tag" and L[tag .. "Tag"] or strformat(L["Tag: %s"], tag) 
    
       self.optionTags[tag] = {
          type="toggle",
@@ -530,7 +541,7 @@ function Tags:GetOptions()
             local key = info[#info - 2]
             
             -- check if the tag is in the text
-            if (Gladius.dbi.profile.tagsTexts[key].text:find("%[" .. info[#info] .. "%]")) then
+            if (strfind(Gladius.dbi.profile.tagsTexts[key].text, "%[" .. info[#info] .. "%]")) then
                return true
             else
                return false
@@ -541,10 +552,10 @@ function Tags:GetOptions()
             
             -- add/remove tag to the text               
             if (not v) then
-               Gladius.dbi.profile.tagsTexts[key].text = string.gsub(Gladius.dbi.profile.tagsTexts[key].text, "%[" .. info[#info] .. "%]", "")
+               Gladius.dbi.profile.tagsTexts[key].text = strgsub(Gladius.dbi.profile.tagsTexts[key].text, "%[" .. info[#info] .. "%]", "")
                
                -- trim right
-               Gladius.dbi.profile.tagsTexts[key].text = string.gsub(Gladius.dbi.profile.tagsTexts[key].text, "^(.-)%s*$", "%1")
+               Gladius.dbi.profile.tagsTexts[key].text = strgsub(Gladius.dbi.profile.tagsTexts[key].text, "^(.-)%s*$", "%1")
             else
                Gladius.dbi.profile.tagsTexts[key].text = Gladius.dbi.profile.tagsTexts[key].text .. " [" .. info[#info] .. "]"
             end
@@ -679,7 +690,7 @@ function Tags:GetTextOptionTable(text, order)
 end
 
 function Tags:GetTagOptionTable(tag, order)
-   local tagName = L[tag .. "Tag"] ~= tag .. "Tag" and L[tag .. "Tag"] or string.format(L["Tag: %s"], tag) 
+   local tagName = L[tag .. "Tag"] ~= tag .. "Tag" and L[tag .. "Tag"] or strformat(L["Tag: %s"], tag) 
 
    return {  
       type="group",
@@ -832,7 +843,7 @@ function Tags:GetTags()
          local health = not Gladius.test and UnitHealth(unit) or Gladius.testing[unit].health
       
          if (health > 999) then
-            return string.format("%.1fk", (health / 1000))
+            return strformat("%.1fk", (health / 1000))
          else
             return health
          end
@@ -841,7 +852,7 @@ function Tags:GetTags()
          local health = not Gladius.test and UnitHealthMax(unit) or Gladius.testing[unit].maxHealth
       
          if (health > 999) then
-            return string.format("%.1fk", (health / 1000))
+            return strformat("%.1fk", (health / 1000))
          else
             return health
          end
@@ -850,7 +861,7 @@ function Tags:GetTags()
          local health = not Gladius.test and UnitHealth(unit) or Gladius.testing[unit].health
          local maxHealth = not Gladius.test and UnitHealthMax(unit) or Gladius.testing[unit].maxHealth
          
-         return string.format("%.1f%%", (health / maxHealth * 100))
+         return strformat("%.1f%%", (health / maxHealth * 100))
       end]],
       
       ["power"] = [[function(unit)
@@ -863,7 +874,7 @@ function Tags:GetTags()
          local power = not Gladius.test and UnitPower(unit) or Gladius.testing[unit].power
       
          if (power > 999) then
-            return string.format("%.1fk", (power / 1000))
+            return strformat("%.1fk", (power / 1000))
          else
             return power
          end
@@ -872,7 +883,7 @@ function Tags:GetTags()
          local power = not Gladius.test and UnitPowerMax(unit) or Gladius.testing[unit].maxPower
       
          if (power > 999) then
-            return string.format("%.1fk", (power / 1000))
+            return strformat("%.1fk", (power / 1000))
          else
             return power
          end
@@ -881,7 +892,7 @@ function Tags:GetTags()
          local power = not Gladius.test and UnitPower(unit) or Gladius.testing[unit].power
          local maxPower = not Gladius.test and UnitPowerMax(unit) or Gladius.testing[unit].maxPower
          
-         return string.format("%.1f%%", (power / maxPower * 100))
+         return strformat("%.1f%%", (power / maxPower * 100))
       end]],
    }
 end

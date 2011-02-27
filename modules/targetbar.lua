@@ -5,6 +5,11 @@ end
 local L = Gladius.L
 local LSM
 
+-- global functions
+local strfind = string.find
+local pairs = pairs
+local UnitClass, UnitGUID, UnitHealth, UnitHealthMax = UnitClass, UnitGUID, UnitHealth, UnitHealthMax
+
 local TargetBar = Gladius:NewModule("TargetBar", true, true, {
    targetBarAttachTo = "Trinket",
    
@@ -43,7 +48,7 @@ function TargetBar:OnEnable()
    LSM = Gladius.LSM
    
    -- set frame type
-   if (Gladius.db.targetBarAttachTo == "Frame" or Gladius.db.targetBarRelativePoint:find("BOTTOM")) then
+   if (Gladius.db.targetBarAttachTo == "Frame" or strfind(Gladius.db.targetBarRelativePoint, "BOTTOM")) then
       self.isBar = true
    else
       self.isBar = false
@@ -96,7 +101,7 @@ function TargetBar:SetTemplate(template)
    end
    
    -- set frame type
-   if (Gladius.db.targetBarAttachTo == "Frame" or Gladius.db.targetBarRelativePoint:find("BOTTOM")) then
+   if (Gladius.db.targetBarAttachTo == "Frame" or strfind(Gladius.db.targetBarRelativePoint, "BOTTOM")) then
       self.isBar = true
    else
       self.isBar = false
@@ -213,7 +218,7 @@ function TargetBar:Update(unit)
    local parent = Gladius:GetParent(unit, Gladius.db.targetBarAttachTo)
    
    -- set frame type
-   if (Gladius.db.targetBarAttachTo == "Frame" or Gladius.db.targetBarRelativePoint:find("BOTTOM")) then
+   if (Gladius.db.targetBarAttachTo == "Frame" or strfind(Gladius.db.targetBarRelativePoint, "BOTTOM")) then
       self.isBar = true
    else
       self.isBar = false
@@ -227,7 +232,7 @@ function TargetBar:Update(unit)
       width = Gladius.db.targetBarAdjustWidth and Gladius.dbWidth or Gladius.db.targetBarWidth
    
       -- add width of the widget if attached to an widget
-      if (Gladius.db.targetBarAttachTo ~= "Frame" and not Gladius.db.targetBarRelativePoint:find("BOTTOM") and Gladius.db.targetBarAdjustWidth) then
+      if (Gladius.db.targetBarAttachTo ~= "Frame" and not strfind(Gladius.db.targetBarRelativePoint, "BOTTOM") and Gladius.db.targetBarAdjustWidth) then
          if (not Gladius:GetModule(Gladius.db.targetBarAttachTo).frame[unit]) then
             Gladius:GetModule(Gladius.db.targetBarAttachTo):Update(unit)
          end
@@ -576,7 +581,7 @@ function TargetBar:GetOptions()
                         Gladius.dbi.profile[key] = value
                         
                         -- set frame type
-                        if (Gladius.db.targetBarAttachTo == "Frame" or Gladius.db.targetBarRelativePoint:find("BOTTOM")) then
+                        if (Gladius.db.targetBarAttachTo == "Frame" or strfind(Gladius.db.targetBarRelativePoint, "BOTTOM")) then
                            self.isBar = true
                         else
                            self.isBar = false

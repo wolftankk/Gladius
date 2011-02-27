@@ -4,6 +4,10 @@ if not Gladius then
 end
 local L = Gladius.L
 
+-- global functions
+local strfind = string.find
+local pairs = pairs
+
 local Clicks = Gladius:NewModule("Clicks", false, false, {
    clickAttributes = {
       ["Left"] = { button = "1", modifier = "", action = "target", macro = ""},

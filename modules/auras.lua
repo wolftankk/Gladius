@@ -5,11 +5,17 @@ end
 local L = Gladius.L
 local LSM
 
+-- global functions
+local strfind = string.find
+local pairs = pairs
+local UnitAura, GetSpellInfo = UnitAura, GetSpellInfo
+local ceil = math.ceil
+
 local Auras = Gladius:NewModule("Auras", false, true, {
    aurasBuffsAttachTo = "CastBar",
    aurasBuffsAnchor = "TOPLEFT",
    aurasBuffsRelativePoint = "BOTTOMLEFT",
-   aurasBuffs = true,
+   aurasBuffs = false,
    aurasBuffsGrow = "DOWNRIGHT",
    aurasBuffsSpacingX = 0,
    aurasBuffsSpacingY = 0,
@@ -25,7 +31,7 @@ local Auras = Gladius:NewModule("Auras", false, true, {
    aurasDebuffsAttachTo = "ClassIcon",
    aurasDebuffsAnchor = "BOTTOMLEFT",
    aurasDebuffsRelativePoint = "TOPLEFT",
-   aurasDebuffs = true,
+   aurasDebuffs = false,
    aurasDebuffsGrow = "UPRIGHT",
    aurasDebuffsSpacingX = 0,
    aurasDebuffsSpacingY = 0,
@@ -111,7 +117,7 @@ function Auras:GetIndicatorHeight()
 end
 
 function Auras:UNIT_AURA(event, unit)
-   if (not unit:find("arena") or unit:find("pet")) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet")) then return end
    
    -- buff frame
    for i=1, 40 do
@@ -158,8 +164,7 @@ function Auras:CreateFrame(unit)
    -- create buff frame
    if (not self.buffFrame[unit] and Gladius.db.aurasBuffs) then
       self.buffFrame[unit] = CreateFrame("Frame", "Gladius" .. self.name .. "BuffFrame" .. unit, button)
-      
-      
+            
       for i=1, 40 do
          self.buffFrame[unit][i] = CreateFrame("CheckButton", "Gladius" .. self.name .. "BuffFrameIcon" .. i .. unit, button, "ActionButtonTemplate")
          self.buffFrame[unit][i]:SetScript("OnEnter", function(f) 
@@ -257,9 +262,9 @@ function Auras:Update(unit)
          
          if (Gladius.db.aurasBuffsMax >= i) then        
             if (start == 1) then
-               anchor, parent, relativePoint, offsetX, offsetY = grow1, startAnchor, startRelPoint, 0, Gladius.db.aurasBuffsGrow:find("DOWN") and -Gladius.db.aurasBuffsSpacingY or Gladius.db.aurasBuffsSpacingY                  
+               anchor, parent, relativePoint, offsetX, offsetY = grow1, startAnchor, startRelPoint, 0, strfind(Gladius.db.aurasBuffsGrow, "DOWN") and -Gladius.db.aurasBuffsSpacingY or Gladius.db.aurasBuffsSpacingY                  
             else
-               anchor, parent, relativePoint, offsetX, offsetY = grow1, self.buffFrame[unit][i-1], grow3, Gladius.db.aurasBuffsGrow:find("LEFT") and -Gladius.db.aurasBuffsSpacingX or Gladius.db.aurasBuffsSpacingX, 0                                
+               anchor, parent, relativePoint, offsetX, offsetY = grow1, self.buffFrame[unit][i-1], grow3, strfind(Gladius.db.aurasBuffsGrow, "LEFT") and -Gladius.db.aurasBuffsSpacingX or Gladius.db.aurasBuffsSpacingX, 0                                
                
                if (start == Gladius.db.aurasBuffsPerColumn) then
                   start = 0
@@ -329,9 +334,9 @@ function Auras:Update(unit)
          
          if (Gladius.db.aurasDebuffsMax >= i) then        
             if (start == 1) then
-               anchor, parent, relativePoint, offsetX, offsetY = grow1, startAnchor, startRelPoint, 0, Gladius.db.aurasDebuffsGrow:find("DOWN") and -Gladius.db.aurasDebuffsSpacingY or Gladius.db.aurasDebuffsSpacingY                  
+               anchor, parent, relativePoint, offsetX, offsetY = grow1, startAnchor, startRelPoint, 0, strfind(Gladius.db.aurasDebuffsGrow, "DOWN") and -Gladius.db.aurasDebuffsSpacingY or Gladius.db.aurasDebuffsSpacingY                  
             else
-               anchor, parent, relativePoint, offsetX, offsetY = grow1, self.debuffFrame[unit][i-1], grow3, Gladius.db.aurasDebuffsGrow:find("LEFT") and -Gladius.db.aurasDebuffsSpacingX or Gladius.db.aurasDebuffsSpacingX, 0                                
+               anchor, parent, relativePoint, offsetX, offsetY = grow1, self.debuffFrame[unit][i-1], grow3, strfind(Gladius.db.aurasDebuffsGrow, "LEFT") and -Gladius.db.aurasDebuffsSpacingX or Gladius.db.aurasDebuffsSpacingX, 0                                
                
                if (start == Gladius.db.aurasDebuffsPerColumn) then
                   start = 0
@@ -367,6 +372,13 @@ function Auras:Update(unit)
 
    -- hide
    self.debuffFrame[unit]:SetAlpha(0)
+   
+   -- event
+   if (not Gladius.db.aurasDebuffs and not Gladius.db.aurasBuffs) then
+      self:UnregisterAllEvents()
+   else
+      self:RegisterEvent("UNIT_AURA")
+   end
 end
 
 function Auras:Show(unit)
@@ -1021,10 +1033,12 @@ function Auras:GetAuraList()
 		[GetSpellInfo(33786)] 	= 3, 	-- Cyclone
 		[GetSpellInfo(2637)] 	= 3,	-- Hibernate
 		[GetSpellInfo(55041)] 	= 3, 	-- Freezing Trap Effect
+		[GetSpellInfo(3355)] = 3, -- Freezing Trap (from trap launcher)
 		[GetSpellInfo(6770)]	= 3, 	-- Sap
 		[GetSpellInfo(2094)]	= 3, 	-- Blind
 		[GetSpellInfo(5782)]	= 3, 	-- Fear
 		[GetSpellInfo(6789)]	= 3,	-- Death Coil Warlock
+		[GetSpellInfo(64044)] = 3, -- Psychic Horror
 		[GetSpellInfo(6358)] 	= 3, 	-- Seduction
 		[GetSpellInfo(5484)] 	= 3, 	-- Howl of Terror
 		[GetSpellInfo(5246)] 	= 3, 	-- Intimidating Shout
@@ -1036,12 +1050,16 @@ function Auras:GetAuraList()
 		[GetSpellInfo(61025)] 	= 3,	-- Polymorph serpent
 		[GetSpellInfo(51514)]	= 3,	-- Hex
 		[GetSpellInfo(710)]		= 3,	-- Banish
+		[GetSpellInfo(1499)] = 3, -- Freezing Trap Effect
+      [GetSpellInfo(60192)] = 3, -- Freezing Trap (from trap launcher)
 		
 		-- Roots
 		[GetSpellInfo(339)] 	= 3, 	-- Entangling Roots
 		[GetSpellInfo(122)]		= 3,	-- Frost Nova
 		[GetSpellInfo(16979)] 	= 3, 	-- Feral Charge
 		[GetSpellInfo(13809)] 	= 1, 	-- Frost Trap
+		[GetSpellInfo(82676)]  = 3, -- Ring of Frost
+		[GetSpellInfo(120)]     = 1, -- Cone of Cold
 		
 		-- Stuns and incapacitates
 		[GetSpellInfo(5211)] 	= 3, 	-- Bash
@@ -1058,6 +1076,7 @@ function Auras:GetAuraList()
 		[GetSpellInfo(46968)] 	= 3, 	-- Shockwave
 		[GetSpellInfo(49203)] 	= 3,	-- Hungering Cold
 		[GetSpellInfo(47481)]	= 3,	-- Gnaw (dk pet stun)
+		[GetSpellInfo(90337)]  = 3, -- Bad Manner (monkey blind)
 		
 		-- Silences
 		[GetSpellInfo(18469)] 	= 1,	-- Improved Counterspell
@@ -1065,10 +1084,15 @@ function Auras:GetAuraList()
 		[GetSpellInfo(34490)] 	= 1, 	-- Silencing Shot	
 		[GetSpellInfo(18425)]	= 1,	-- Improved Kick
 		[GetSpellInfo(47476)]	= 1,	-- Strangulate
-		
+		[GetSpellInfo(85285)]   = 1,  -- Rebuke
+		[GetSpellInfo(85388)]   = 1,  -- Throwdown
+		[GetSpellInfo(80964)]   = 1,  -- Skull Bash
+		[GetSpellInfo(703)]     = 1,  -- Garrot 
+				
 		-- Disarms
-		[GetSpellInfo(676)] 	= 1, 	-- Disarm
-		[GetSpellInfo(51722)] 	= 1,	-- Dismantle				
+		[GetSpellInfo(676)] 	   = 1, 	-- Disarm
+		[GetSpellInfo(51722)] 	= 1,	-- Dismantle
+						
 		-- Buffs
 		[GetSpellInfo(1022)] 	= 1,	-- Blessing of Protection
 		[GetSpellInfo(1044)] 	= 1, 	-- Blessing of Freedom
@@ -1079,12 +1103,17 @@ function Auras:GetAuraList()
 		[GetSpellInfo(18708)]  	= 1,	-- Fel Domination
 		[GetSpellInfo(54428)]	= 1,	-- Divine Plea
 		[GetSpellInfo(31821)]	= 1,	-- Aura mastery
+		[GetSpellInfo(12292)] = 1, -- Death Wish
+      [GetSpellInfo(49016)] = 1, -- Unholy Frenzy
 		
 		-- Turtling abilities
 		[GetSpellInfo(871)]		= 1,	-- Shield Wall
 		[GetSpellInfo(48707)]	= 1,	-- Anti-Magic Shell
 		[GetSpellInfo(31224)]	= 1,	-- Cloak of Shadows
 		[GetSpellInfo(19263)]	= 1,	-- Deterrence
+		[GetSpellInfo(76577)]   = 1, -- Smoke Bomb
+		[GetSpellInfo(74001)]   = 1, -- Combat Readiness
+		[GetSpellInfo(49039)]   = 1, -- Lichborn
 		
 		-- Immunities
 		[GetSpellInfo(34692)] 	= 2, 	-- The Beast Within

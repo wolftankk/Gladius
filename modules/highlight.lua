@@ -5,6 +5,12 @@ end
 local L = Gladius.L
 local LSM
 
+-- global functions
+local strfind = string.find
+local pairs = pairs
+local GetRealNumRaidMembers, GetPartyAssignment, GetRaidTargetIndex = GetRealNumRaidMembers, GetPartyAssignment, GetRaidTargetIndex
+local UnitGUID = UnitGUID
+
 local Highlight = Gladius:NewModule("Highlight", false, false, {
    highlightHover = true,
    highlightHoverColor = { r = 1.0, g = 1.0, b = 1.0, a = 1.0 },
@@ -83,7 +89,7 @@ end
 
 function Highlight:UNIT_TARGET(event, unit)
    local unit = unit or ""
-   if (unit ~= "" and (GetRealNumRaidMembers() == 0 or unit:find("pet") or (not unit:find("raid") and not unit:find("party")))) then return end  
+   if (unit ~= "" and (GetRealNumRaidMembers() == 0 or strfind(unit, "pet") or (not strfind(unit, "raid") and not strfind(unit, "party")))) then return end  
 
    local playerTargetGUID = UnitGUID("target")
    local focusGUID = UnitGUID("focus")

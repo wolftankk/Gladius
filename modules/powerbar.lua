@@ -5,6 +5,11 @@ end
 local L = Gladius.L
 local LSM
 
+-- global functions
+local strfind = string.find
+local pairs = pairs
+local UnitPower, UnitPowerMax, UnitPowerType = UnitPower, UnitPowerMax, UnitPowerType
+
 local PowerBar = Gladius:NewModule("PowerBar", true, true, {
    powerBarAttachTo = "HealthBar",
    
@@ -55,7 +60,7 @@ function PowerBar:OnEnable()
    LSM = Gladius.LSM
    
    -- set frame type
-   if (Gladius.db.healthBarAttachTo == "Frame" or Gladius.db.powerBarRelativePoint:find("BOTTOM")) then
+   if (Gladius.db.healthBarAttachTo == "Frame" or strfind(Gladius.db.powerBarRelativePoint, "BOTTOM")) then
       self.isBar = true
    else
       self.isBar = false
@@ -83,7 +88,7 @@ function PowerBar:GetFrame(unit)
 end
 
 function PowerBar:UNIT_POWER(event, unit)
-   if (not unit:find("arena") or unit:find("pet")) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet")) then return end
 
    local power, maxPower, powerType = UnitPower(unit), UnitPowerMax(unit), UnitPowerType(unit)
    self:UpdatePower(unit, power, maxPower, powerType)
@@ -153,7 +158,7 @@ function PowerBar:Update(unit)
    -- set bar type 
    local parent = Gladius:GetParent(unit, Gladius.db.powerBarAttachTo)
      
-   if (Gladius.db.healthBarAttachTo == "Frame" or Gladius.db.powerBarRelativePoint:find("BOTTOM")) then
+   if (Gladius.db.healthBarAttachTo == "Frame" or strfind(Gladius.db.powerBarRelativePoint, "BOTTOM")) then
       self.isBar = true
    else
       self.isBar = false
@@ -165,7 +170,7 @@ function PowerBar:Update(unit)
    local width = Gladius.db.powerBarAdjustWidth and Gladius.db.barWidth or Gladius.db.powerBarWidth
 	
 	-- add width of the widget if attached to an widget
-	if (Gladius.db.healthBarAttachTo ~= "Frame" and not Gladius.db.powerBarRelativePoint:find("BOTTOM") and Gladius.db.powerBarAdjustWidth) then
+	if (Gladius.db.healthBarAttachTo ~= "Frame" and not strfind(Gladius.db.powerBarRelativePoint, "BOTTOM") and Gladius.db.powerBarAdjustWidth) then
       if (not Gladius:GetModule(Gladius.db.powerBarAttachTo).frame[unit]) then
          Gladius:GetModule(Gladius.db.powerBarAttachTo):Update(unit)
       end
@@ -398,7 +403,7 @@ function PowerBar:GetOptions()
                      set=function(info, value) 
                         local key = info.arg or info[#info]
                         
-                        if (Gladius.db.powerBarRelativePoint:find("BOTTOM")) then
+                        if (strfind(Gladius.db.powerBarRelativePoint, "BOTTOM")) then
                            self.isBar = true
                         else
                            self.isBar = false

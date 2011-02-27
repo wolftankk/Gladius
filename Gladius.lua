@@ -1,4 +1,10 @@
-﻿Gladius = {}
+﻿-- global functions
+local type = type
+local pairs = pairs
+local strfind = string.find
+local UnitCastingInfo, UnitAura, UnitIsDeadOrGhost = UnitCastingInfo, UnitAura, UnitIsDeadOrGhost
+
+Gladius = {}
 Gladius.eventHandler = CreateFrame("Frame")
 Gladius.eventHandler.events = {}
 
@@ -391,7 +397,7 @@ function Gladius:LeftArena()
 end
 
 function Gladius:UNIT_NAME_UPDATE(event, unit)
-   if (not unit:find("arena") or unit:find("pet")) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet")) then return end
    
    if (not self.buttons[unit] or self.buttons[unit]:GetAlpha() < 1) then
       self:ShowUnit(unit)
@@ -455,7 +461,7 @@ function Gladius:HideFrame()
 end
 
 function Gladius:UpdateUnit(unit, module)
-   if (not unit:find("arena") or unit:find("pet")) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet")) then return end
    if (InCombatLockdown()) then return end
    
    -- create button 
@@ -608,7 +614,7 @@ function Gladius:UpdateUnit(unit, module)
       self.anchor.text:SetShadowOffset(1, -1)
       self.anchor.text:SetShadowColor(0, 0, 0, 1)   
       
-      self.anchor.text:SetText("Gladius Anchor - click to move")   
+      self.anchor.text:SetText(L["Gladius Anchor - click to move"])   
       
       if (self.db.groupButtons and not self.db.locked) then
          self.anchor:Show()
@@ -620,7 +626,7 @@ function Gladius:UpdateUnit(unit, module)
 end
 
 function Gladius:ShowUnit(unit, testing, module)
-   if (not unit:find("arena") or unit:find("pet")) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet")) then return end
    if (not self.buttons[unit]) then return end
    
    -- disable test mode, when there are real arena opponents (happens when entering arena and using /gladius test)
@@ -666,7 +672,7 @@ function Gladius:ShowUnit(unit, testing, module)
 end
 
 function Gladius:TestUnit(unit, module)
-   if (not unit:find("arena") or unit:find("pet")) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet")) then return end
    
    -- test modules
    for _, m in pairs(self.modules) do
@@ -683,7 +689,7 @@ function Gladius:TestUnit(unit, module)
 end
 
 function Gladius:ResetUnit(unit, module)
-   if (not unit:find("arena") or unit:find("pet")) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet")) then return end
    if (not self.buttons[unit]) then return end
    
    -- reset modules
@@ -796,7 +802,7 @@ function Gladius:CreateButton(unit)
 end
 
 function Gladius:UNIT_AURA(event, unit)
-   if (not unit:find("arena") or unit:find("pet")) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet")) then return end
 
    if (not self.buttons[unit] or self.buttons[unit]:GetAlpha() < 1) then
       self:ShowUnit(unit)
@@ -817,7 +823,7 @@ function Gladius:UNIT_AURA(event, unit)
 end
 
 function Gladius:UNIT_SPELLCAST_START(event, unit)
-   if (not unit:find("arena") or unit:find("pet")) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet")) then return end
    
    if (not self.buttons[unit] or self.buttons[unit]:GetAlpha() < 1) then
       self:ShowUnit(unit)
@@ -831,7 +837,7 @@ function Gladius:UNIT_SPELLCAST_START(event, unit)
 end
 
 function Gladius:UNIT_HEALTH(event, unit)
-   if (not unit:find("arena") or unit:find("pet")) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet")) then return end
 
    -- update unit
    if (not self.buttons[unit] or self.buttons[unit]:GetAlpha() < 1) then

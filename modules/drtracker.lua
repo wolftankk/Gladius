@@ -7,6 +7,12 @@ local LSM
 
 local DRData = LibStub("DRData-1.0")
 
+-- global functions
+local strfind = string.find
+local pairs = pairs
+local GetTime = GetTime
+local UnitGUID = UnitGUID
+
 local DRTracker = Gladius:NewModule("DRTracker", false, true, {
    drTrackerAttachTo = "ClassIcon",
    drTrackerAnchor = "TOPRIGHT",
@@ -171,7 +177,7 @@ function DRTracker:SortIcons(unit)
       frame:ClearAllPoints()
       
       if (frame.active) then         
-         frame:SetPoint(Gladius.db.drTrackerAnchor, lastFrame, lastFrame == self.frame[unit] and Gladius.db.drTrackerAnchor or Gladius.db.drTrackerRelativePoint, Gladius.db.drTrackerAnchor:find("LEFT") and Gladius.db.drTrackerMargin or -Gladius.db.drTrackerMargin, 0)
+         frame:SetPoint(Gladius.db.drTrackerAnchor, lastFrame, lastFrame == self.frame[unit] and Gladius.db.drTrackerAnchor or Gladius.db.drTrackerRelativePoint, strfind(Gladius.db.drTrackerAnchor,"LEFT") and Gladius.db.drTrackerMargin or -Gladius.db.drTrackerMargin, 0)
          lastFrame = frame
       end
    end
@@ -469,7 +475,7 @@ function DRTracker:GetOptions()
                      name=L["DRTracker Position"],
                      desc=L["Position of the class icon"],
                      values={ ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"] },
-                     get=function() return Gladius.db.drTrackerAnchor:find("RIGHT") and "LEFT" or "RIGHT" end,
+                     get=function() return strfind(Gladius.db.drTrackerAnchor, "RIGHT") and "LEFT" or "RIGHT" end,
                      set=function(info, value)
                         if (value == "LEFT") then
                            Gladius.db.drTrackerAnchor = "TOPRIGHT"

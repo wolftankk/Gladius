@@ -5,6 +5,12 @@ end
 local L = Gladius.L
 local LSM
 
+-- global functions
+local strformat = string.format
+local pairs = pairs
+local GetTime = GetTime
+local floor = math.floor
+
 local Timer = Gladius:NewModule("Timer", false, false, {
    timerSoonFontSize = 18,   
    timerSoonFontColor = { r = 1, g = 0, b = 0, a = 1 },
@@ -42,7 +48,7 @@ function Timer:GetFrame(unit)
 end
 
 function Timer:SetFormattedNumber(frame, number)        
-   local minutes = math.floor(number / 60)
+   local minutes = floor(number / 60)
    
    if (minutes > 0) then
       local seconds = number - minutes * 60
@@ -50,13 +56,13 @@ function Timer:SetFormattedNumber(frame, number)
       frame:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.globalFont), Gladius.db.timerMinutesFontSize, "OUTLINE")
       frame:SetTextColor(Gladius.db.timerMinutesFontColor.r, Gladius.db.timerMinutesFontColor.g, Gladius.db.timerMinutesFontColor.b, Gladius.db.timerMinutesFontColor.a)
       
-      frame:SetText(string.format("%sm %.0f", minutes, seconds))
+      frame:SetText(strformat("%sm %.0f", minutes, seconds))
    else
       if (number > 5) then
          frame:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.globalFont), Gladius.db.timerSecondsFontSize, "OUTLINE")
          frame:SetTextColor(Gladius.db.timerSecondsFontColor.r, Gladius.db.timerSecondsFontColor.g, Gladius.db.timerSecondsFontColor.b, Gladius.db.timerSecondsFontColor.a)
       
-         frame:SetText(string.format("%.0f", number))
+         frame:SetText(strformat("%.0f", number))
       else
          frame:SetFont(LSM:Fetch(LSM.MediaType.FONT, Gladius.db.globalFont), Gladius.db.timerSoonFontSize, "OUTLINE")
          frame:SetTextColor(Gladius.db.timerSoonFontColor.r, Gladius.db.timerSoonFontColor.g, Gladius.db.timerSoonFontColor.b, Gladius.db.timerSoonFontColor.a)
@@ -64,7 +70,7 @@ function Timer:SetFormattedNumber(frame, number)
          if (number == 0) then
             frame:SetText("")
          else         
-            frame:SetText(string.format("%.1f", number))
+            frame:SetText(strformat("%.1f", number))
          end
       end
    end  
@@ -80,7 +86,7 @@ function Timer:SetTimer(frame, duration, start)
    
    self:SetFormattedNumber(self.frames[frameName].text, duration)
    
-   self.frames[frameName].duration = duration
+   self.frames[frameName].duration = duration - (GetTime() - start)
    self.frames[frameName].text:SetAlpha(1)
    
    _G[frameName .. "Cooldown"]:SetCooldown(start, duration)
@@ -104,6 +110,8 @@ function Timer:HideTimer(frame)
    if (not self.frames) then return end
 
    local frameName = frame:GetName()
+   
+   _G[frameName .. "Cooldown"]:SetCooldown(0, 0)
    
    if (_G[frameName .. "Cooldown"]:IsShown()) then
       _G[frameName .. "Cooldown"]:SetAlpha(0)

@@ -5,6 +5,11 @@ end
 local L = Gladius.L
 local LSM
 
+-- global functions
+local strfind = string.find
+local pairs = pairs
+local UnitHealth, UnitHealthMax, UnitClass = UnitHealth, UnitHealthMax, UnitClass
+
 local HealthBar = Gladius:NewModule("HealthBar", true, true, {
    healthBarAttachTo = "Frame",
    
@@ -53,7 +58,7 @@ function HealthBar:OnEnable()
    LSM = Gladius.LSM
    
    -- set frame type
-   if (Gladius.db.healthBarAttachTo == "Frame" or Gladius.db.healthBarRelativePoint:find("BOTTOM")) then
+   if (Gladius.db.healthBarAttachTo == "Frame" or strfind(Gladius.db.healthBarRelativePoint, "BOTTOM")) then
       self.isBar = true
    else
       self.isBar = false
@@ -81,7 +86,7 @@ function HealthBar:GetFrame(unit)
 end
 
 function HealthBar:UNIT_HEALTH(event, unit)
-   if (not unit:find("arena") or unit:find("pet")) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet")) then return end
    
    local health, maxHealth = UnitHealth(unit), UnitHealthMax(unit)
    self:UpdateHealth(unit, health, maxHealth)
@@ -134,7 +139,7 @@ function HealthBar:Update(unit)
    -- set bar type 
    local parent = Gladius:GetParent(unit, Gladius.db.healthBarAttachTo)
      
-   if (Gladius.db.healthBarAttachTo == "Frame" or Gladius.db.healthBarRelativePoint:find("BOTTOM")) then
+   if (Gladius.db.healthBarAttachTo == "Frame" or strfind(Gladius.db.healthBarRelativePoint, "BOTTOM")) then
       self.isBar = true
    else
       self.isBar = false
@@ -146,7 +151,7 @@ function HealthBar:Update(unit)
    local width = Gladius.db.healthBarAdjustWidth and Gladius.db.barWidth or Gladius.db.healthBarWidth
 	
 	-- add width of the widget if attached to an widget
-	if (Gladius.db.healthBarAttachTo ~= "Frame" and not Gladius.db.healthBarRelativePoint:find("BOTTOM") and Gladius.db.healthBarAdjustWidth) then
+	if (Gladius.db.healthBarAttachTo ~= "Frame" and not strfind(Gladius.db.healthBarRelativePoint,"BOTTOM") and Gladius.db.healthBarAdjustWidth) then
       if (not Gladius:GetModule(Gladius.db.healthBarAttachTo).frame[unit]) then
          Gladius:GetModule(Gladius.db.healthBarAttachTo):Update(unit)
       end
@@ -392,7 +397,7 @@ function HealthBar:GetOptions()
                      set=function(info, value) 
                         local key = info.arg or info[#info]
                         
-                        if (Gladius.db.healthBarRelativePoint:find("BOTTOM")) then
+                        if (strfind(Gladius.db.healthBarRelativePoint, "BOTTOM")) then
                            self.isBar = true
                         else
                            self.isBar = false

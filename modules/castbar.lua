@@ -5,6 +5,12 @@ end
 local L = Gladius.L
 local LSM
 
+-- global functions
+local strfind = string.find
+local pairs = pairs
+local GetTime = GetTime
+local GetSpellInfo, UnitCastingInfo, UnitChannelInfo = GetSpellInfo, UnitCastingInfo, UnitChannelInfo
+
 local CastBar = Gladius:NewModule("CastBar", true, true, {
    castBarAttachTo = "ClassIcon",
    
@@ -91,7 +97,7 @@ function CastBar:GetIndicatorHeight()
 end
 
 function CastBar:UNIT_SPELLCAST_START(event, unit)
-   if (not unit:find("arena") or unit:find("pet")) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet")) then return end
    
 	local spell, rank, displayName, icon, startTime, endTime, isTradeSkill = UnitCastingInfo(unit)
 	if (spell) then
@@ -112,7 +118,7 @@ function CastBar:UNIT_SPELLCAST_START(event, unit)
 end
 
 function CastBar:UNIT_SPELLCAST_CHANNEL_START(event, unit)
-   if (not unit:find("arena") or unit:find("pet")) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet")) then return end
    
 	local spell, rank, displayName, icon, startTime, endTime, isTradeSkill = UnitChannelInfo(unit)	
 	if (spell) then
@@ -133,12 +139,12 @@ function CastBar:UNIT_SPELLCAST_CHANNEL_START(event, unit)
 end
 
 function CastBar:UNIT_SPELLCAST_STOP(event, unit)
-   if (not unit:find("arena") or unit:find("pet")) then return end   
+   if (not strfind(unit, "arena") or strfind(unit, "pet")) then return end   
    self:CastEnd(self.frame[unit])
 end
 
 function CastBar:UNIT_SPELLCAST_DELAYED(event, unit)
-   if (not unit:find("arena") or unit:find("pet")) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet")) then return end
    
    local spell, rank, displayName, icon, startTime, endTime, isTradeSkill
    if (event == "UNIT_SPELLCAST_DELAYED") then
@@ -248,13 +254,13 @@ function CastBar:Update(unit)
    self.frame[unit]:SetWidth(width)
 	
 	local offsetX
-   if (not Gladius.db.castBarAnchor:find("RIGHT") and Gladius.db.castBarRelativePoint:find("RIGHT")) then
+   if (not strfind(Gladius.db.castBarAnchor, "RIGHT") and strfind(Gladius.db.castBarRelativePoint, "RIGHT")) then
       offsetX = Gladius.db.castIcon and Gladius.db.castIconPosition == "LEFT" and self.frame[unit]:GetHeight() or 0      
-   elseif (not Gladius.db.castBarAnchor:find("LEFT") and Gladius.db.castBarRelativePoint:find("LEFT")) then
+   elseif (not strfind(Gladius.db.castBarAnchor, "LEFT") and strfind(Gladius.db.castBarRelativePoint, "LEFT")) then
       offsetX = Gladius.db.castIcon and Gladius.db.castIconPosition == "RIGHT" and -self.frame[unit]:GetHeight() or 0      
-   elseif (Gladius.db.castBarAnchor:find("LEFT") and Gladius.db.castBarRelativePoint:find("LEFT")) then
+   elseif (strfind(Gladius.db.castBarAnchor, "LEFT") and strfind(Gladius.db.castBarRelativePoint, "LEFT")) then
       offsetX = Gladius.db.castIcon and Gladius.db.castIconPosition == "LEFT" and self.frame[unit]:GetHeight() or 0      
-   elseif (Gladius.db.castBarAnchor:find("RIGHT") and Gladius.db.castBarRelativePoint:find("RIGHT")) then
+   elseif (strfind(Gladius.db.castBarAnchor, "RIGHT") and strfind(Gladius.db.castBarRelativePoint, "RIGHT")) then
       offsetX = Gladius.db.castIcon and Gladius.db.castIconPosition == "RIGHT" and -self.frame[unit]:GetHeight() or 0      
    end
 	

@@ -5,6 +5,12 @@ end
 local L = Gladius.L
 local LSM
 
+-- global functions
+local strfind = string.find
+local pairs = pairs
+local strformat = string.format
+local UnitName, UnitClass, UnitFactionGroup, UnitLevel = UnitName, UnitClass, UnitFactionGroup, UnitLevel
+
 local Trinket = Gladius:NewModule("Trinket", false, true, {
    trinketAttachTo = "Frame",
    trinketAnchor = "TOPLEFT",
@@ -108,7 +114,7 @@ function Trinket:SetTemplate(template)
 end
 
 function Trinket:UNIT_SPELLCAST_SUCCEEDED(event, unit, spell, rank)
-   if (not unit:find("arena") or unit:find("pet")) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet")) then return end
    
    -- pvp trinket
    if (spell == GetSpellInfo(59752) or spell == GetSpellInfo(42292)) then
@@ -129,7 +135,7 @@ function Trinket:UpdateTrinket(unit, duration)
    
    -- announcement
    if (Gladius.db.announcements.trinket) then
-      Gladius:Call(Gladius.modules.Announcements, "Send", string.format(L["TRINKET USED: %s (%s)"], UnitName(unit) or "test", UnitClass(unit) or "test"), 2, unit)   
+      Gladius:Call(Gladius.modules.Announcements, "Send", strformat(L["TRINKET USED: %s (%s)"], UnitName(unit) or "test", UnitClass(unit) or "test"), 2, unit)   
    end
    
    if (Gladius.db.announcements.trinket or Gladius.db.trinketGridStyleIcon) then
@@ -145,7 +151,7 @@ function Trinket:UpdateTrinket(unit, duration)
             
             -- announcement
             if (Gladius.db.announcements.trinket) then
-               Gladius:Call(Gladius.modules.Announcements, "Send", string.format(L["TRINKET READY: %s (%s)"], UnitName(unit) or "", UnitClass(unit) or ""), 2, unit)
+               Gladius:Call(Gladius.modules.Announcements, "Send", strformat(L["TRINKET READY: %s (%s)"], UnitName(unit) or "", UnitClass(unit) or ""), 2, unit)
             end
             
             self.frame[unit]:SetScript("OnUpdate", nil)
@@ -216,7 +222,7 @@ function Trinket:Update(unit)
    if (self:GetAttachTo() == "Frame") then
       local left, right, top, bottom = Gladius.buttons[unit]:GetHitRectInsets()
       
-      if (Gladius.db.trinketRelativePoint:find("LEFT")) then
+      if (strfind(Gladius.db.trinketRelativePoint, "LEFT")) then
          left = -self.frame[unit]:GetWidth() + Gladius.db.trinketOffsetX
       else
          right = -self.frame[unit]:GetWidth() + -Gladius.db.trinketOffsetX
@@ -227,9 +233,9 @@ function Trinket:Update(unit)
          if (module.attachTo and module:GetAttachTo() == self.name and module.frame and module.frame[unit]) then
             local attachedPoint = module.frame[unit]:GetPoint()
             
-            if (Gladius.db.trinketRelativePoint:find("LEFT") and (not attachedPoint or (attachedPoint and attachedPoint:find("RIGHT")))) then
+            if (strfind(Gladius.db.trinketRelativePoint, "LEFT") and (not attachedPoint or (attachedPoint and strfind(attachedPoint, "RIGHT")))) then
                left = left - module.frame[unit]:GetWidth()
-            elseif (Gladius.db.trinketRelativePoint:find("RIGHT") and (not attachedPoint or (attachedPoint and attachedPoint:find("LEFT")))) then
+            elseif (strfind(Gladius.db.trinketRelativePoint, "RIGHT") and (not attachedPoint or (attachedPoint and strfind(attachedPoint, "LEFT")))) then
                right = right - module.frame[unit]:GetWidth()
             end
          end
@@ -537,7 +543,7 @@ function Trinket:GetOptions()
                      name=L["Trinket Position"],
                      desc=L["Position of the trinket"],
                      values={ ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"] },
-                     get=function() return Gladius.db.trinketAnchor:find("RIGHT") and "LEFT" or "RIGHT" end,
+                     get=function() return strfind(Gladius.db.trinketAnchor, "RIGHT") and "LEFT" or "RIGHT" end,
                      set=function(info, value)
                         if (value == "LEFT") then
                            Gladius.db.trinketAnchor = "TOPRIGHT"
