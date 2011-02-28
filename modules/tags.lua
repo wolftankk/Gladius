@@ -12,10 +12,10 @@ local pairs = pairs
 local strgsub = string.gsub
 local strformat = string.format
 
-local UnitName, UnitIsDeadOrGhost, LOCALIZED_CLASS_NAMES_MALE
-local UnitClass, UnitRace
-local UnitHealth, UnitHealthMax
-local UnitPower, UnitPowerMax
+local UnitName, UnitIsDeadOrGhost, LOCALIZED_CLASS_NAMES_MALE = UnitName, UnitIsDeadOrGhost, LOCALIZED_CLASS_NAMES_MALE
+local UnitClass, UnitRace = UnitClass, UnitRace
+local UnitHealth, UnitHealthMax = UnitHealth, UnitHealthMax
+local UnitPower, UnitPowerMax = UnitPower, UnitPowerMax
 
 local Tags = Gladius:NewModule("Tags", false, false, {
    tagsTexts = {
