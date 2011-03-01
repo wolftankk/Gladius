@@ -10,6 +10,7 @@ local strfind = string.find
 local pairs = pairs
 local GetTime = GetTime
 local GetSpellInfo, UnitAura, UnitClass = GetSpellInfo, UnitAura, UnitClass
+local CLASS_BUTTONS = CLASS_BUTTONS
 
 local ClassIcon = Gladius:NewModule("ClassIcon", false, true, {
    classIconAttachTo = "Frame",

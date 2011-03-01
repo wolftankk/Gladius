@@ -399,7 +399,9 @@ function Auras:Show(unit)
    end
 end
 
-function Auras:Reset(unit)   
+function Auras:Reset(unit)  
+   if (not self.frame[unit]) then return end
+ 
    -- hide buff frame
 	self.buffFrame[unit]:SetAlpha(0)
 	
