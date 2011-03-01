@@ -400,22 +400,24 @@ function Auras:Show(unit)
 end
 
 function Auras:Reset(unit)  
-   if (not self.frame[unit]) then return end
- 
-   -- hide buff frame
-	self.buffFrame[unit]:SetAlpha(0)
-	
-	for i=1, 40 do
-      self.buffFrame[unit][i].texture:SetTexture()
-      self.buffFrame[unit][i]:SetAlpha(0)
+   if (self.buffFrame[unit]) then 
+      -- hide buff frame
+      self.buffFrame[unit]:SetAlpha(0)
+      
+      for i=1, 40 do
+         self.buffFrame[unit][i].texture:SetTexture()
+         self.buffFrame[unit][i]:SetAlpha(0)
+      end
    end
    
-   -- hide debuff frame
-	self.buffFrame[unit]:SetAlpha(0)
-	
-	for i=1, 40 do
-      self.debuffFrame[unit][i].texture:SetTexture()
-      self.debuffFrame[unit][i]:SetAlpha(0)
+   if (self.debuffFrame[unit]) then 
+      -- hide debuff frame
+      self.debuffFrame[unit]:SetAlpha(0)
+      
+      for i=1, 40 do
+         self.debuffFrame[unit][i].texture:SetTexture()
+         self.debuffFrame[unit][i]:SetAlpha(0)
+      end
    end
 end
 

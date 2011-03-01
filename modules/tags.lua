@@ -10,6 +10,7 @@ local LSM
 local strfind = string.find
 local pairs = pairs
 local strgsub = string.gsub
+local strgmatch = string.gmatch
 local strformat = string.format
 
 local UnitName, UnitIsDeadOrGhost, LOCALIZED_CLASS_NAMES_MALE = UnitName, UnitIsDeadOrGhost, LOCALIZED_CLASS_NAMES_MALE
@@ -207,7 +208,7 @@ function Tags:UpdateText(unit, text)
    -- update tag
    local tagText = Gladius.db.tagsTexts[text].text
    
-   for tag in Gladius.db.tagsTexts[text].text:gmatch("%[(.-)%]") do
+   for tag in strgmatch(Gladius.db.tagsTexts[text].text, "%[(.-)%]") do
       if (Gladius.db.tags[tag]) then
          local escapedText
          
