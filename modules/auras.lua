@@ -296,10 +296,10 @@ function Auras:Update(unit)
          self.buffFrame[unit][i].normalTexture:SetVertexColor(Gladius.db.aurasBuffsGlossColor.r, Gladius.db.aurasBuffsGlossColor.g, 
             Gladius.db.aurasBuffsGlossColor.b, Gladius.db.aurasBuffsGloss and Gladius.db.aurasBuffsGlossColor.a or 0)
       end
-   end
-
-   -- hide
-   self.buffFrame[unit]:SetAlpha(0)
+      
+      -- hide
+      self.buffFrame[unit]:SetAlpha(0)
+   end  
    
    -- update debuff frame 
    if (Gladius.db.aurasDebuffs) then  
@@ -368,10 +368,10 @@ function Auras:Update(unit)
          self.debuffFrame[unit][i].normalTexture:SetVertexColor(Gladius.db.aurasDebuffsGlossColor.r, Gladius.db.aurasDebuffsGlossColor.g, 
             Gladius.db.aurasDebuffsGlossColor.b, Gladius.db.aurasDebuffsGloss and Gladius.db.aurasDebuffsGlossColor.a or 0)
       end
+      
+      -- hide
+      self.debuffFrame[unit]:SetAlpha(0)
    end
-
-   -- hide
-   self.debuffFrame[unit]:SetAlpha(0)
    
    -- event
    if (not Gladius.db.aurasDebuffs and not Gladius.db.aurasBuffs) then
