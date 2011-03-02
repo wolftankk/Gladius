@@ -93,7 +93,7 @@ end
 
 local DRINK_SPELL = GetSpellInfo(57073)
 function Announcements:UNIT_AURA(event, unit)
-   if (not strfind(unit, "arena") or strfind(unit, "pet") or not Gladius.db.announcements.drink) then return end
+   if (not strfind(unit, "arena") or strfind(unit, "pet") or not Gladius.db.announcements.drinks) then return end
    
    if (UnitAura(unit, DRINK_SPELL)) then
       self:Send(string.format(L["DRINKING: %s (%s)"], UnitName(unit), UnitClass(unit)), 2, unit)

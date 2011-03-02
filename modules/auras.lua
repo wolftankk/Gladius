@@ -385,17 +385,21 @@ function Auras:Show(unit)
    local testing = Gladius.test
       
    -- show buff frame
-   self.buffFrame[unit]:SetAlpha(1)
-   
-   for i=1, Gladius.db.aurasBuffsMax do
-      self.buffFrame[unit][i]:SetAlpha(1)
+   if (self.buffFrame[unit]) then 
+      self.buffFrame[unit]:SetAlpha(1)
+      
+      for i=1, Gladius.db.aurasBuffsMax do
+         self.buffFrame[unit][i]:SetAlpha(1)
+      end
    end
    
    -- show debuff frame
-   self.debuffFrame[unit]:SetAlpha(1)
-   
-   for i=1, Gladius.db.aurasDebuffsMax do
-      self.debuffFrame[unit][i]:SetAlpha(1)
+   if (self.debuffFrame[unit]) then
+      self.debuffFrame[unit]:SetAlpha(1)
+      
+      for i=1, Gladius.db.aurasDebuffsMax do
+         self.debuffFrame[unit][i]:SetAlpha(1)
+      end
    end
 end
 
@@ -405,7 +409,7 @@ function Auras:Reset(unit)
       self.buffFrame[unit]:SetAlpha(0)
       
       for i=1, 40 do
-         self.buffFrame[unit][i].texture:SetTexture()
+         self.buffFrame[unit][i].texture:SetTexture("")
          self.buffFrame[unit][i]:SetAlpha(0)
       end
    end
@@ -415,7 +419,7 @@ function Auras:Reset(unit)
       self.debuffFrame[unit]:SetAlpha(0)
       
       for i=1, 40 do
-         self.debuffFrame[unit][i].texture:SetTexture()
+         self.debuffFrame[unit][i].texture:SetTexture("")
          self.debuffFrame[unit][i]:SetAlpha(0)
       end
    end
