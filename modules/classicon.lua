@@ -165,8 +165,6 @@ function ClassIcon:SetClassIcon(unit)
       end
       
       self.frame[unit].texture:SetTexCoord(left, right, top, bottom)
-   else
-      self.frame[unit].texture:SetTexture("")
    end
 end
 
@@ -308,6 +306,9 @@ function ClassIcon:Reset(unit)
    
    -- reset cooldown
    self.frame[unit].cooldown:SetCooldown(GetTime(), 0)
+   
+   -- reset texture
+   self.frame[unit].texture:SetTexture("")
    
    -- hide
 	self.frame[unit]:SetAlpha(0)

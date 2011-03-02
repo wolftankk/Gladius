@@ -142,8 +142,6 @@ function TargetBar:SetClassIcon(unit)
       end
 
       self.frame[unit].icon:SetTexCoord(left, right, top, bottom)
-   else
-      self.frame[unit].icon:SetTexture("")
    end
 end
 
@@ -394,9 +392,14 @@ function TargetBar:Show(unit)
 end
 
 function TargetBar:Reset(unit)
+   if (not self.frame[unit]) then return end
+
    -- reset bar
    self.frame[unit]:SetMinMaxValues(0, 1)
    self.frame[unit]:SetValue(1)
+   
+   -- reset texture
+   self.frame[unit].icon:SetTexture("")
    
    -- hide
 	self.frame[unit].frame:SetAlpha(0)
