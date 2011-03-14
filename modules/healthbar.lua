@@ -254,6 +254,8 @@ function HealthBar:Show(unit)
 end
 
 function HealthBar:Reset(unit)
+   if (not self.frame[unit]) then return end
+
    -- reset bar
    self.frame[unit]:SetMinMaxValues(0, 1)
    self.frame[unit]:SetValue(1)

@@ -427,13 +427,17 @@ end
 
 function Auras:Test(unit)   
    -- test buff frame
-   for i=1, Gladius.db.aurasBuffsMax do
-      self.buffFrame[unit][i].texture:SetTexture(GetSpellTexture(21562))
+   if (self.buffFrame[unit]) then
+      for i=1, Gladius.db.aurasBuffsMax do
+         self.buffFrame[unit][i].texture:SetTexture(GetSpellTexture(21562))
+      end
    end
    
    -- test debuff frame
-   for i=1, Gladius.db.aurasDebuffsMax do
-      self.debuffFrame[unit][i].texture:SetTexture(GetSpellTexture(589))
+   if (self.debuffFrame[unit]) then
+      for i=1, Gladius.db.aurasDebuffsMax do
+         self.debuffFrame[unit][i].texture:SetTexture(GetSpellTexture(589))
+      end
    end
 end
 
@@ -1095,7 +1099,7 @@ function Auras:GetAuraList()
 		[GetSpellInfo(85285)]   = 1,  -- Rebuke
 		[GetSpellInfo(85388)]   = 1,  -- Throwdown
 		[GetSpellInfo(80964)]   = 1,  -- Skull Bash
-		[GetSpellInfo(703)]     = 1,  -- Garrot 
+		[GetSpellInfo(703)]     = 1,  -- Garrote
 				
 		-- Disarms
 		[GetSpellInfo(676)] 	   = 1, 	-- Disarm
@@ -1122,9 +1126,10 @@ function Auras:GetAuraList()
 		[GetSpellInfo(76577)]   = 1, -- Smoke Bomb
 		[GetSpellInfo(74001)]   = 1, -- Combat Readiness
 		[GetSpellInfo(49039)]   = 1, -- Lichborn
+		[GetSpellInfo(47585)] = 1, -- Dispersion
 		
 		-- Immunities
-		[GetSpellInfo(34692)] 	= 2, 	-- The Beast Within
+		[GetSpellInfo(34692)] 	= 1, 	-- The Beast Within
 		[GetSpellInfo(45438)] 	= 2, 	-- Ice Block
 		[GetSpellInfo(642)] 	= 2,	-- Divine Shield
 	}, {
