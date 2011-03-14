@@ -45,6 +45,8 @@ function TargetBar:OnEnable()
    self:RegisterEvent("UNIT_HEALTH")
    self:RegisterEvent("UNIT_MAXHEALTH", "UNIT_HEALTH")
    
+   self:RegisterEvent("UNIT_TARGET")
+   
    LSM = Gladius.LSM
    
    -- set frame type
@@ -143,6 +145,10 @@ function TargetBar:SetClassIcon(unit)
 
       self.frame[unit].icon:SetTexCoord(left, right, top, bottom)
    end
+end
+
+function TargetBar:UNIT_TARGET(event, unit)
+   self:SetClassIcon(unit)
 end
 
 function TargetBar:UNIT_HEALTH(event, unit)
