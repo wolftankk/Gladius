@@ -41,6 +41,7 @@ function ClassIcon:OnEnable()
    end
 
    Gladius.db.auraVersion = self.version
+   Gladius.db.aurasFrameAuras = Gladius.db.aurasFrameAuras or Gladius.modules["Auras"]:GetAuraList()
 end
 
 function ClassIcon:OnDisable()
