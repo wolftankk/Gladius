@@ -186,7 +186,7 @@ function DRTracker:SortIcons(unit)
    end
 end
 
-function DRTracker:COMBAT_LOG_EVENT_UNFILTERED(event, timestamp, eventType, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags, spellID, spellName, spellSchool, auraType)
+function DRTracker:COMBAT_LOG_EVENT_UNFILTERED(event, timestamp, eventType, hideCaster, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags, spellID, spellName, spellSchool, auraType)
    local unit
    for u, _ in pairs(Gladius.buttons) do
       if (UnitGUID(u) == destGUID) then
