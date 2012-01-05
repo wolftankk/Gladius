@@ -1,4 +1,4 @@
-﻿-- global functions
+-- global functions
 local type = type
 local pairs = pairs
 local strfind = string.find
@@ -31,6 +31,7 @@ local L
 
 function Gladius:Call(handler, func, ...)
    -- module disabled, return   
+   if not handler then return end
    if (not handler.IsEnabled) then
       return
    end
@@ -335,6 +336,8 @@ function Gladius:ZONE_CHANGED_NEW_AREA()
 		self:LeftArena()
 	end
 	
+	--rest voicealerts
+	self:Call(self.modules.Alerts, "Reset");
 	self.instanceType = type
 end
 

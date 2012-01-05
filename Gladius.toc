@@ -1,4 +1,4 @@
-﻿## Interface: 40000
+## Interface: 40300
 ## X-Compatible-With: 40000
 ## Title: Gladius
 ## Notes: Arena enemy unit frames
@@ -13,8 +13,8 @@ embeds.xml
 
 Gladius.lua
 
-localization\deDE.lua
 localization\enUS.lua
+localization\zhCN.lua
 
 options.lua
 speclist.lua
@@ -22,6 +22,7 @@ speclist.lua
 modules\healthbar.lua
 modules\powerbar.lua
 modules\castbar.lua
+modules\voicealerts.lua
 modules\auras.lua
 modules\classicon.lua
 modules\trinket.lua

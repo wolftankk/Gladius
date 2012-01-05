@@ -153,6 +153,11 @@ function Trinket:UpdateTrinket(unit, duration)
             if (Gladius.db.announcements.trinket) then
                Gladius:Call(Gladius.modules.Announcements, "Send", strformat(L["TRINKET READY: %s (%s)"], UnitName(unit) or "", UnitClass(unit) or ""), 2, unit)
             end
+
+			--alerts  trinket/wotf
+			Gladius:Call(Gladius.modules.Alerts, "Alert", "trinketAvailable", UnitGUID(unit));
+			--Alerts:Alert("trinketAvailable", UnitGUID(unit));
+			--need wotf
             
             self.frame[unit]:SetScript("OnUpdate", nil)
          end

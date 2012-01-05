@@ -48,6 +48,7 @@ local Auras = Gladius:NewModule("Auras", false, true, {
    aurasFrameAuras = nil,
 }, {"Bottom Single Row"})
 
+
 function Auras:OnEnable()   
    self:RegisterEvent("UNIT_AURA")
    
@@ -120,34 +121,42 @@ function Auras:UNIT_AURA(event, unit)
    if (not strfind(unit, "arena") or strfind(unit, "pet")) then return end
    
    -- buff frame
-   for i=1, 40 do
-      local name, rank, icon, count, dispelType, duration, expires, caster, isStealable = UnitAura(unit, i, "HELPFUL")      
-      if (not self.buffFrame[unit][i]) then break end
-      
-      if (name) then       
-         self.buffFrame[unit][i].texture:SetTexture(icon)
-         Gladius:Call(Gladius.modules.Timer, "SetTimer", self.buffFrame[unit][i], duration)  
-         
-         self.buffFrame[unit][i]:SetAlpha(1)
-      else
-         self.buffFrame[unit][i]:SetAlpha(0)
-      end
+   if Gladius.db.aurasBuffs then
+	   for i=1, 40 do
+		  local name, rank, icon, count, dispelType, duration, expires, caster, isStealable = UnitAura(unit, i, "HELPFUL")      
+		  if (not self.buffFrame[unit][i]) then break end
+		  
+		  if (name) then       
+			 self.buffFrame[unit][i].texture:SetTexture(icon)
+			 Gladius:Call(Gladius.modules.Timer, "SetTimer", self.buffFrame[unit][i], duration)  
+			 if name == GetSpellInfo(43183) then
+				Gladius:Call(Gladius.modules.Alerts, "Alert", "drinking", UnitGUID(unit));
+				--Alerts:Alert("drinking", UnitGUID(unit))
+			 end
+
+			 self.buffFrame[unit][i]:SetAlpha(1)
+		  else
+			 self.buffFrame[unit][i]:SetAlpha(0)
+		  end
+	   end
    end
    
    -- debuff frame
-   for i=1, 40 do
-      local name, rank, icon, count, dispelType, duration, expires, caster, isStealable = UnitAura(unit, i, "HARMFUL")
-      
-      if (not self.debuffFrame[unit][i]) then break end
-      
-      if (name) then       
-         self.debuffFrame[unit][i].texture:SetTexture(icon)
-         Gladius:Call(Gladius.modules.Timer, "SetTimer", self.debuffFrame[unit][i], duration)  
-         
-         self.debuffFrame[unit][i]:SetAlpha(1)
-      else
-         self.debuffFrame[unit][i]:SetAlpha(0)
-      end
+   if Gladius.db.aurasDebuffs then
+	   for i=1, 40 do
+		  local name, rank, icon, count, dispelType, duration, expires, caster, isStealable = UnitAura(unit, i, "HARMFUL")
+		  
+		  if (not self.debuffFrame[unit][i]) then break end
+		  
+		  if (name) then       
+			 self.debuffFrame[unit][i].texture:SetTexture(icon)
+			 Gladius:Call(Gladius.modules.Timer, "SetTimer", self.debuffFrame[unit][i], duration)  
+			 
+			 self.debuffFrame[unit][i]:SetAlpha(1)
+		  else
+			 self.debuffFrame[unit][i]:SetAlpha(0)
+		  end
+	   end
    end
 end
 
@@ -183,7 +192,6 @@ function Auras:CreateFrame(unit)
          self.buffFrame[unit][i].normalTexture = _G[self.buffFrame[unit][i]:GetName().."NormalTexture"]
          self.buffFrame[unit][i].cooldown = _G[self.buffFrame[unit][i]:GetName().."Cooldown"]
          self.buffFrame[unit][i].cooldown:SetReverse(false)
-         
          Gladius:Call(Gladius.modules.Timer, "RegisterTimer", self.buffFrame[unit][i])
       end
    end

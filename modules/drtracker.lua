@@ -79,7 +79,11 @@ function DRTracker:UpdateIcon(unit, drCat)
    tracked.texture = _G[tracked:GetName().."Icon"]
    tracked.normalTexture = _G[tracked:GetName().."NormalTexture"]
    tracked.cooldown = _G[tracked:GetName().."Cooldown"]
-   
+	
+	 --disarm
+	 Gladius:Call(Gladius.modules.Alerts, "Alert", "drExpiration", drCat, UnitGUID(unit));
+	 Gladius:Call(Gladius.modules.Alerts, "Alert", "drExpiration2", drCat, UnitGUID(unit));
+
    -- cooldown
    if (Gladius.db.drTrackerCooldown) then
       tracked.cooldown:Show()
