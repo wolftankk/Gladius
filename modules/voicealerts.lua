@@ -1226,7 +1226,10 @@ function Alerts:Speak(str, class, spell)
 		firstFile = effectAudio[spell];
 	end
 
-	PlaySoundFile("Interface\\AddOns\\Gladius\\sound\\voice\\"..firstFile..".ogg");
+	local locale = GetLocale();
+	local p = (locale == "zhCN" or locale == "zhTW") and "cn" or "en";
+
+	PlaySoundFile("Interface\\AddOns\\Gladius\\sound\\voice\\"..p.."\\"..firstFile..".ogg");
 	if ( rest and rest ~= "" ) then
 		self.restTimer = self:ScheduleTimer("Speak", voiceDurations[firstFile], {rest, class, spell});
 	end
