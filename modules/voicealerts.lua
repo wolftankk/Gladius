@@ -1166,6 +1166,7 @@ function Alerts:CombatAlert(event, reaction, buffType, ...)
 end
 
 function Alerts:Alert(name, ...)
+	if Gladius.instanceType ~= "arena" then return end
 	local alert;
 	if ( type(name) == "number" ) then
 		alert = alerts[name];
